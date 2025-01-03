@@ -1,11 +1,10 @@
 <template>
   <div id="features" class="py-6 px-6 lg:px-20 mt-8 mx-0 lg:mx-20">
     <div class="grid grid-cols-12 gap-4 justify-center">
-      <div class="col-span-12 text-center mt-20 mb-6">
+      <div class="col-span-12 text-center mt-15 mb-6">
         <div class="text-surface-900 dark:text-surface-0 font-normal mb-2 text-4xl">
-          Marvelous Features
+          Chiến dịch gây quỹ nổi bật
         </div>
-        <span class="text-muted-color text-2xl">Placerat in egestas erat...</span>
       </div>
 
       <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 lg:pb-8 mt-6 lg:mt-0">

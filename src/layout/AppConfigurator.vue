@@ -513,7 +513,6 @@ function getPresetExt() {
 }
 
 function updateColors(type, color) {
-  debugger
   if (type === 'primary') {
     layoutConfig.primary = color.name
   } else if (type === 'surface') {

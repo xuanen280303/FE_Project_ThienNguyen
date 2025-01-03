@@ -1,16 +1,18 @@
 <template>
     <div
         id="hero"
-        class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden"
-        style="background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, rgb(238, 239, 175) 0%, rgb(195, 227, 250) 100%); clip-path: ellipse(150% 87% at 93% 13%)"
+        class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden h-screen"
+        style="     background-image: url('/public/Image/home.png'); background-size: cover; background-position: center;
+        clip-path: ellipse(150% 87% at 93% 13%)"
     >
-        <div class="mx-6 md:mx-20 mt-0 md:mt-6">
-            <h1 class="text-6xl font-bold text-gray-900 leading-tight"><span class="font-light block">Eu sem integer</span>eget magna fermentum</h1>
-            <p class="font-normal text-2xl leading-normal md:mt-4 text-gray-700">Sed blandit libero volutpat sed cras. Fames ac turpis egestas integer. Placerat in egestas erat...</p>
-            <Button label="Get Started" as="router-link" to="/" rounded class="!text-xl mt-8 !px-4"></Button>
+        <div class="mx-6 md:mx-20 mt-0 md:mt-16 bg-surface-0 dark:bg-surface-900 lg:w-[700px] w-full p-2 px-3 rounded-full h-[75px]">
+            <div >
+              <h2 class="text-center text-orange-500 text-base font-bold">THAM GIA CÙNG CHÚNG TÔI</h2>
+              <p class="text-center">
+                Chúng tôi tin rằng mỗi hành động sẻ chia là một tia sáng, nhưng một tia sáng hợp lại có thể trở thành ánh mặt trời thắp sáng cả cuộc đời. Và ánh sáng ấy đến từ những trái tim yêu thương trong mỗi chúng ta.
+              </p>
+            </div>
         </div>
-        <div class="flex justify-center md:justify-end">
-            <img src="/demo/images/landing/screen-1.png" alt="Hero Image" class="w-9/12 md:w-auto" />
-        </div>
+
     </div>
 </template>
