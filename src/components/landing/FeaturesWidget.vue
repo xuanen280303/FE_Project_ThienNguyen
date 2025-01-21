@@ -50,20 +50,56 @@
                     </template>
                 </Carousel>
             </div>
-            <div class="col-span-12 text-center mt-15 mb-6">
-                <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono">Đồng hành cùng cộng đồng thiện nguyện minh bạch từ năm 2021</div>
-            </div>
-            <div
-                class="col-span-12 mt-20 mb-20 p-2 md:p-20"
-                style="border-radius: 20px; background: linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, #efe1af 0%, #c3dcfa 100%)"
-            >
-                <div class="flex flex-col justify-center items-center text-center px-4 py-4 md:py-0">
-                    <div class="text-gray-900 mb-2 text-3xl font-semibold">Joséphine Miller</div>
-                    <span class="text-gray-600 text-2xl">Peak Interactive</span>
-                    <p class="text-gray-900 sm:line-height-2 md:line-height-4 text-2xl mt-6" style="max-width: 800px">
-                        “Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.”
-                    </p>
-                    <img src="/demo/images/landing/peak-logo.svg" class="mt-6" alt="Company logo" />
+            <div class="col-span-12 text-center mt-15 mb-6 flex justify-center flex-wrap gap-4">
+                <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono w-1/2">Đồng hành cùng cộng đồng thiện nguyện minh bạch từ năm 2021</div>
+                <div class="w-full flex gap-20">
+                    <div class="w-1/3">
+                        <img src="../../assets/Img/Home/achievement.png" alt="" />
+                    </div>
+                    <div class="w-2/3 flex flex-wrap content-center gap-y-24">
+                        <div class="w-1/3 flex gap-2">
+                            <div class="w-[12px] h-[12px] rounded-full bg-[#999EF5] mt-3"></div>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-medium text-start">Tổ chức</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">233</span>
+                            </div>
+                        </div>
+                        <div class="w-1/3 flex gap-2">
+                            <div class="w-[12px] h-[12px] rounded-full bg-[#18CBD7] mt-3"></div>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-medium text-start">Cá nhân</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">1.228</span>
+                            </div>
+                        </div>
+                        <div class="w-1/3 flex gap-2">
+                            <div class="w-[12px] h-[12px] rounded-full bg-[#FF6D6D] mt-3"></div>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-medium text-start">Chiến dịch</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">6.052</span>
+                            </div>
+                        </div>
+                        <div class="w-1/3 flex gap-2">
+                            <div class="w-[12px] h-[12px] rounded-full bg-[#0DA059] mt-3"></div>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-medium text-start">Thành viên</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">1.382.560</span>
+                            </div>
+                        </div>
+                        <div class="w-1/3 flex gap-2">
+                            <div class="w-[12px] h-[12px] rounded-full bg-[#FF9D2E] mt-3"></div>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-medium text-start">Lượt ủng hộ</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">2.298.906</span>
+                            </div>
+                        </div>
+                        <div class="w-1/3 flex gap-2">
+                            <div class="w-[12px] h-[12px] rounded-full bg-[#7AB6FC] mt-3"></div>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-medium text-start">Số tiền (tỷ đồng)</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">10.035,28</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
