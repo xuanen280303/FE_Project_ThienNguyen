@@ -116,7 +116,9 @@ function deleteSelectedProducts() {
     selectedProducts.value = null;
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
 }
-
+const showError = () => {
+    toast.add({ severity: 'error', summary: 'Error Message', detail: 'Message Content', life: 3000 });
+};
 function getStatusLabel(status) {
     switch (status) {
         case 'INSTOCK':
@@ -141,6 +143,7 @@ function getStatusLabel(status) {
                 <template #start>
                     <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
                     <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+                    <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="showError" />
                 </template>
 
                 <template #end>
@@ -162,7 +165,7 @@ function getStatusLabel(status) {
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Manage Products</h4>
+                        <h4 class="m-0">Trang quản lý tài khoản</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />

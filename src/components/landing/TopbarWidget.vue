@@ -103,8 +103,8 @@ const items = ref([
         <div class="flex">
             <Menubar :model="items" class="text-base font-medium" />
 
-            <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
-                <Button label="Tạo chiện dịch" severity="warn"></Button>
+            <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 items-center">
+                <Button class="h-9 !rounded-xl" label="Tạo chiện dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
                 <Button label="Đăng nhập" to="/login" as="router-link" text severity="warn"></Button>
             </div>
         </div>

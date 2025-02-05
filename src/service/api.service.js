@@ -17,12 +17,12 @@ class API {
         return response.data;
     }
 
-    async add(patch, params) {
+    async post(patch, params) {
         const response = await this.handleRequest(() => apiClient.post(patch, params));
         return response.data;
     }
 
-    async update(patch, params) {
+    async patch(patch, params) {
         const response = await this.handleRequest(() => apiClient.patch(patch, params));
         return response.data;
     }

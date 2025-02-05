@@ -1,131 +1,91 @@
 <template>
-  <div id="pricing" class="py-6 px-6 lg:px-20 my-2 md:my-6">
-    <div class="text-center mb-6">
-      <div class="text-surface-900 dark:text-surface-0 font-normal mb-2 text-4xl">
-        Matchless Pricing
-      </div>
-      <span class="text-muted-color text-2xl">Amet consectetur adipiscing elit...</span>
+    <div class="w-[95%] lg:w-[80%] mx-auto my-6 lg:my-20">
+        <div class="flex justify-between mb-6 items-end">
+            <div class="font-bold text-[38px]"><span class="bg-[#BCFF1E] text-[#006139] px-5 py-3 rounded-2xl">Sự kiện</span> thiện nguyện</div>
+            <router-link to="/" class="text-gray-500 font-semibold mb-2 text-xl hover:underline">Xem tất cả <i class="pi pi-arrow-right"></i></router-link>
+        </div>
+
+        <div class="grid grid-rows-5 gap-4 grid-cols-12 justify-between mt-20 md:mt-0 bg-[#F7F7F7] rounded-2xl p-8">
+            <div class="row-span-5 col-span-6">
+                <img src="https://placehold.co/500x550" alt="#" class="w-full rounded-2xl mb-6" />
+                <h3 class="font-medium text-gray-700 text-4xl mb-4 line-clamp-2">MB TRAO TẶNG NHÀ ĐẠI ĐOÀN KẾT CHO MỘT HỘ NGHÈO CỦA HUYỆN PHÚ XUYÊN</h3>
+                <div class="text-lg font-medium text-[#6f6f6f]">
+                    <p><i class="pi pi-calendar mb-4"></i> 23/12/2024 - 23/12/2024</p>
+                    <p><i class="pi pi-map-marker"></i> Thôn Lưu Đông, Phúc Túc, Phú Xuyên, Hà Nội.</p>
+                </div>
+            </div>
+            <div class="col-span-6 border-b border-gray-300 flex justify-between pb-5">
+                <div class="w-full">
+                    <title class="line-clamp-2 mb-3 text-[20px] font-[550]">"Áo Ấm Biên Cương: MB Bắc Ninh Chung Tay Vì Học Sinh Vùng Biên Huổi Luông"</title>
+                    <div class="text-base font-medium text-[#6f6f6f]">
+                        <p><i class="pi pi-calendar mb-3"></i> 23/12/2024 - 23/12/2024</p>
+                        <p><i class="pi pi-map-marker"></i> Thôn Lưu Đông, Phúc Túc, Phú Xuyên, Hà Nội.</p>
+                    </div>
+                </div>
+                <div class="min-w-[120px]">
+                    <img src="https://placehold.co/120x120" alt="#" class="w-full rounded-2xl" />
+                </div>
+            </div>
+            <div class="col-span-6 border-b border-gray-300 flex justify-between pb-5">
+                <div class="w-full">
+                    <title class="line-clamp-2 mb-3 text-[20px] font-[550]">"Áo Ấm Biên Cương: MB Bắc Ninh Chung Tay Vì Học Sinh Vùng Biên Huổi Luông"</title>
+                    <div class="text-base font-medium text-[#6f6f6f]">
+                        <p><i class="pi pi-calendar mb-3"></i> 23/12/2024 - 23/12/2024</p>
+                        <p><i class="pi pi-map-marker"></i> Thôn Lưu Đông, Phúc Túc, Phú Xuyên, Hà Nội.</p>
+                    </div>
+                </div>
+                <div class="min-w-[120px]">
+                    <img src="https://placehold.co/120x120" alt="#" class="w-full rounded-2xl" />
+                </div>
+            </div>
+            <div class="col-span-6 border-b border-gray-300 flex justify-between pb-5">
+                <div class="w-full">
+                    <title class="line-clamp-2 mb-3 text-[20px] font-[550]">"Áo Ấm Biên Cương: MB Bắc Ninh Chung Tay Vì Học Sinh Vùng Biên Huổi Luông"</title>
+                    <div class="text-base font-medium text-[#6f6f6f]">
+                        <p><i class="pi pi-calendar mb-3"></i> 23/12/2024 - 23/12/2024</p>
+                        <p><i class="pi pi-map-marker"></i> Thôn Lưu Đông, Phúc Túc, Phú Xuyên, Hà Nội.</p>
+                    </div>
+                </div>
+                <div class="min-w-[120px]">
+                    <img src="https://placehold.co/120x120" alt="#" class="w-full rounded-2xl" />
+                </div>
+            </div>
+            <div class="col-span-6 border-b border-gray-300 flex justify-between pb-5">
+                <div class="w-full">
+                    <title class="line-clamp-2 mb-3 text-[20px] font-[550]">"Áo Ấm Biên Cương: MB Bắc Ninh Chung Tay Vì Học Sinh Vùng Biên Huổi Luông"</title>
+                    <div class="text-base font-medium text-[#6f6f6f]">
+                        <p><i class="pi pi-calendar mb-3"></i> 23/12/2024 - 23/12/2024</p>
+                        <p><i class="pi pi-map-marker"></i> Thôn Lưu Đông, Phúc Túc, Phú Xuyên, Hà Nội.</p>
+                    </div>
+                </div>
+                <div class="min-w-[120px]">
+                    <img src="https://placehold.co/120x120" alt="#" class="w-full rounded-2xl" />
+                </div>
+            </div>
+            <div class="col-span-6 border-b border-gray-300 flex justify-between pb-5">
+                <div class="w-full">
+                    <title class="line-clamp-2 mb-3 text-[20px] font-[550]">"Áo Ấm Biên Cương: MB Bắc Ninh Chung Tay Vì Học Sinh Vùng Biên Huổi Luông"</title>
+                    <div class="text-base font-medium text-[#6f6f6f]">
+                        <p><i class="pi pi-calendar mb-3"></i> 23/12/2024 - 23/12/2024</p>
+                        <p><i class="pi pi-map-marker"></i> Thôn Lưu Đông, Phúc Túc, Phú Xuyên, Hà Nội.</p>
+                    </div>
+                </div>
+                <div class="min-w-[120px]">
+                    <img src="https://placehold.co/120x120" alt="#" class="w-full rounded-2xl" />
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="grid grid-cols-12 gap-4 justify-between mt-20 md:mt-0">
-      <div class="col-span-12 lg:col-span-4 p-0 md:p-4">
-        <div
-          class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all"
-          style="border-radius: 10px"
-        >
-          <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">Free</div>
-          <img src="/demo/images/landing/free.svg" class="w-10/12 mx-auto" alt="free" />
-          <div class="my-8 flex flex-col items-center gap-4">
-            <div class="flex items-center">
-              <span class="text-5xl font-bold mr-2 text-surface-900 dark:text-surface-0">$0</span>
-              <span class="text-surface-600 dark:text-surface-200">per month</span>
-            </div>
-            <Button
-              label="Get Started"
-              class="p-button-rounded border-0 ml-4 font-light leading-tight bg-blue-500 text-white"
-            ></Button>
-          </div>
-          <Divider class="w-full bg-surface-200"></Divider>
-          <ul class="my-8 list-none p-0 flex text-surface-900 dark:text-surface-0 flex-col px-8">
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Responsive Layout</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Unlimited Push Messages</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">50 Support Ticket</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Free Shipping</span>
-            </li>
-          </ul>
+    <div class="mt-20 bg-[#FBFBFB] py-10">
+        <div class="w-[95%] lg:w-[80%] flex mx-auto gap-4">
+            <div class="w-3/12 text-lg font-[550] text-gray-700 pr-10">Được hơn 1463 tổ chức, cá nhân tin dùng</div>
+            <img class="w-9/12" src="../../assets/Img/Home/brand.png" alt="" />
         </div>
-      </div>
-
-      <div class="col-span-12 lg:col-span-4 p-0 md:p-4 mt-6 md:mt-0">
-        <div
-          class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all"
-          style="border-radius: 10px"
-        >
-          <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">Startup</div>
-          <img src="/demo/images/landing/startup.svg" class="w-10/12 mx-auto" alt="startup" />
-          <div class="my-8 flex flex-col items-center gap-4">
-            <div class="flex items-center">
-              <span class="text-5xl font-bold mr-2 text-surface-900 dark:text-surface-0">$1</span>
-              <span class="text-surface-600 dark:text-surface-200">per month</span>
-            </div>
-            <Button
-              label="Get Started"
-              class="p-button-rounded border-0 ml-4 font-light leading-tight bg-blue-500 text-white"
-            ></Button>
-          </div>
-          <Divider class="w-full bg-surface-200"></Divider>
-          <ul class="my-8 list-none p-0 flex text-surface-900 dark:text-surface-0 flex-col px-8">
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Responsive Layout</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Unlimited Push Messages</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">50 Support Ticket</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Free Shipping</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="col-span-12 lg:col-span-4 p-0 md:p-4 mt-6 md:mt-0">
-        <div
-          class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all"
-          style="border-radius: 10px"
-        >
-          <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">
-            Enterprise
-          </div>
-          <img src="/demo/images/landing/enterprise.svg" class="w-10/12 mx-auto" alt="enterprise" />
-          <div class="my-8 flex flex-col items-center gap-4">
-            <div class="flex items-center">
-              <span class="text-5xl font-bold mr-2 text-surface-900 dark:text-surface-0">$5</span>
-              <span class="text-surface-600 dark:text-surface-200">per month</span>
-            </div>
-            <Button
-              label="Get Started"
-              class="p-button-rounded border-0 ml-4 font-light leading-tight bg-blue-500 text-white"
-            ></Button>
-          </div>
-          <Divider class="w-full bg-surface-200"></Divider>
-          <ul class="my-8 list-none p-0 flex text-surface-900 dark:text-surface-0 flex-col px-8">
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Responsive Layout</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Unlimited Push Messages</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">50 Support Ticket</span>
-            </li>
-            <li class="py-2">
-              <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-              <span class="text-xl leading-normal">Free Shipping</span>
-            </li>
-          </ul>
-        </div>
-      </div>
     </div>
-  </div>
+    <div class="mt-20 bg-[#F5F5F5] py-10">
+        <div class="w-[95%] lg:w-[80%] flex mx-auto gap-6 justify-center">
+            <Button label="Khám phá chiến dịch" class="h-[50px] !text-xl !rounded-2xl w-60" :pt:label:class="'!font-semibold'"> </Button>
+            <Button label="Bắt đầu gây quỹ " class="h-[50px] !text-xl !rounded-2xl !bg-[#3841EB] !border-0 w-60" :pt:label:class="'!font-semibold'"> </Button>
+        </div>
+    </div>
 </template>
