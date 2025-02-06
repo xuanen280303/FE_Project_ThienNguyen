@@ -1,7 +1,4 @@
-import { useToast } from 'primevue/usetoast';
-
-const toast = useToast();
-const notification = (severity, title, message) => {
+const notification = (severity, title, message, toast) => {
     const checkSeverity = () => {
         const severityMap = {
             E: 'error',

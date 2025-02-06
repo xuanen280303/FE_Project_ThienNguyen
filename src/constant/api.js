@@ -5,7 +5,6 @@ import axios from 'axios';
 
 export const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_URL + '/api/v1/',
-    headers: tokenService.getToken().header,
     timeout: 15000,
     withCredentials: true
 });

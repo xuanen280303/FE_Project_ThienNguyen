@@ -4,9 +4,7 @@ import AppConfigurator from './layout/AppConfigurator.vue';
 
 <template>
     <Toast />
-
     <AppConfigurator />
-
     <router-view />
 </template>
 

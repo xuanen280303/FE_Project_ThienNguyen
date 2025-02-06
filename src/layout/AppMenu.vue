@@ -8,6 +8,28 @@ const model = ref([
         label: 'Menu',
         items: [
             { label: 'Trang chủ', icon: 'pi pi-fw pi-home', to: '/admin' },
+            {
+                label: 'Quản lý tài khoản',
+                icon: 'pi pi-fw pi-user',
+                items: [
+                    {
+                        label: 'Tài khoản',
+                        icon: 'pi pi-fw pi-user',
+                        to: '/admin/account'
+                    },
+                    {
+                        label: 'Vai trò',
+                        icon: 'pi pi-fw pi-sitemap',
+                        to: '/admin/role'
+                    },
+
+                    {
+                        label: 'Quyền',
+                        icon: 'pi pi-fw pi-lock',
+                        to: '/admin/permission'
+                    }
+                ]
+            },
             { label: 'Media', icon: 'pi pi-fw pi-image', to: '/media' },
             { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/charts' },
             {

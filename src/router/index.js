@@ -35,6 +35,16 @@ const router = createRouter({
                     path: '/crud',
                     name: 'crud',
                     component: () => import('@/views/pages/Crud.vue')
+                },
+                {
+                    path: 'permission',
+                    name: 'permission',
+                    component: () => import('@/views/pages/admin/permission.vue')
+                },
+                {
+                    path: 'role',
+                    name: 'role',
+                    component: () => import('@/views/pages/admin/role.vue')
                 }
             ]
         },
