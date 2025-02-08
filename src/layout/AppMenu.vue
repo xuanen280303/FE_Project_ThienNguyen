@@ -9,13 +9,18 @@ const model = ref([
         items: [
             { label: 'Trang chủ', icon: 'pi pi-fw pi-home', to: '/admin' },
             {
-                label: 'Quản lý tài khoản',
+                label: 'Trang chủ người dùng',
+                icon: 'pi pi-fw pi-globe',
+                to: '/'
+            },
+            {
+                label: 'Quản lý người dùng',
                 icon: 'pi pi-fw pi-user',
                 items: [
                     {
-                        label: 'Tài khoản',
+                        label: 'Người dùng',
                         icon: 'pi pi-fw pi-user',
-                        to: '/admin/account'
+                        to: '/admin/user'
                     },
                     {
                         label: 'Vai trò',
@@ -30,13 +35,15 @@ const model = ref([
                     }
                 ]
             },
+            {
+                label: 'Quản lý chiến dịch',
+                icon: 'pi pi-fw pi-flag-fill',
+                to: '/admin/campaign'
+            },
+
             { label: 'Media', icon: 'pi pi-fw pi-image', to: '/media' },
             { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/charts' },
-            {
-                label: 'Trang chủ người dùng',
-                icon: 'pi pi-fw pi-globe',
-                to: '/'
-            },
+
             {
                 label: 'Auth',
                 icon: 'pi pi-fw pi-user',
@@ -58,11 +65,7 @@ const model = ref([
                     }
                 ]
             },
-            {
-                label: 'Crud',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/crud'
-            },
+
             {
                 label: 'Not Found',
                 icon: 'pi pi-fw pi-exclamation-circle',

@@ -3,20 +3,19 @@ import { format } from 'date-fns';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import Loading from '../../../components/Loading.vue';
+import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
 
 onMounted(async () => {
     isLoading.value = true;
-
     await getAll();
-    await getAllPermission();
     isLoading.value = false;
 });
 
 const toast = useToast();
 const dt = ref();
 const keySearch = ref('');
-const urlApi = 'roles';
+const urlApi = 'campaigns';
 
 const pagination = ref({
     page: 1,
@@ -29,13 +28,12 @@ const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
 const eventData = ref({});
+const dataFileInput = ref(null);
 const deleteDialog = ref(false);
 const valueFilter = ref({
     isActive: null,
     sort: false
 });
-
-const dataGetAllPermission = ref([]);
 
 function openEventDialog() {
     eventData.value = {};
@@ -49,60 +47,28 @@ function hideDialog() {
     submitted.value = false;
     deleteDialog.value = false;
 }
-function getData(prod) {
-    // Tạo Set để lưu trữ các permission duy nhất
-    const uniquePermissions = new Set(prod.permissions);
-    const output = {};
 
-    // Duyệt qua dataGetAllPermission để tìm các permission trùng khớp
-    dataGetAllPermission.value.forEach((group) => {
-        // Đếm số lượng item trùng khớp trong group
-        const matchedItems = group.items.filter((item) => uniquePermissions.has(item._id));
-
-        // Nếu có ít nhất 1 item trùng khớp
-        if (matchedItems.length > 0) {
-            // Nếu tất cả items trong group đều trùng khớp
-            if (matchedItems.length === group.items.length) {
-                output[group._id.toString()] = {
-                    partialChecked: false,
-                    checked: true
-                };
-            } else {
-                // Nếu chỉ trùng một phần
-                output[group._id.toString()] = {
-                    partialChecked: true,
-                    checked: false
-                };
-            }
-        }
-
-        // Thêm các permission con vào output
-        group.items.forEach((item) => {
-            if (uniquePermissions.has(item._id)) {
-                output[item._id] = {
-                    partialChecked: false,
-                    checked: true
-                };
-            }
-        });
-    });
-
-    eventData.value = { ...prod, permissions: output };
+function getDataDetail(prod) {
+    eventData.value = { ...prod, role: prod.role._id, dateOfBirth: prod.dateOfBirth ? format(prod.dateOfBirth, 'dd/MM/yyyy') : null };
     isEventDialog.value = true;
+    avatarData.value = null;
 }
 
-const getSelectedPermissions = (value) => {
-    return Object.entries(value)
-        .filter(([_, value]) => value.checked)
-        .map(([key]) => key)
-        .filter((id) => isNaN(id));
+const uploadFile = async () => {
+    if (!dataFileInput.value) return;
+    try {
+        const res = await apiService.upload(dataFileInput.value, 'campaign');
+        eventData.value.image = res.data.fileName;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
+    }
 };
 
 async function saveData() {
     submitted.value = true;
     isLoadingData.value = true;
     try {
-        eventData.value.permissions = getSelectedPermissions(eventData.value.permissions);
+        await uploadFile();
         if (eventData.value._id) {
             const res = await apiService.patch(urlApi + '/' + eventData.value._id, eventData.value);
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thành công', life: 3000 });
@@ -113,7 +79,7 @@ async function saveData() {
         getAll();
         hideDialog();
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
     } finally {
         isLoadingData.value = false;
     }
@@ -139,14 +105,6 @@ const getAll = async () => {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
     } finally {
         isLoadingData.value = false;
-    }
-};
-const getAllPermission = async () => {
-    try {
-        const res = await apiService.get('permissions/role');
-        dataGetAllPermission.value = res.data.items;
-    } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
     }
 };
 const handlePage = (event) => {
@@ -178,42 +136,11 @@ const deleteProduct = async () => {
     }
 };
 
-const getTagSeverity = (method) => {
-    switch (method) {
-        case 'GET':
-            return 'success';
-        case 'POST':
-            return 'warn';
-        case 'PUT':
-            return 'info';
-        case 'DELETE':
-            return 'danger';
-        case 'PATCH':
-            return 'warning';
-        case 'OPTIONS':
-            return 'info';
-        case 'HEAD':
-            return 'info';
-        default:
-            return 'info';
-    }
-};
-
-const ConvertFatherGrpData = (data) => {
-    if (data) {
-        return data.map((el) => ({
-            key: el._id,
-            data: {
-                _id: el._id,
-                name: el.name || '',
-                method: el.method || '',
-                apiPath: el.apiPath || '',
-                module: el.module || ''
-            },
-            children: ConvertFatherGrpData(el.items) || []
-        }));
-    }
-    return [];
+const imageData = ref(null);
+const UploadFileLocal = async (event) => {
+    const file = event.target.files[0];
+    dataFileInput.value = file;
+    imageData.value = URL.createObjectURL(file);
 };
 </script>
 
@@ -292,7 +219,7 @@ const ConvertFatherGrpData = (data) => {
                 </template>
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0 text-lg font-bold">Trang quản lý vai trò tài khoản</h4>
+                        <h4 class="m-0 text-lg font-bold">Trang quản lý chiến dịch</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -307,20 +234,15 @@ const ConvertFatherGrpData = (data) => {
                         {{ (pagination.page - 1) * pagination.pageSize + slotProps.index + 1 }}
                     </template>
                 </Column>
+                <Column field="image" header="Ảnh chiến dịch" style="min-width: 6rem">
+                    <template #body="slotProps">
+                        <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/150x150'" alt="image" class="w-[90px] h-[90px] object-cover" />
+                    </template>
+                </Column>
 
-                <Column field="name" header="Tên vai trò" style="min-width: 16rem"></Column>
-                <Column header="Số quyền" style="min-width: 5rem">
-                    <template #body="slotProps">
-                        {{ slotProps.data.permissions.length }}
-                    </template>
-                </Column>
-                <Column field="description" header="Mô tả" style="min-width: 16rem"> </Column>
-                <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
-                    <template #body="slotProps">
-                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
-                    </template>
-                </Column>
-                <Column field="isActive" header="Trạng thái" style="min-width: 5rem">
+                <Column field="name" header="Tên chiến dịch" style="min-width: 15rem"></Column>
+                <Column field="description" header="Mô tả" style="min-width: 15rem"></Column>
+                <Column field="isActive" header="Trạng thái" style="min-width: 8rem">
                     <template #body="slotProps">
                         {{ slotProps.data.isActive ? 'Hoạt động' : 'Không hoạt động' }}
                     </template>
@@ -328,37 +250,37 @@ const ConvertFatherGrpData = (data) => {
 
                 <Column :exportable="false" style="min-width: 7rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getData(slotProps.data)" v-tooltip="'Chức năng sửa'" />
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="isEventDialog" :style="{ width: '900px' }" :modal="true">
+        <Dialog v-model:visible="isEventDialog" :style="{ width: '500px' }" :modal="true" maximizable>
             <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData.id ? 'Cập nhật vai trò' : 'Thêm vai trò' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?.id ? 'Cập nhật tài khoản người dùng' : 'Thêm tài khoản người dùng' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
-
-            <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-4">
                 <div>
-                    <label for="name" class="block font-bold mb-3">Tên vai trò</label>
-                    <InputText id="name" v-model.trim="eventData.name" required="true" autofocus :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên vai trò" />
-
-                    <small v-if="submitted && !eventData.name" class="text-red-500">Tên vai trò là bắt buộc.</small>
+                    <label class="block font-bold mb-1">Ảnh chiến dịch</label>
+                    <div class="relative group w-full h-[200px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
+                        <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/200x200')" alt="image" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
+                        </div>
+                    </div>
+                    <input ref="fileInput" type="file" @change="UploadFileLocal" accept="image/*" class="hidden" />
                 </div>
+
                 <div>
-                    <label for="description" class="block font-bold mb-3">Mô tả</label>
+                    <label for="name" class="block font-bold mb-1">Tên chiến dịch</label>
+                    <InputText id="name" v-model.trim="eventData.name" required="true" autofocus fluid placeholder="Tên chiến dịch" />
+                </div>
+
+                <div>
+                    <label for="description" class="block font-bold mb-1">Mô tả</label>
                     <Textarea id="description" v-model.trim="eventData.description" required="true" autofocus fluid placeholder="Vui lòng nhập mô tả" />
-                </div>
-                <div>
-                    <label for="permissions" class="block font-bold mb-3">Chọn quyền</label>
-                    <TreeTable v-model:selectionKeys="eventData.permissions" :value="ConvertFatherGrpData(dataGetAllPermission)" selectionMode="checkbox" tableStyle="min-width: 50rem">
-                        <Column field="name" header="Tên quyền" expander style="width: 35%"></Column>
-                        <Column field="apiPath" header="API" style="width: 40%"></Column>
-                        <Column field="module" header="Mô đun"></Column>
-                        <Column field="method" header="Phương thức"> </Column>
-                    </TreeTable>
                 </div>
             </div>
 

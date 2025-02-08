@@ -11,7 +11,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
             <button class="layout-menu-button layout-topbar-action" @click="toggleMenu">
                 <i class="pi pi-bars"></i>
             </button>
-            <router-link to="/" class="layout-topbar-logo">
+            <router-link to="/admin" class="layout-topbar-logo">
                 <img src="/Image/logo.png" alt="" class="w-56 h-15" />
             </router-link>
         </div>

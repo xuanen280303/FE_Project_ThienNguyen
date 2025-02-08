@@ -32,19 +32,26 @@ const router = createRouter({
                     component: () => import('@/views/uikit/ChartDoc.vue')
                 },
                 {
-                    path: '/crud',
-                    name: 'crud',
-                    component: () => import('@/views/pages/Crud.vue')
+                    path: 'campaign',
+                    name: 'campaign',
+                    component: () => import('@/views/pages/admin/campaign.vue')
                 },
+
                 {
                     path: 'permission',
                     name: 'permission',
                     component: () => import('@/views/pages/admin/permission.vue')
                 },
+
                 {
                     path: 'role',
                     name: 'role',
                     component: () => import('@/views/pages/admin/role.vue')
+                },
+                {
+                    path: 'user',
+                    name: 'user',
+                    component: () => import('@/views/pages/admin/user.vue')
                 }
             ]
         },
