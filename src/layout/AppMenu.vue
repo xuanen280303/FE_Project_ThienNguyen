@@ -1,11 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 
+import { useAuthStore } from '../stores/AuthStore';
 import AppMenuItem from './AppMenuItem.vue';
-
+const authStore = useAuthStore();
 const model = ref([
     {
         label: 'Menu',
+
         items: [
             { label: 'Trang chủ', icon: 'pi pi-fw pi-home', to: '/admin' },
             {
@@ -15,7 +17,7 @@ const model = ref([
             },
             {
                 label: 'Quản lý người dùng',
-                icon: 'pi pi-fw pi-user',
+                icon: 'pi pi-fw pi-users',
                 items: [
                     {
                         label: 'Người dùng',
@@ -36,9 +38,20 @@ const model = ref([
                 ]
             },
             {
-                label: 'Quản lý chiến dịch',
-                icon: 'pi pi-fw pi-flag-fill',
-                to: '/admin/campaign'
+                label: 'Quản lý',
+                icon: 'pi pi-fw pi-sitemap',
+                items: [
+                    {
+                        label: 'Quản lý chiến dịch',
+                        icon: 'pi pi-fw pi-flag-fill',
+                        to: '/admin/campaign'
+                    },
+                    {
+                        label: 'Quản lý dự án',
+                        icon: 'pi pi-fw pi-heart-fill',
+                        to: '/admin/project'
+                    }
+                ]
             },
 
             { label: 'Media', icon: 'pi pi-fw pi-image', to: '/media' },
@@ -75,6 +88,13 @@ const model = ref([
                 label: 'Empty',
                 icon: 'pi pi-fw pi-circle-off',
                 to: '/empty'
+            },
+            {
+                label: 'Đăng xuất',
+                icon: 'pi pi-fw pi-sign-out',
+                command: () => {
+                    authStore.logout();
+                }
             }
         ]
     }

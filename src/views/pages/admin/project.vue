@@ -9,7 +9,6 @@ import parseDate from '../../../utils/parseDate';
 
 onMounted(async () => {
     isLoading.value = true;
-
     await getAll();
     await getAllOption();
     isLoading.value = false;
@@ -18,7 +17,7 @@ onMounted(async () => {
 const toast = useToast();
 const dt = ref();
 const keySearch = ref('');
-const urlApi = 'users';
+const urlApi = 'projects';
 
 const pagination = ref({
     page: 1,
@@ -32,6 +31,7 @@ const submitted = ref(false);
 const isEventDialog = ref(false);
 const eventData = ref({});
 const dataFileInput = ref(null);
+const dataFileInputs = ref([]);
 const deleteDialog = ref(false);
 const valueFilter = ref({
     isActive: null,
@@ -39,8 +39,10 @@ const valueFilter = ref({
 });
 
 const dataGetAllOption = ref({
-    role: []
+    campaign: [],
+    user: []
 });
+
 function openEventDialog() {
     eventData.value = {};
     submitted.value = false;
@@ -130,8 +132,9 @@ const getAll = async () => {
 };
 const getAllOption = async () => {
     try {
-        const res = await apiService.get('roles/getAll');
-        dataGetAllOption.value.role = res.data.items;
+        const [resCampaign, resUser] = await Promise.all([apiService.get('campaigns/getAll'), apiService.get('users/getAll')]);
+        dataGetAllOption.value.campaign = resCampaign.data;
+        dataGetAllOption.value.user = resUser.data;
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
     }
@@ -165,12 +168,50 @@ const deleteProduct = async () => {
     }
 };
 
-const avatarData = ref(null);
-const UploadFileLocal = async (event) => {
-    const file = event.target.files[0];
-    dataFileInput.value = file;
-    avatarData.value = URL.createObjectURL(file);
-    console.log(avatarData.value);
+const inputData = ref(null);
+const inputDatas = ref([]);
+const UploadFileLocal = async (event, images = false) => {
+    debugger;
+    if (images) {
+        const files = Array.from(event.target.files);
+        dataFileInputs.value = files;
+        files.forEach((file) => {
+            inputDatas.value.push(URL.createObjectURL(file));
+        });
+    } else {
+        const file = event.target.files[0];
+        dataFileInput.value = file;
+        inputData.value = URL.createObjectURL(file);
+    }
+};
+
+const getStatus = (status) => {
+    switch (status) {
+        case 'CXN':
+            return 'Chờ xác nhận';
+        case 'DTH':
+            return 'Đang thực hiện';
+        case 'DMT':
+            return 'Đạt mục tiêu';
+        case 'DKT':
+            return 'Đã kết thúc';
+        case 'TD':
+            return 'Tạm dừng';
+        default:
+            return status;
+    }
+};
+const valueStatus = ref([
+    { label: 'Chờ xác nhận', value: 'CXN' },
+    { label: 'Đang thực hiện', value: 'DTH' },
+    { label: 'Đạt mục tiêu', value: 'DMT' },
+    { label: 'Đã kết thúc', value: 'DKT' },
+    { label: 'Tạm dừng', value: 'TD' }
+]);
+
+const removeImage = (index) => {
+    inputDatas.value.splice(index, 1);
+    dataFileInputs.value.splice(index, 1);
 };
 </script>
 
@@ -240,6 +281,7 @@ const UploadFileLocal = async (event) => {
                 :rowsPerPageOptions="[5, 10, 25, 50, 100]"
                 currentPageReportTemplate="Từ {first} đến {last} trong {totalRecords} dữ liệu"
                 :totalRecords="pagination.total"
+                scrollable
                 @page="handlePage($event)"
             >
                 <template #empty>
@@ -249,7 +291,7 @@ const UploadFileLocal = async (event) => {
                 </template>
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0 text-lg font-bold">Trang quản lý tài khoản người dùng</h4>
+                        <h4 class="m-0 text-lg font-bold">Trang quản lý dự án</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -265,28 +307,41 @@ const UploadFileLocal = async (event) => {
                     </template>
                 </Column>
 
-                <Column field="avatar" header="Ảnh đại diện" style="min-width: 8rem">
+                <Column field="avatar" header="Ảnh dự án" style="min-width: 8rem">
                     <template #body="slotProps">
                         <img :src="slotProps.data.avatar ? linkUploads(slotProps.data.avatar) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
                     </template>
                 </Column>
-                <Column field="name" header="Tên người dùng" style="min-width: 13rem"></Column>
-                <Column field="email" header="Email" style="min-width: 10rem"> </Column>
-                <Column field="gender" header="Giới tính" style="min-width: 7rem"> </Column>
-                <Column field="phoneNumber" header="Số điện thoại" style="min-width: 9rem"> </Column>
-                <Column field="role.name" header="Vai trò" style="min-width: 9rem"> </Column>
+                <Column field="name" header="Tên dự án" style="min-width: 14rem"></Column>
+                <Column field="campaign.name" header="Chiến dịch" style="min-width: 8rem"> </Column>
+                <Column field="organization.name" header="Bời" style="min-width: 8rem"> </Column>
+                <Column field="status" header="Trạng thái" style="min-width: 7rem">
+                    <template #body="slotProps">
+                        {{ getStatus(slotProps.data.status) }}
+                    </template>
+                </Column>
+                <Column field="startDate" header="Ngày bắt đầu" style="min-width: 12rem">
+                    <template #body="slotProps">
+                        {{ format(slotProps.data.startDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.startDate, 'HH:mm') }}
+                    </template>
+                </Column>
+                <Column field="endDate" header="Ngày kết thúc" style="min-width: 12rem">
+                    <template #body="slotProps">
+                        {{ format(slotProps.data.endDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.endDate, 'HH:mm') }}
+                    </template>
+                </Column>
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
                     </template>
                 </Column>
-                <Column field="isActive" header="Trạng thái" style="min-width: 8rem">
+                <Column field="isActive" header="Tình trạng" style="min-width: 8rem">
                     <template #body="slotProps">
                         {{ slotProps.data.isActive ? 'Hoạt động' : 'Không hoạt động' }}
                     </template>
                 </Column>
 
-                <Column :exportable="false" style="min-width: 7rem">
+                <Column :exportable="false" style="min-width: 8rem" frozen alignFrozen="right">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
@@ -299,30 +354,58 @@ const UploadFileLocal = async (event) => {
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?.id ? 'Cập nhật tài khoản người dùng' : 'Thêm tài khoản người dùng' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
+            <div class="w-full flex gap-6 mb-4">
+                <div class="w-1/5">
+                    <label class="block font-bold mb-1">Ảnh nổi bật</label>
+                    <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
+                        <img :src="inputData || (eventData.avatar ? linkUploads(eventData.avatar) : 'https://placehold.co/128x128')" alt="avatar" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
+                        </div>
+                    </div>
+                    <input ref="fileInput" type="file" @change="UploadFileLocal" accept="image/*" class="hidden" />
+                </div>
+                <div class="w-4/5 flex gap-3">
+                    <div class="w-1/6">
+                        <label class="block font-bold mb-1">Danh sách ảnh</label>
+                        <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInputs.click()">
+                            <!-- <img src="https://placehold.co/128x128" alt="avatar" class="w-full h-full object-cover" /> -->
+                            <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-100 transition-opacity duration-300">
+                                <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
+                            </div>
+                        </div>
+                        <input ref="fileInputs" type="file" @change="UploadFileLocal($event, true)" accept="image/*" class="hidden" multiple />
+                    </div>
+                    <div class="w-5/6 flex gap-2 overflow-x-auto">
+                        <template v-for="(item, index) in inputDatas" :key="item">
+                            <div class="w-1/5 flex-shrink-0">
+                                <button class="text-red-500 w-full font-bold" v-tooltip="'Xóa ảnh'" @click="removeImage(index)">
+                                    <i class="pi pi-times"></i>
+                                </button>
+
+                                <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer">
+                                    <img :src="item" alt="avatar" class="w-full h-full object-cover" />
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
             <div class="flex w-full gap-6">
                 <div class="flex flex-col gap-4 w-1/2">
                     <div>
-                        <label for="name" class="block font-bold mb-1">Tên người dùng <small class="text-red-500">*</small></label>
-                        <InputText id="name" v-model.trim="eventData.name" autofocus :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên vai trò" />
-                    </div>
-                    <div>
-                        <label for="password" class="block font-bold mb-1">Mật khẩu <small class="text-red-500">*</small></label>
-                        <Password id="password" :toggleMask="true" v-model.trim="eventData.password" autofocus :invalid="submitted && !eventData.password && !eventData._id" fluid placeholder="Vui lòng nhập mật khẩu" />
-                    </div>
-
-                    <div>
-                        <label for="email" class="block font-bold mb-1">Email <small class="text-red-500">*</small></label>
-                        <InputText id="email" v-model.trim="eventData.email" autofocus :invalid="submitted && !eventData.email" fluid placeholder="Vui lòng nhập email" />
+                        <label for="name" class="block font-bold mb-1">Tên dự án <small class="text-red-500">*</small></label>
+                        <InputText id="name" v-model.trim="eventData.name" autofocus :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên dự án" />
                     </div>
                     <div class="flex gap-3 w-full">
                         <div class="w-1/2">
-                            <label for="phoneNumber" class="block font-bold mb-1">Số điện thoại <small class="text-red-500">*</small></label>
-                            <InputText maxlength="11" id="phoneNumber" v-model.trim="eventData.phoneNumber" autofocus :invalid="submitted && !eventData.phoneNumber" fluid placeholder="Vui lòng nhập số điện thoại" />
+                            <label for="gender" class="block font-bold mb-1">Hình thức<small class="text-red-500">*</small></label>
+                            <Select id="type" v-model.trim="eventData.type" :options="['Tổ chức', 'Cá nhân']" autofocus :invalid="submitted && !eventData.type" fluid placeholder="Vui lòng chọn hình thức" />
                         </div>
 
                         <div class="w-1/2">
-                            <label for="gender" class="block font-bold mb-1">Giới tính <small class="text-red-500">*</small></label>
-                            <Select id="gender" v-model.trim="eventData.gender" :options="['Nam', 'Nữ', 'Khác']" autofocus :invalid="submitted && !eventData.gender" fluid placeholder="Vui lòng chọn giới tính" />
+                            <label for="gender" class="block font-bold mb-1">Trạng thái <small class="text-red-500">*</small></label>
+                            <Select id="status" v-model.trim="eventData.status" :options="valueStatus" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
                         </div>
                     </div>
 
@@ -330,60 +413,54 @@ const UploadFileLocal = async (event) => {
                         <label for="role" class="block font-bold mb-1">Vai trò <small class="text-red-500">*</small></label>
                         <Select
                             id="role"
-                            v-model.trim="eventData.role"
-                            :options="dataGetAllOption.role"
+                            v-model.trim="eventData.campaign"
+                            :options="dataGetAllOption.campaign"
                             optionLabel="name"
                             optionValue="_id"
                             required="true"
                             autofocus
-                            :invalid="submitted && !eventData.role"
+                            :invalid="submitted && !eventData.campaign"
+                            filter
                             fluid
-                            placeholder="Vui lòng chọn vai trò"
+                            placeholder="Vui lòng chọn chiến dịch"
                         />
                     </div>
-                    <div>
-                        <label for="address" class="block font-bold mb-1">Địa chỉ</label>
-                        <InputText id="address" v-model.trim="eventData.address" required="true" autofocus fluid placeholder="Vui lòng nhập địa chỉ" />
-                    </div>
                 </div>
-
                 <div class="flex flex-col gap-4 w-1/2">
-                    <div class="flex gap-3 justify-between items-end">
-                        <div class="w-2/3">
-                            <label class="block font-bold mb-1">Link mạng xã hội</label>
-                            <div class="gap-3 w-full flex flex-col gap-2">
-                                <InputText v-model.trim="eventData.linkYoutube" required="true" autofocus fluid placeholder="Youtube" />
-                                <InputText v-model.trim="eventData.linkFacebook" required="true" autofocus fluid placeholder="Facebook" />
-                                <InputText v-model.trim="eventData.linkTiktok" required="true" autofocus fluid placeholder="Tiktok" />
-                            </div>
-                        </div>
-                        <div class="w-1/3">
-                            <label class="block font-bold mb-1">Ảnh đại diện</label>
-                            <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
-                                <img :src="avatarData || (eventData.avatar ? linkUploads(eventData.avatar) : 'https://placehold.co/128x128')" alt="avatar" class="w-full h-full object-cover" />
-                                <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
-                                </div>
-                            </div>
-                            <input ref="fileInput" type="file" @change="UploadFileLocal" accept="image/*" class="hidden" />
-                        </div>
+                    <div>
+                        <label for="goalAmount" class="block font-bold mb-1">Mục tiêu quyên góp <small class="text-red-500">*</small></label>
+                        <InputNumber id="goalAmount" v-model.trim="eventData.goalAmount" autofocus :invalid="submitted && !eventData.goalAmount" fluid placeholder="Vui lòng nhập mục tiêu quyên góp" />
                     </div>
 
                     <div>
-                        <label for="dateOfBirth" class="block font-bold mb-1">Ngày sinh</label>
+                        <label for="datas" class="block font-bold mb-1">Ngày bắt đầu - kết thúc</label>
 
-                        <DatePicker dateFormat="dd/mm/yy" id="dateOfBirth" v-model.trim="eventData.dateOfBirth" required="true" autofocus fluid placeholder="Vui lòng nhập ngày sinh" />
+                        <DatePicker selectionMode="range" :manualInput="false" id="datas" v-model.trim="eventData.dateOfBirth" required="true" autofocus fluid placeholder="Vui lòng nhập ngày sinh" />
                     </div>
 
                     <div>
-                        <label for="description" class="block font-bold mb-1">Mô tả</label>
-                        <Textarea id="description" v-model.trim="eventData.description" required="true" autofocus fluid placeholder="Vui lòng nhập mô tả" class="h-[169px]" />
+                        <label for="organization" class="block font-bold mb-1">Tổ chức kêu gọi <small class="text-red-500">*</small></label>
+                        <Select
+                            id="organization"
+                            v-model.trim="eventData.organization"
+                            :options="dataGetAllOption.user"
+                            optionLabel="name"
+                            optionValue="_id"
+                            required="true"
+                            autofocus
+                            :invalid="submitted && !eventData.organization"
+                            filter
+                            fluid
+                            placeholder="Vui lòng chọn tổ chức kêu gọi"
+                        />
                     </div>
                 </div>
             </div>
+            <div class="w-full flex gap-6 mb-4">Mô tả</div>
 
             <template #footer>
                 <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />
+
                 <Button label="Lưu" icon="pi pi-check" @click="saveData" :loading="isLoadingData" />
             </template>
         </Dialog>

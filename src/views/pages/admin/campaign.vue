@@ -5,7 +5,6 @@ import { onMounted, ref } from 'vue';
 import Loading from '../../../components/Loading.vue';
 import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
-
 onMounted(async () => {
     isLoading.value = true;
     await getAll();
@@ -49,9 +48,9 @@ function hideDialog() {
 }
 
 function getDataDetail(prod) {
-    eventData.value = { ...prod, role: prod.role._id, dateOfBirth: prod.dateOfBirth ? format(prod.dateOfBirth, 'dd/MM/yyyy') : null };
+    eventData.value = { ...prod };
     isEventDialog.value = true;
-    avatarData.value = null;
+    imageData.value = null;
 }
 
 const uploadFile = async () => {
@@ -236,7 +235,7 @@ const UploadFileLocal = async (event) => {
                 </Column>
                 <Column field="image" header="Ảnh chiến dịch" style="min-width: 6rem">
                     <template #body="slotProps">
-                        <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/150x150'" alt="image" class="w-[90px] h-[90px] object-cover" />
+                        <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/150x150'" alt="image" class="rounded-lg w-[90px] h-[90px] object-cover" />
                     </template>
                 </Column>
 
@@ -247,7 +246,11 @@ const UploadFileLocal = async (event) => {
                         {{ slotProps.data.isActive ? 'Hoạt động' : 'Không hoạt động' }}
                     </template>
                 </Column>
-
+                <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
+                    <template #body="slotProps">
+                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
+                    </template>
+                </Column>
                 <Column :exportable="false" style="min-width: 7rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
@@ -257,7 +260,7 @@ const UploadFileLocal = async (event) => {
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="isEventDialog" :style="{ width: '500px' }" :modal="true" maximizable>
+        <Dialog v-model:visible="isEventDialog" :style="{ width: '500px' }" :modal="true">
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?.id ? 'Cập nhật tài khoản người dùng' : 'Thêm tài khoản người dùng' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
@@ -265,7 +268,7 @@ const UploadFileLocal = async (event) => {
                 <div>
                     <label class="block font-bold mb-1">Ảnh chiến dịch</label>
                     <div class="relative group w-full h-[200px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
-                        <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/200x200')" alt="image" class="w-full h-full object-cover" />
+                        <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/400x200')" alt="image" class="w-full h-full object-cover" />
                         <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
                         </div>

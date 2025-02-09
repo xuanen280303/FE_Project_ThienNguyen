@@ -1,4 +1,5 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import { requireAuth } from '@/middleware/authMiddleware';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -15,6 +16,7 @@ const router = createRouter({
         {
             path: '/admin',
             component: AppLayout,
+            beforeEnter: requireAuth,
             children: [
                 {
                     path: '',
@@ -52,6 +54,11 @@ const router = createRouter({
                     path: 'user',
                     name: 'user',
                     component: () => import('@/views/pages/admin/user.vue')
+                },
+                {
+                    path: 'project',
+                    name: 'project',
+                    component: () => import('@/views/pages/admin/project.vue')
                 }
             ]
         },
