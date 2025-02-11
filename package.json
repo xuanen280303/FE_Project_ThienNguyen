@@ -8,16 +8,17 @@
         "lint": "eslint --fix . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
     },
     "dependencies": {
+        "@primevue/themes": "^4.2.4",
+        "@tinymce/tinymce-vue": "^6.1.0",
+        "axios": "^1.7.5",
+        "chart.js": "3.3.2",
+        "date-fns": "^3.6.0",
         "pinia": "^2.3.0",
-        "vue": "^3.5.13",
         "primeicons": "^7.0.0",
         "primevue": "^4.2.4",
-        "axios": "^1.7.5",
-        "date-fns": "^3.6.0",
         "socket.io-client": "^4.8.0",
-        "vue-router": "^4.5.0",
-        "@primevue/themes": "^4.2.4",
-        "chart.js": "3.3.2"
+        "vue": "^3.5.13",
+        "vue-router": "^4.5.0"
     },
     "devDependencies": {
         "@primevue/auto-import-resolver": "^4.2.4",

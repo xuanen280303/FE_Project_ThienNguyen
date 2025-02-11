@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { linkUploads } from '../../constant/api';
+import router from '../../router';
+import accountService from '../../service/account.service';
+import tokenService from '../../service/token.service';
+import { useAuthStore } from '../../stores/AuthStore';
 
+const authStore = useAuthStore();
 function smoothScroll(id: any) {
     document.body.click();
     const element = document.getElementById(id);
@@ -73,6 +79,34 @@ const items = ref([
         ]
     }
 ]);
+const { account } = accountService.getAccount();
+const menu = ref();
+const itemAccount = ref([
+    {
+        label: 'Tài khoản',
+        items: [
+            {
+                label: 'Quản lý',
+                icon: 'pi pi-fw pi-users',
+                command: () => {
+                    router.push('/admin');
+                }
+            },
+            {
+                label: 'Đăng xuất',
+                icon: 'pi pi-sign-out',
+                command: () => {
+                    authStore.logout();
+                    router.push('/');
+                }
+            }
+        ]
+    }
+]);
+
+const toggle = (event) => {
+    menu.value.toggle(event);
+};
 </script>
 
 <template>
@@ -105,7 +139,9 @@ const items = ref([
 
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 items-center">
                 <Button class="h-9 !rounded-xl" label="Tạo chiện dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
-                <Button label="Đăng nhập" to="/login" as="router-link" text severity="warn"></Button>
+                <Button label="Đăng nhập" to="/login" as="router-link" text severity="warn" v-if="!tokenService.getToken().storage"></Button>
+                <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-12 !h-12'" aria-controls="overlay_menu" @click="toggle" v-else />
+                <Menu ref="menu" id="overlay_menu" :model="itemAccount" :popup="true" />
             </div>
         </div>
     </div>

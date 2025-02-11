@@ -53,10 +53,6 @@ const model = ref([
                     }
                 ]
             },
-
-            { label: 'Media', icon: 'pi pi-fw pi-image', to: '/media' },
-            { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/charts' },
-
             {
                 label: 'Auth',
                 icon: 'pi pi-fw pi-user',
@@ -77,17 +73,6 @@ const model = ref([
                         to: '/access'
                     }
                 ]
-            },
-
-            {
-                label: 'Not Found',
-                icon: 'pi pi-fw pi-exclamation-circle',
-                to: '/notfound'
-            },
-            {
-                label: 'Empty',
-                icon: 'pi pi-fw pi-circle-off',
-                to: '/empty'
             },
             {
                 label: 'Đăng xuất',

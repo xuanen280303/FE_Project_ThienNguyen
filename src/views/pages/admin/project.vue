@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import Loading from '../../../components/Loading.vue';
+import RichTextEditor from '../../../components/RichTextEditor.vue';
 import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
 import parseDate from '../../../utils/parseDate';
@@ -51,31 +52,104 @@ function openEventDialog() {
 
 function hideDialog() {
     isEventDialog.value = false;
+    dataFileInputs.value = [];
+    dataFileInput.value = null;
+    inputDatas.value = [];
+    inputData.value = null;
     eventData.value = {};
     submitted.value = false;
     deleteDialog.value = false;
 }
 
 function getDataDetail(prod) {
-    eventData.value = { ...prod, role: prod.role._id, dateOfBirth: prod.dateOfBirth ? format(prod.dateOfBirth, 'dd/MM/yyyy') : null };
+    eventData.value = {
+        ...prod,
+        organization: prod.organization._id,
+        campaign: prod.campaign._id
+    };
     isEventDialog.value = true;
-    avatarData.value = null;
 }
 
 const validate = () => {
-    const phoneRegex = /^0\d{9,10}$/;
-    if (!phoneRegex.test(eventData.value.phoneNumber)) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Số điện thoại bắt đầu bằng số 0 và có 10-11 chữ số', life: 5000 });
-        return false;
+    let isValid = true;
+
+    // Kiểm tra tên dự án
+    if (!eventData.value.name?.trim()) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập tên dự án', life: 3000 });
+        isValid = false;
     }
 
-    return true;
+    // Kiểm tra hình thức
+    if (!eventData.value.type) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn hình thức', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra trạng thái
+    if (!eventData.value.status) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn trạng thái', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra chiến dịch
+    if (!eventData.value.campaign) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn chiến dịch', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra mục tiêu quyên góp
+    if (!eventData.value.goalAmount) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập mục tiêu quyên góp', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra ngày bắt đầu
+    if (!eventData.value.startDate) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn ngày bắt đầu', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra ngày kết thúc
+    if (!eventData.value.endDate) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn ngày kết thúc', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra tổ chức kêu gọi
+    if (!eventData.value.organization) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn tổ chức kêu gọi', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra mô tả
+    if (!eventData.value.description?.trim()) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập mô tả', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra ảnh nổi bật
+    if (!eventData.value.image && !dataFileInput.value) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn ảnh nổi bật', life: 3000 });
+        isValid = false;
+    }
+    // Kiểm tra danh sách ảnh
+    if (eventData.value.listImage?.length === 0 && dataFileInputs.value.length === 0) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn danh sách ảnh', life: 3000 });
+        isValid = false;
+    }
+
+    return isValid;
 };
 const uploadFile = async () => {
-    if (!dataFileInput.value) return;
     try {
-        const res = await apiService.upload(dataFileInput.value, 'users');
-        eventData.value.avatar = res.data.fileName;
+        if (dataFileInput.value) {
+            const res = await apiService.upload(dataFileInput.value, 'projects');
+            eventData.value.image = res.data.fileName;
+        }
+        if (dataFileInputs.value.length > 0) {
+            const resImages = await Promise.all(dataFileInputs.value.map(async (item) => await apiService.upload(item, 'projects')));
+            eventData.value.listImage.push(...resImages.map((item) => item.data.fileName));
+        }
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
     }
@@ -90,7 +164,6 @@ async function saveData() {
     }
     try {
         await uploadFile();
-        eventData.value.password ? eventData.value.password : delete eventData.value.password;
         if (eventData.value._id) {
             const res = await apiService.patch(urlApi + '/' + eventData.value._id, { ...eventData.value, dateOfBirth: parseDate(eventData.value.dateOfBirth) });
 
@@ -213,10 +286,15 @@ const removeImage = (index) => {
     inputDatas.value.splice(index, 1);
     dataFileInputs.value.splice(index, 1);
 };
+
+const removeImageList = (index) => {
+    eventData.value.listImage.splice(index, 1);
+};
 </script>
 
 <template>
     <Loading v-if="isLoading" />
+
     <div>
         <div class="card">
             <Toolbar class="mb-6">
@@ -309,7 +387,7 @@ const removeImage = (index) => {
 
                 <Column field="avatar" header="Ảnh dự án" style="min-width: 8rem">
                     <template #body="slotProps">
-                        <img :src="slotProps.data.avatar ? linkUploads(slotProps.data.avatar) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
+                        <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
                     </template>
                 </Column>
                 <Column field="name" header="Tên dự án" style="min-width: 14rem"></Column>
@@ -322,14 +400,18 @@ const removeImage = (index) => {
                 </Column>
                 <Column field="startDate" header="Ngày bắt đầu" style="min-width: 12rem">
                     <template #body="slotProps">
-                        {{ format(slotProps.data.startDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.startDate, 'HH:mm') }}
+                        {{
+                            slotProps.data.startDate ? format(slotProps.data.startDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.startDate, 'HH:mm') : '--' + ' lúc ' + slotProps.data.startDate ? format(slotProps.data.startDate, 'HH:mm') : '--'
+                        }}
                     </template>
                 </Column>
+
                 <Column field="endDate" header="Ngày kết thúc" style="min-width: 12rem">
                     <template #body="slotProps">
-                        {{ format(slotProps.data.endDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.endDate, 'HH:mm') }}
+                        {{ slotProps.data.endDate ? format(slotProps.data.endDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.endDate, 'HH:mm') : '--' }}
                     </template>
                 </Column>
+
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
@@ -356,9 +438,9 @@ const removeImage = (index) => {
             </template>
             <div class="w-full flex gap-6 mb-4">
                 <div class="w-1/5">
-                    <label class="block font-bold mb-1">Ảnh nổi bật</label>
+                    <label class="block font-bold mb-1">Ảnh nổi bật <small class="text-red-500">*</small></label>
                     <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
-                        <img :src="inputData || (eventData.avatar ? linkUploads(eventData.avatar) : 'https://placehold.co/128x128')" alt="avatar" class="w-full h-full object-cover" />
+                        <img :src="inputData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/128x128')" alt="avatar" class="w-full h-full object-cover" />
                         <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
                         </div>
@@ -367,26 +449,40 @@ const removeImage = (index) => {
                 </div>
                 <div class="w-4/5 flex gap-3">
                     <div class="w-1/6">
-                        <label class="block font-bold mb-1">Danh sách ảnh</label>
+                        <label class="block font-bold mb-1">Danh sách ảnh <small class="text-red-500">*</small></label>
                         <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInputs.click()">
-                            <!-- <img src="https://placehold.co/128x128" alt="avatar" class="w-full h-full object-cover" /> -->
-                            <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-100 transition-opacity duration-300 hover:bg-orange-100">
                                 <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
                             </div>
                         </div>
                         <input ref="fileInputs" type="file" @change="UploadFileLocal($event, true)" accept="image/*" class="hidden" multiple />
                     </div>
                     <div class="w-5/6 flex gap-2 overflow-x-auto">
-                        <template v-for="(item, index) in inputDatas" :key="item">
-                            <div class="w-1/5 flex-shrink-0">
-                                <button class="text-red-500 w-full font-bold" v-tooltip="'Xóa ảnh'" @click="removeImage(index)">
-                                    <i class="pi pi-times"></i>
-                                </button>
+                        <template v-if="inputDatas.length > 0">
+                            <template v-for="(item, index) in inputDatas" :key="item">
+                                <div class="w-1/5 flex-shrink-0">
+                                    <button class="text-red-500 w-full font-bold" v-tooltip="'Xóa ảnh'" @click="removeImage(index)">
+                                        <i class="pi pi-times"></i>
+                                    </button>
 
-                                <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer">
-                                    <img :src="item" alt="avatar" class="w-full h-full object-cover" />
+                                    <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer">
+                                        <img :src="item" alt="avatar" class="w-full h-full object-cover" />
+                                    </div>
                                 </div>
-                            </div>
+                            </template>
+                        </template>
+                        <template v-if="eventData.listImage?.length > 0">
+                            <template v-for="(item, index) in eventData.listImage" :key="item">
+                                <div class="w-1/5 flex-shrink-0">
+                                    <button class="text-red-500 w-full font-bold mb-1" v-tooltip="'Xóa ảnh'" @click="removeImageList(index)">
+                                        <i class="pi pi-times"></i>
+                                    </button>
+
+                                    <div class="relative group w-full h-[131px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer">
+                                        <img :src="linkUploads(item)" alt="avatar" class="w-full h-full object-cover" />
+                                    </div>
+                                </div>
+                            </template>
                         </template>
                     </div>
                 </div>
@@ -410,7 +506,7 @@ const removeImage = (index) => {
                     </div>
 
                     <div>
-                        <label for="role" class="block font-bold mb-1">Vai trò <small class="text-red-500">*</small></label>
+                        <label for="role" class="block font-bold mb-1">Chiến dịch <small class="text-red-500">*</small></label>
                         <Select
                             id="role"
                             v-model.trim="eventData.campaign"
@@ -428,16 +524,42 @@ const removeImage = (index) => {
                 </div>
                 <div class="flex flex-col gap-4 w-1/2">
                     <div>
-                        <label for="goalAmount" class="block font-bold mb-1">Mục tiêu quyên góp <small class="text-red-500">*</small></label>
-                        <InputNumber id="goalAmount" v-model.trim="eventData.goalAmount" autofocus :invalid="submitted && !eventData.goalAmount" fluid placeholder="Vui lòng nhập mục tiêu quyên góp" />
+                        <label for="goalAmount" class="block font-bold mb-1">Mục tiêu quyên góp (VNĐ) <small class="text-red-500">*</small></label>
+                        <InputNumber id="goalAmount" v-model.trim="eventData.goalAmount" :min="1" autofocus :invalid="submitted && !eventData.goalAmount" fluid placeholder="Vui lòng nhập mục tiêu quyên góp" />
                     </div>
 
-                    <div>
-                        <label for="datas" class="block font-bold mb-1">Ngày bắt đầu - kết thúc</label>
+                    <div class="flex gap-3 w-full">
+                        <div class="w-1/2">
+                            <label for="startDate" class="block font-bold mb-1">Ngày bắt đầu <small class="text-red-500">*</small></label>
+                            <DatePicker
+                                id="startDate"
+                                showTime
+                                hourFormat="24"
+                                v-model.trim="eventData.startDate"
+                                :maxDate="eventData.endDate ? new Date(eventData.endDate) : null"
+                                autofocus
+                                :invalid="submitted && !eventData.startDate"
+                                fluid
+                                placeholder="Vui lòng chọn ngày bắt đầu"
+                            />
+                        </div>
 
-                        <DatePicker selectionMode="range" :manualInput="false" id="datas" v-model.trim="eventData.dateOfBirth" required="true" autofocus fluid placeholder="Vui lòng nhập ngày sinh" />
+                        <div class="w-1/2">
+                            <label for="endDate" class="block font-bold mb-1">Ngày kết thúc <small class="text-red-500">*</small></label>
+                            <DatePicker
+                                :disabled="!eventData.startDate"
+                                id="endDate"
+                                showTime
+                                hourFormat="24"
+                                :minDate="eventData.startDate ? new Date(eventData.startDate) : null"
+                                v-model.trim="eventData.endDate"
+                                autofocus
+                                :invalid="submitted && !eventData.endDate"
+                                fluid
+                                placeholder="Vui lòng chọn ngày kết thúc"
+                            />
+                        </div>
                     </div>
-
                     <div>
                         <label for="organization" class="block font-bold mb-1">Tổ chức kêu gọi <small class="text-red-500">*</small></label>
                         <Select
@@ -456,7 +578,12 @@ const removeImage = (index) => {
                     </div>
                 </div>
             </div>
-            <div class="w-full flex gap-6 mb-4">Mô tả</div>
+            <div class="w-full flex gap-6 mb-4 mt-4">
+                <div class="w-full">
+                    <label class="block font-bold mb-1">Mô tả <small class="text-red-500">*</small></label>
+                    <RichTextEditor v-model="eventData.description" />
+                </div>
+            </div>
 
             <template #footer>
                 <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />

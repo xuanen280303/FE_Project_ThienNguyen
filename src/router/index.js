@@ -23,16 +23,7 @@ const router = createRouter({
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
                 },
-                {
-                    path: '/media',
-                    name: 'media',
-                    component: () => import('@/views/uikit/MediaDoc.vue')
-                },
-                {
-                    path: '/charts',
-                    name: 'charts',
-                    component: () => import('@/views/uikit/ChartDoc.vue')
-                },
+
                 {
                     path: 'campaign',
                     name: 'campaign',
@@ -86,8 +77,21 @@ const router = createRouter({
             path: '/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'NotFound',
+            component: () => import('@/views/pages/NotFound.vue')
         }
     ]
+});
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some((record) => record.meta.error === 403)) {
+        next({ name: 'accessDenied' });
+    } else {
+        next();
+    }
 });
 
 export default router;
