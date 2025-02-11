@@ -50,6 +50,11 @@ const router = createRouter({
                     path: 'project',
                     name: 'project',
                     component: () => import('@/views/pages/admin/project.vue')
+                },
+                {
+                    path: 'companion',
+                    name: 'companion',
+                    component: () => import('@/views/pages/admin/companion.vue')
                 }
             ]
         },

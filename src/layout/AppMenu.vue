@@ -50,6 +50,11 @@ const model = ref([
                         label: 'Quản lý dự án',
                         icon: 'pi pi-fw pi-heart-fill',
                         to: '/admin/project'
+                    },
+                    {
+                        label: 'Quản lý người đồng hành',
+                        icon: 'pi pi-fw pi-slack',
+                        to: '/admin/companion'
                     }
                 ]
             },
