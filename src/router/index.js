@@ -1,6 +1,7 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { requireAuth } from '@/middleware/authMiddleware';
 import { createRouter, createWebHistory } from 'vue-router';
+import AppLayoutClientVue from '../layout/AppLayoutClient.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -60,8 +61,24 @@ const router = createRouter({
         },
         {
             path: '/',
-            name: 'Home',
-            component: () => import('@/views/pages/Home.vue')
+            component: AppLayoutClientVue,
+            children: [
+                {
+                    path: '',
+                    name: 'Home',
+                    component: () => import('@/views/pages/client/index.vue')
+                },
+                {
+                    path: 'category',
+                    name: 'category',
+                    component: () => import('@/views/pages/client/Category.vue')
+                },
+                {
+                    path: 'detail/:id',
+                    name: 'detail',
+                    component: () => import('@/views/pages/client/Detail.vue')
+                }
+            ]
         },
         {
             path: '/notfound',

@@ -138,7 +138,7 @@ const toggle = (event) => {
             <Menubar :model="items" class="text-base font-medium" />
 
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 items-center">
-                <Button class="h-9 !rounded-xl" label="Tạo chiện dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
+                <Button class="h-9 !rounded-xl" label="Tạo chiến dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
                 <Button label="Đăng nhập" to="/login" as="router-link" text severity="warn" v-if="!tokenService.getToken().storage"></Button>
                 <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-12 !h-12'" aria-controls="overlay_menu" @click="toggle" v-else />
                 <Menu ref="menu" id="overlay_menu" :model="itemAccount" :popup="true" />
