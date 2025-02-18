@@ -31,7 +31,6 @@ app.use(PrimeVue, {
 
 app.use(pinia);
 app.use(ToastService);
-
 app.use(ConfirmationService);
 
 app.mount('#app');

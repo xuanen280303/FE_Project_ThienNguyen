@@ -6,9 +6,11 @@ import { logoutApi } from '../service/auth.service';
 import tokenService from '../service/token.service';
 
 export const useAuthStore = defineStore('auth', () => {
-    const logout = async () => {
+    const logout = async (isCallApi = true) => {
         try {
-            await logoutApi();
+            if (isCallApi) {
+                await logoutApi();
+            }
             tokenService.removeToken();
             accountService.removeAccount();
             window.location.reload();
@@ -28,7 +30,14 @@ export const useAuthStore = defineStore('auth', () => {
                 tokenService.updateToken(access_token);
                 return access_token;
             }
-        } catch (error) {}
+        } catch (error) {
+            debugger;
+            console.log(error);
+            if (error.status == 404 && error.response?.data?.message == 'Token không tồn tại.') {
+                alert('Tài khoản đã được đăng nhập từ nơi khác');
+                await logout(false);
+            }
+        }
     };
 
     return { logout, refreshToken };

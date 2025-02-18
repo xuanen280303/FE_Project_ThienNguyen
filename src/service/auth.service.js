@@ -1,7 +1,6 @@
 import { apiClient } from '../constant/api';
 
 const moduleName = '/auth';
-
 export const loginApi = async (username, password) => {
     try {
         const res = await apiClient.post(`${moduleName}/login`, {

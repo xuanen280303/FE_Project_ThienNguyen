@@ -3,6 +3,7 @@ module.exports = {
     mode: 'jit',
     darkMode: ['selector', '[class*="app-dark"]'],
     content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+    
     plugins: [require('tailwindcss-primeui')],
     theme: {
         screens: {
