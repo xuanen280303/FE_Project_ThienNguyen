@@ -9,7 +9,7 @@
                             <img :src="slotProps.item.itemImageSrc" :alt="slotProps.item.alt" style="width: 100%; display: block; border-radius: 15px" />
                         </template>
                         <template #thumbnail="slotProps">
-                            <img :src="slotProps.item.itemImageSrc" :alt="slotProps.item.alt" style="width: 90%; display: block; border-radius: 5px" />
+                            <img :src="slotProps.item.itemImageSrc" :alt="slotProps.item.alt" style="width: 90%; display: block; border-radius: 5px; height: 100px" />
                         </template>
                     </Galleria>
                 </div>
@@ -142,7 +142,7 @@
                         <h2 class="text-gray-700 font-semibold text-lg mb-4">Đồng hành gây quỹ <span class="text-orange-500 font-semibold text-lg">(14)</span></h2>
                         <div class="overflow-y-auto max-h-[500px]">
                             <template v-for="(item, index) in userCampaign" :key="index">
-                                <router-link to="/" class="w-full flex gap-2 items-center mb-4">
+                                <router-link to="/detail/companions/d" class="w-full flex gap-2 items-center mb-4">
                                     <div class="min-w-[65px] h-[65px] p-1 border-2 border-red-500 rounded-full relative">
                                         <img :src="item.avatar" alt="" class="w-full h-full object-cover rounded-full" />
                                         <img v-if="index === 0" src="../../../assets/Img/icon/rank1.svg" alt="" class="absolute bottom-0 right-0 w-7 h-7 object-cover" />
@@ -188,7 +188,7 @@
                 </div>
             </div>
         </div>
-        <div class="w-full h-[5px] bg-gray-200 mt-10 rounded-full"></div>
+        <div class="w-full h-[6px] bg-gray-100 mt-10 rounded-full"></div>
         <div class="w-full mt-5">
             <div class="flex justify-between">
                 <div class="w-1/2">
@@ -196,7 +196,7 @@
                 </div>
                 <RouterLink to="/" class="text-orange-600 text-xl hover:underline">Xem tất cả</RouterLink>
             </div>
-            <div class="flex gap-6 mt-5">
+            <div class="flex gap-6 mt-5 pb-16">
                 <div class="w-1/3">
                     <CardProject imageUrl="/Image/cardImage.jpg" title="Chiến dịch gây quỹ cho người nghèo" amount="100.000.000" progress="50" supporters="100" daysLeft="10" />
                 </div>

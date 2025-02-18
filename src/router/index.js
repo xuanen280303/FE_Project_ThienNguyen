@@ -77,6 +77,11 @@ const router = createRouter({
                     path: 'detail/:id',
                     name: 'detail',
                     component: () => import('@/views/pages/client/Detail.vue')
+                },
+                {
+                    path: 'detail/companions/:id',
+                    name: 'detailCompanions',
+                    component: () => import('@/views/pages/client/Companions.vue')
                 }
             ]
         },

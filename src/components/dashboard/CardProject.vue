@@ -1,5 +1,5 @@
 <template>
-    <router-link to="/" class="max-w-full overflow-hidden bg-white">
+    <router-link to="/detail/2" class="max-w-full overflow-hidden bg-white">
         <!-- Phần hình ảnh -->
         <div class="relative rounded-xl overflow-hidden">
             <img class="w-full h-96 object-cover" :src="imageUrl || 'https://placehold.co/600x380'" :alt="title" />
@@ -32,8 +32,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
 defineProps({
     imageUrl: {
         type: String,
