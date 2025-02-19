@@ -9,7 +9,6 @@
     },
     "dependencies": {
         "@primevue/themes": "^4.2.4",
-        "@tinymce/tinymce-vue": "^6.1.0",
         "axios": "^1.7.5",
         "chart.js": "3.3.2",
         "date-fns": "^3.6.0",
