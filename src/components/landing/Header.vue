@@ -110,9 +110,9 @@ const toggle = (event) => {
 </script>
 
 <template>
-    <a class="flex items-center w-[180px] h-[37px] mr-4" href="#">
+    <router-link class="flex items-center w-[180px] h-[37px] mr-4" to="/">
         <img src="/Image/logo.png" alt="" class="h-full object-contain w-full" />
-    </a>
+    </router-link>
     <Button
         class="lg:!hidden"
         text

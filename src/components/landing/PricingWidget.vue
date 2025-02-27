@@ -70,8 +70,8 @@
                         <p><i class="pi pi-map-marker"></i> Thôn Lưu Đông, Phúc Túc, Phú Xuyên, Hà Nội.</p>
                     </div>
                 </div>
-                <div class="min-w-[120px]">
-                    <img src="https://placehold.co/120x120" alt="#" class="w-full rounded-2xl" />
+                <div class="min-w-[120px] max-w-[120px] rounded-2xl overflow-hidden max-h-[120px]">
+                    <img src="https://placehold.co/120x120" alt="#" class="w-full" />
                 </div>
             </div>
         </div>

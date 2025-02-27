@@ -42,7 +42,7 @@
                 <CardProject imageUrl="/Image/cardImage.jpg" title="Chiến dịch gây quỹ cho người nghèo" amount="100.000.000" progress="50" supporters="100" daysLeft="10" />
             </div>
         </div>
-        <div class="flex justify-center mt-5">
+        <div class="flex justify-center pb-8">
             <Button label="Xem thêm" size="large" class="w-64 !rounded-2xl !bg-[#F54A00]" />
         </div>
     </div>

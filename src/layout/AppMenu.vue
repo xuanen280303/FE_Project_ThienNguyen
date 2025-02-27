@@ -21,18 +21,15 @@ const model = ref([
                 items: [
                     {
                         label: 'Người dùng',
-                        icon: 'pi pi-fw pi-user',
                         to: '/admin/user'
                     },
                     {
                         label: 'Vai trò',
-                        icon: 'pi pi-fw pi-sitemap',
                         to: '/admin/role'
                     },
 
                     {
                         label: 'Quyền',
-                        icon: 'pi pi-fw pi-lock',
                         to: '/admin/permission'
                     }
                 ]
@@ -43,17 +40,14 @@ const model = ref([
                 items: [
                     {
                         label: 'Quản lý chiến dịch',
-                        icon: 'pi pi-fw pi-flag-fill',
                         to: '/admin/campaign'
                     },
                     {
                         label: 'Quản lý dự án',
-                        icon: 'pi pi-fw pi-heart-fill',
                         to: '/admin/project'
                     },
                     {
                         label: 'Quản lý người đồng hành',
-                        icon: 'pi pi-fw pi-slack',
                         to: '/admin/companion'
                     }
                 ]

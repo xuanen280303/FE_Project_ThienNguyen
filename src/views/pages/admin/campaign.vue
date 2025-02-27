@@ -36,21 +36,25 @@ const valueFilter = ref({
 
 function openEventDialog() {
     eventData.value = {};
+    dataFileInput.value = null;
     submitted.value = false;
     isEventDialog.value = true;
+    imageData.value = null;
 }
 
 function hideDialog() {
     isEventDialog.value = false;
     eventData.value = {};
+    dataFileInput.value = null;
     submitted.value = false;
     deleteDialog.value = false;
 }
 
 function getDataDetail(prod) {
-    eventData.value = { ...prod };
-    isEventDialog.value = true;
     imageData.value = null;
+    dataFileInput.value = null;
+    isEventDialog.value = true;
+    eventData.value = { ...prod };
 }
 
 const uploadFile = async () => {
@@ -268,7 +272,7 @@ const UploadFileLocal = async (event) => {
                 <div>
                     <label class="block font-bold mb-1">Ảnh chiến dịch</label>
                     <div class="relative group w-full h-[200px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
-                        <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/400x200')" alt="image" class="w-full h-full object-cover" />
+                        <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/400x200')" alt="image" class="w-full h-full object-contain" />
                         <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
                         </div>

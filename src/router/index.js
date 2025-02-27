@@ -79,6 +79,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/client/Detail.vue')
                 },
                 {
+                    path: 'info-donate/:id',
+                    name: 'infoDonate',
+                    component: () => import('@/views/pages/client/InfoDonate.vue')
+                },
+                {
                     path: 'detail/companions/:id',
                     name: 'detailCompanions',
                     component: () => import('@/views/pages/client/Companions.vue')

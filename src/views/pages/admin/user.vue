@@ -368,11 +368,30 @@ const UploadFileLocal = async (event) => {
                             <input ref="fileInput" type="file" @change="UploadFileLocal" accept="image/*" class="hidden" />
                         </div>
                     </div>
+                    <div class="flex gap-3">
+                        <div class="w-1/2">
+                            <label for="dateOfBirth" class="block font-bold mb-1">Ngày sinh</label>
 
-                    <div>
-                        <label for="dateOfBirth" class="block font-bold mb-1">Ngày sinh</label>
-
-                        <DatePicker dateFormat="dd/mm/yy" id="dateOfBirth" v-model.trim="eventData.dateOfBirth" required="true" autofocus fluid placeholder="Vui lòng nhập ngày sinh" />
+                            <DatePicker dateFormat="dd/mm/yy" id="dateOfBirth" v-model.trim="eventData.dateOfBirth" required="true" autofocus fluid placeholder="Vui lòng nhập ngày sinh" />
+                        </div>
+                        <div class="w-1/2">
+                            <label for="type" class="block font-bold mb-1">Loại tài khoản <small class="text-red-500">*</small></label>
+                            <Select
+                                id="type"
+                                v-model.trim="eventData.type"
+                                :options="[
+                                    { label: 'Cá nhân', value: 'CN' },
+                                    { label: 'Tổ chức', value: 'TC' }
+                                ]"
+                                optionLabel="label"
+                                optionValue="value"
+                                required="true"
+                                autofocus
+                                :invalid="submitted && !eventData.type"
+                                fluid
+                                placeholder="Vui lòng chọn loại tài khoản"
+                            />
+                        </div>
                     </div>
 
                     <div>

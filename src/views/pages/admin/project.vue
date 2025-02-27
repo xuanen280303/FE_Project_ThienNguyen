@@ -64,8 +64,8 @@ function hideDialog() {
 function getDataDetail(prod) {
     eventData.value = {
         ...prod,
-        organization: prod.organization._id,
-        campaign: prod.campaign._id
+        organization: prod.organization?._id,
+        campaign: prod.campaign?._id
     };
     isEventDialog.value = true;
 }

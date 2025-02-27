@@ -1,68 +1,20 @@
 <template>
     <div class="mx-5 lg:mx-32 mt-10">
-        <Carousel :pt:indicator:class="'hidden'" :value="products" :numVisible="7" :numScroll="1" :responsiveOptions="responsiveOptions" circular>
+        <Carousel :pt:indicator:class="'hidden'" :value="dataCategory" :numVisible="7" :numScroll="1" :responsiveOptions="responsiveOptions" circular>
             <template #item="slotProps">
-                <div class="flex flex-col items-center">
-                    <img :src="slotProps.data.src" :alt="slotProps.data.alt" class="w-14" />
-                    <p class="text-xl font-semibold mt-5">{{ slotProps.data.title }}</p>
+                <div class="flex flex-col items-center hover:shadow-2xl hover:border-b-4 border-primary hover:p-0 transition-all duration-100 rounded-lg p-2 max-w-52">
+                    <img :src="linkUploads(slotProps.data.image)" :alt="slotProps.data.image" class="w-14" />
+                    <p class="text-xl font-semibold mt-5">{{ slotProps.data.name }}</p>
                 </div>
             </template>
         </Carousel>
     </div>
 </template>
 
-<script lang="ts" setup>
-import { ref } from 'vue';
-const products = ref([
-    {
-        id: 1,
-        src: 'Image/icon_category/1.svg',
-        alt: 'Image 1',
-        title: 'Product 1'
-    },
-    {
-        id: 2,
-        src: 'Image/icon_category/2.svg',
-        alt: 'Image 1',
-        title: 'Product 2'
-    },
-    {
-        id: 3,
-        src: 'Image/icon_category/3.svg',
-        alt: 'Image 1',
-        title: 'Product 3'
-    },
-    {
-        id: 4,
-        src: 'Image/icon_category/4.svg',
-        alt: 'Image 1',
-        title: 'Product 4'
-    },
-    {
-        id: 5,
-        src: 'Image/icon_category/5.svg',
-        alt: 'Image 1',
-        title: 'Product 5'
-    },
-    {
-        id: 6,
-        src: 'Image/icon_category/6.svg',
-        alt: 'Image 1',
-        title: 'Product 6'
-    },
-    {
-        id: 7,
-        src: 'Image/icon_category/7.svg',
-        alt: 'Image 1',
-        title: 'Product 7'
-    },
-    {
-        id: 8,
-        src: 'Image/icon_category/8.svg',
-        alt: 'Image 1',
-        title: 'Product 8'
-    }
-]);
+<script setup>
+import { onMounted, reactive, ref } from 'vue';
+import { linkUploads } from '../../constant/api';
+import apiService from '../../service/api.service';
 
 const responsiveOptions = ref([
     {
@@ -86,4 +38,20 @@ const responsiveOptions = ref([
         numScroll: 1
     }
 ]);
+
+const useCategory = () => {
+    const dataCategory = reactive([]);
+
+    const getAll = async () => {
+        try {
+            const res = await apiService.get('/campaigns?page=1&pageSize=100');
+            Object.assign(dataCategory, res.data.items);
+        } catch (error) {}
+    };
+    return { getAll, dataCategory };
+};
+const { getAll, dataCategory } = useCategory();
+onMounted(() => {
+    getAll();
+});
 </script>

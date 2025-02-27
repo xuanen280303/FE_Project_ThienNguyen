@@ -1,5 +1,5 @@
 <template>
-    <div id="features" class="py-6 px-4 lg:px-20 mt-8 mx-0 lg:mx-16">
+    <div id="features" class="py-6 px-4 lg:px-32 mt-8 mx-0 lg:mx-16">
         <div class="grid grid-cols-12 gap-4 justify-center">
             <div class="col-span-12 text-center mt-15 mb-6">
                 <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono">Chiến dịch gây quỹ nổi bật</div>
@@ -12,7 +12,7 @@
                 <Carousel
                     :pt:pcprevbutton:root:style="{ display: 'none' }"
                     :pt:pcNextButton:root:style="{ display: 'none' }"
-                    :value="dataOrganizations"
+                    :value="state.options.projectsOrganization"
                     :numVisible="3"
                     :numScroll="1"
                     :responsiveOptions="responsiveOptions"
@@ -22,7 +22,15 @@
                 >
                     <template #item="slotProps">
                         <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 lg:pb-8 mt-6 lg:mt-0">
-                            <CardProject imageUrl="/Image/cardImage.jpg" :title="slotProps.data.title" :amount="slotProps.data.amount" :progress="slotProps.data.progress" :supporters="slotProps.data.supporters" :daysLeft="slotProps.data.daysLeft" />
+                            <CardProject
+                                :imageUrl="linkUploads(slotProps.data.image)"
+                                :title="slotProps.data.name"
+                                :amount="slotProps.data.currentAmount || 0"
+                                :link="slotProps.data._id"
+                                :progress="(slotProps.data.currentAmount / slotProps.data.goalAmount) * 100 || 0"
+                                :supporters="23"
+                                :daysLeft="Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24))"
+                            />
                         </div>
                     </template>
                 </Carousel>
@@ -35,7 +43,7 @@
                 <Carousel
                     :pt:pcprevbutton:root:style="{ display: 'none' }"
                     :pt:pcNextButton:root:style="{ display: 'none' }"
-                    :value="dataOrganizations"
+                    :value="state.options.projectsPersonal"
                     :numVisible="3"
                     :numScroll="1"
                     class="transition-all duration-300"
@@ -45,7 +53,15 @@
                 >
                     <template #item="slotProps">
                         <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 lg:pb-8 mt-6 lg:mt-0">
-                            <CardProject imageUrl="/Image/cardImage.jpg" :title="slotProps.data.title" :amount="slotProps.data.amount" :progress="slotProps.data.progress" :supporters="slotProps.data.supporters" :daysLeft="slotProps.data.daysLeft" />
+                            <CardProject
+                                :imageUrl="linkUploads(slotProps.data.image)"
+                                :link="slotProps.data._id"
+                                :title="slotProps.data.name"
+                                :amount="slotProps.data.currentAmount || 0"
+                                :progress="(slotProps.data.currentAmount / slotProps.data.goalAmount) * 100 || 0"
+                                :supporters="23"
+                                :daysLeft="Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24))"
+                            />
                         </div>
                     </template>
                 </Carousel>
@@ -106,12 +122,21 @@
     </div>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { linkUploads } from '../../constant/api';
+import apiService from '../../service/api.service';
+const initialState = {
+    options: {
+        projectsPersonal: [],
+        projectsOrganization: []
+    }
+};
+const state = reactive({ ...initialState });
 
 const dataOrganizations = ref([
     {
         id: 1,
-        title: 'Chung tay hỗ trợ, chăm lo hơn 2000 sinh viên và người lao động khó khăn...',
+        title: 'Chung tay hỗ trợ, chăm lo hơn 2000 sinh viên và người lao động khó khăn lo hơn 2000 sinh viên và người lao động khó khăn',
         amount: 57715000,
         progress: 100,
         supporters: 17,
@@ -188,4 +213,23 @@ const responsiveOptions = ref([
         numScroll: 1
     }
 ]);
+
+const useGet = () => {
+    const getAll = async () => {
+        try {
+            const [resPersonal, resOrganization] = await Promise.all([
+                apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,organization.type=CN'),
+                apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,organization.type=TC')
+            ]);
+            state.options.projectsPersonal = resPersonal.data.items;
+            state.options.projectsOrganization = resOrganization.data.items;
+        } catch (error) {}
+    };
+    return { getAll };
+};
+const { getAll } = useGet();
+onMounted(async () => {
+    await getAll();
+    console.log(state.options);
+});
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <div class="w-screen h-screen z-[9999] fixed bg-surface-0 dark:bg-surface-900 flex items-center justify-center">
+    <div class="w-screen h-screen z-[9999] fixed top-0 left-0 bg-surface-0 dark:bg-surface-900 flex items-center justify-center bg-white/90">
         <div class="loading">
             <div class="diamond"></div>
             <div class="diamond middle"></div>

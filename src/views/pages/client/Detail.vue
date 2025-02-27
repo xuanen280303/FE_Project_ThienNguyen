@@ -119,7 +119,7 @@
                         <div class="w-full mt-6 flex gap-2 items-center">Đã đạt được <span class="text-orange-600 font-semibold text-xl">812.768.616 VND</span></div>
                         <div class="w-full mt-6 flex gap-2 items-center">
                             <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
-                            <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" />
+                            <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="router-link" :to="`/info-donate/21`" />
                         </div>
                         <a
                             :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`"
