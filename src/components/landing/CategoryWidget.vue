@@ -2,10 +2,10 @@
     <div class="mx-5 lg:mx-32 mt-10">
         <Carousel :pt:indicator:class="'hidden'" :value="dataCategory" :numVisible="7" :numScroll="1" :responsiveOptions="responsiveOptions" circular>
             <template #item="slotProps">
-                <div class="flex flex-col items-center hover:shadow-2xl hover:border-b-4 border-primary hover:p-0 transition-all duration-100 rounded-lg p-2 max-w-52">
+                <router-link :to="`/category/${slotProps.data._id}`" class="flex flex-col items-center hover:shadow-2xl hover:border-b-4 border-primary hover:p-0 transition-all duration-100 rounded-lg p-2 max-w-52">
                     <img :src="linkUploads(slotProps.data.image)" :alt="slotProps.data.image" class="w-14" />
                     <p class="text-xl font-semibold mt-5">{{ slotProps.data.name }}</p>
-                </div>
+                </router-link>
             </template>
         </Carousel>
     </div>

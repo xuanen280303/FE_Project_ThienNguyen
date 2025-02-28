@@ -6,12 +6,11 @@ import Loading from '../../../components/Loading.vue';
 import RichTextEditor from '../../../components/RichTextEditor.vue';
 import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
-import parseDate from '../../../utils/parseDate';
+import { getConscious, getDistrict, getWard } from '../../../service/location.service';
 
 onMounted(async () => {
     isLoading.value = true;
-    await getAll();
-    await getAllOption();
+    await Promise.all([getAll(), getAllOption(), getAllLocation()]);
     isLoading.value = false;
 });
 
@@ -41,7 +40,10 @@ const valueFilter = ref({
 
 const dataGetAllOption = ref({
     campaign: [],
-    user: []
+    user: [],
+    conscious: [],
+    district: [],
+    ward: []
 });
 
 function openEventDialog() {
@@ -162,14 +164,15 @@ async function saveData() {
         isLoadingData.value = false;
         return;
     }
+    const { address, conscious, district, ward } = eventData.value;
+    const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + conscious?.name;
     try {
         await uploadFile();
         if (eventData.value._id) {
-            const res = await apiService.patch(urlApi + '/' + eventData.value._id, { ...eventData.value, dateOfBirth: parseDate(eventData.value.dateOfBirth) });
-
+            const res = await apiService.patch(urlApi + '/' + eventData.value._id, { ...eventData.value, detailAddress: mergeLocation });
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thành công', life: 3000 });
         } else {
-            const res = await apiService.post(urlApi, eventData.value);
+            const res = await apiService.post(urlApi, { ...eventData.value, detailAddress: mergeLocation });
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Thêm thành công', life: 3000 });
         }
         getAll();
@@ -208,6 +211,24 @@ const getAllOption = async () => {
         const [resCampaign, resUser] = await Promise.all([apiService.get('campaigns/getAll'), apiService.get('users/getAll')]);
         dataGetAllOption.value.campaign = resCampaign.data;
         dataGetAllOption.value.user = resUser.data;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
+    }
+};
+const getAllLocation = async (event, type = null) => {
+    try {
+        if (type === 'district') {
+            const res = await getDistrict(event.id);
+            dataGetAllOption.value.district = res.data;
+            eventData.value.district = null;
+        } else if (type === 'ward') {
+            const res = await getWard(event.id);
+            dataGetAllOption.value.ward = res.data;
+            eventData.value.ward = null;
+        } else {
+            const res = await getConscious();
+            dataGetAllOption.value.conscious = res.data;
+        }
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
     }
@@ -495,31 +516,66 @@ const removeImageList = (index) => {
                     </div>
                     <div class="flex gap-3 w-full">
                         <div class="w-1/2">
-                            <label for="gender" class="block font-bold mb-1">Hình thức<small class="text-red-500">*</small></label>
-                            <Select id="type" v-model.trim="eventData.type" :options="['Tổ chức', 'Cá nhân']" autofocus :invalid="submitted && !eventData.type" fluid placeholder="Vui lòng chọn hình thức" />
-                        </div>
-
-                        <div class="w-1/2">
                             <label for="gender" class="block font-bold mb-1">Trạng thái <small class="text-red-500">*</small></label>
                             <Select id="status" v-model.trim="eventData.status" :options="valueStatus" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
+                        </div>
+                        <div class="w-1/2">
+                            <label for="role" class="block font-bold mb-1">Tỉnh thành <small class="text-red-500">*</small></label>
+                            <Select
+                                id="role"
+                                v-model.trim="eventData.conscious"
+                                :options="dataGetAllOption.conscious"
+                                optionLabel="full_name"
+                                @change="getAllLocation(eventData.conscious, 'district')"
+                                required="true"
+                                autofocus
+                                :invalid="submitted && !eventData.conscious"
+                                filter
+                                fluid
+                                placeholder="Vui lòng chọn tỉnh thành"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 w-full">
+                        <div class="w-1/2">
+                            <label for="role" class="block font-bold mb-1">Quận huyện<small class="text-red-500">*</small></label>
+                            <Select
+                                :disabled="!eventData.conscious"
+                                id="role"
+                                v-model.trim="eventData.district"
+                                :options="dataGetAllOption.district"
+                                optionLabel="full_name"
+                                @change="getAllLocation(eventData.district, 'ward')"
+                                required="true"
+                                autofocus
+                                :invalid="submitted && !eventData.district"
+                                filter
+                                fluid
+                                placeholder="Vui lòng chọn quận huyện"
+                            />
+                        </div>
+                        <div class="w-1/2">
+                            <label for="role" class="block font-bold mb-1">Phường xã <small class="text-red-500">*</small></label>
+                            <Select
+                                id="role"
+                                :disabled="!eventData.district"
+                                v-model.trim="eventData.ward"
+                                :options="dataGetAllOption.ward"
+                                optionLabel="full_name"
+                                required="true"
+                                autofocus
+                                :invalid="submitted && !eventData.ward"
+                                filter
+                                fluid
+                                placeholder="Vui lòng chọn phường xã"
+                            />
                         </div>
                     </div>
 
                     <div>
-                        <label for="role" class="block font-bold mb-1">Chiến dịch <small class="text-red-500">*</small></label>
-                        <Select
-                            id="role"
-                            v-model.trim="eventData.campaign"
-                            :options="dataGetAllOption.campaign"
-                            optionLabel="name"
-                            optionValue="_id"
-                            required="true"
-                            autofocus
-                            :invalid="submitted && !eventData.campaign"
-                            filter
-                            fluid
-                            placeholder="Vui lòng chọn chiến dịch"
-                        />
+                        <label for="name" class="block font-bold mb-1">Địa chỉ <small class="text-red-500">*</small></label>
+                        <InputText id="address" v-model.trim="eventData.address" autofocus :invalid="submitted && !eventData.address" fluid placeholder="Vui lòng nhập địa chỉ" />
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 w-1/2">
@@ -574,6 +630,22 @@ const removeImageList = (index) => {
                             filter
                             fluid
                             placeholder="Vui lòng chọn tổ chức kêu gọi"
+                        />
+                    </div>
+                    <div>
+                        <label for="role" class="block font-bold mb-1">Chiến dịch <small class="text-red-500">*</small></label>
+                        <Select
+                            id="role"
+                            v-model.trim="eventData.campaign"
+                            :options="dataGetAllOption.campaign"
+                            optionLabel="name"
+                            optionValue="_id"
+                            required="true"
+                            autofocus
+                            :invalid="submitted && !eventData.campaign"
+                            filter
+                            fluid
+                            placeholder="Vui lòng chọn chiến dịch"
                         />
                     </div>
                 </div>

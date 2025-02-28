@@ -2,14 +2,14 @@
     <div class="w-10/12 mx-auto">
         <div class="flex justify-between mt-10 gap-5">
             <div class="w-[62%]">
-                <h2 class="text-[25px] font-medium text-gray-800 mb-3">Quỹ xe cứu thương 0 đông</h2>
+                <h2 class="text-[25px] font-medium text-gray-800 mb-3">{{ detail.name }}</h2>
                 <div class="w-full shadow-lg rounded-2xl overflow-hidden">
-                    <Galleria :value="images" :responsiveOptions="responsiveOptions" :numVisible="5" :circular="true" containerStyle="w-full">
+                    <Galleria :value="detail.listImage" :responsiveOptions="responsiveOptions" :numVisible="5" :circular="true" containerStyle="w-full">
                         <template #item="slotProps">
-                            <img :src="slotProps.item.itemImageSrc" :alt="slotProps.item.alt" style="width: 100%; display: block; border-radius: 15px" />
+                            <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" style="width: 100%; display: block; border-radius: 15px" />
                         </template>
                         <template #thumbnail="slotProps">
-                            <img :src="slotProps.item.itemImageSrc" :alt="slotProps.item.alt" style="width: 90%; display: block; border-radius: 5px; height: 100px" />
+                            <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" style="width: 90%; display: block; border-radius: 5px; height: 100px" />
                         </template>
                     </Galleria>
                 </div>
@@ -21,15 +21,7 @@
                         </TabList>
                         <TabPanels>
                             <TabPanel value="0">
-                                <p class="m-0">
-                                    Theo Trung tâm Dự báo khí tượng, thủy văn Quốc gia, miền Bắc mùa đông năm nay được dự báo sẽ rét hơn, và điều này đã bắt đầu thể hiện từ những ngày đầu thu. Dưới tác động của hiện tượng La Nina, mùa đông sẽ có
-                                    nhiều thay đổi so với năm 2023 (năm chúng ta chịu ảnh hưởng của El Nino). Với vùng cao biên giới, rét đậm, rét hại hay sương mù, mưa phùn vào buổi sáng vẫn diễn ra thường xuyên, biên độ giao động nhiệt độ ngày và
-                                    đêm lớn có khi tới hơn 10 độ C, buổi sáng từ 9-10 độ, trưa là 19 -20 độ nhưng tối lại rét hơn, từ 8-9 độ. Có thể ở thành phố thời tiết vào thu dễ chịu, nhưng ở vùng Tây Bắc có độ cao so với mực nước biển là 1000 -
-                                    1100m như tỉnh Sơn La thời tiết những ngày này đã trở lạnh. Các em nhỏ vùng cao không có áo ấm, co ro đi tìm cái chữ, mới thấy được con đường tìm kiếm cái chữ để có tương lai đỡ vất vả của các em gian nan như thế
-                                    nào. Tiếp nối thành công của 4 chương trình đông ấm, dự án sẽ tiến hành huy động nguồn lực thực hiện chương trình Đông ấm cho em mùa 5 chủ đề “Hơi ấm chuyền tay" cho đến khi hoàn thành kế hoạch đề ra với 11.299 áo
-                                    ấm cho tất cả các em nhỏ thuộc hệ sinh thái dự án Nuôi em Mộc Châu. Một lần nữa, Hệ sinh thái dự án Nuôi em Mộc Châu xin được gửi lời tri ân sâu sắc đến toàn thể quý Anh/ Chị nuôi, quý Mạnh thường quân và toàn thể
-                                    cộng đồng luôn chung sức, chung lòng để sẻ chia và lan tỏa “hơi ấm yêu thương” đến các em nhỏ vùng cao Sơn La.
-                                </p>
+                                <p class="m-0" v-html="detail.description"></p>
                             </TabPanel>
                             <TabPanel value="2">
                                 <div
@@ -74,12 +66,12 @@
                 >
                     <div class="px-5 py-7 border-b-4 border-gray-200">
                         <div class="w-full flex gap-2">
-                            <div class="min-w-20 h-20">
-                                <img src="https://placehold.co/50x50" alt="" class="w-full h-full object-cover rounded-full" />
+                            <div class="min-w-20 max-w-20 min-h-20 max-h-20">
+                                <img :src="linkUploads(detail.organization?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
                             </div>
                             <div class="w-full flex flex-col gap-1">
                                 <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
-                                <router-link to="/" class="text-orange-500 font-bold text-lg">Dự án Nuôi em Mộc Châu </router-link>
+                                <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail.organization?.name }}</router-link>
                             </div>
                         </div>
                         <div class="w-full mt-2">
@@ -94,7 +86,7 @@
                                 </div>
                                 <div class="w-full flex flex-col">
                                     <p class="text-gray-500 font-medium">Mục tiêu chiến dịch</p>
-                                    <p class="text-gray-800 font-semibold text-xl">100.000.000 VNĐ</p>
+                                    <p class="text-gray-800 font-semibold text-xl">{{ parseNum(detail.goalAmount) }}</p>
                                 </div>
                             </div>
                             <div class="w-1/2 flex gap-2">
@@ -103,20 +95,22 @@
                                 </div>
                                 <div class="w-full flex flex-col">
                                     <p class="text-gray-500 font-medium">Thời gian còn lại</p>
-                                    <p class="text-gray-800 font-semibold text-xl">40 ngày</p>
+                                    <p class="text-gray-800 font-semibold text-xl">{{ Math.ceil((new Date(detail.endDate) - new Date()) / (1000 * 60 * 60 * 24)) }} ngày</p>
                                 </div>
                             </div>
                         </div>
                         <div class="w-full mt-6 flex gap-2 items-center">
                             <i class="pi pi-map-marker" style="font-size: 20px"></i>
-                            <span>Trường Trung Học Cơ Tân Xuân ,Xã Tân Xuân,Huyện Vân Hồ,Tỉnh Sơn La </span>
+                            <span>{{ detail.detailAddress }} </span>
                         </div>
                         <div class="w-full mt-6 flex gap-2 items-center">
                             <div class="w-full bg-gray-200 rounded-full h-[13px]">
-                                <div class="bg-gradient-to-r from-orange-300 via-orange-500 to-red-500 h-[13px] rounded-full" :style="{ width: `20%` }"></div>
+                                <div class="bg-gradient-to-r from-orange-300 via-orange-500 to-red-500 h-[13px] rounded-full" :style="{ width: `${(detail.currentAmount / detail.goalAmount) * 100}%` }"></div>
                             </div>
                         </div>
-                        <div class="w-full mt-6 flex gap-2 items-center">Đã đạt được <span class="text-orange-600 font-semibold text-xl">812.768.616 VND</span></div>
+                        <div class="w-full mt-6 flex gap-2 items-center">
+                            Đã đạt được <span class="text-orange-600 font-semibold text-xl">{{ parseNum(detail.currentAmount) }} VND</span>
+                        </div>
                         <div class="w-full mt-6 flex gap-2 items-center">
                             <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
                             <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="router-link" :to="`/info-donate/21`" />
@@ -172,18 +166,25 @@
                     </div>
                     <div class="px-5 py-7">
                         <div class="w-full flex gap-2 mb-2">
-                            <div class="min-w-20 h-20">
-                                <img src="https://placehold.co/50x50" alt="" class="w-full h-full object-cover rounded-full" />
+                            <div class="max-w-20 max-h-20 min-w-20 min-h-20">
+                                <img :src="linkUploads(detail?.organization?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
                             </div>
                             <div class="w-full flex flex-col gap-1">
-                                <router-link to="/" class="text-orange-500 font-bold text-lg">Dự án Nuôi em Mộc Châu </router-link>
+                                <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail?.organization?.name }} </router-link>
                                 <div>
-                                    <span class="text-white font-medium bg-orange-400 rounded-full px-2 py-1 text-sm">Cá nhân</span>
+                                    <span class="text-white font-medium bg-orange-400 rounded-full px-2 py-1 text-sm">{{ detail?.organization?.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }}</span>
                                 </div>
                             </div>
                         </div>
-                        <a href="mailto:duongtrieuhai@icloud.com" target="_blank" class="w-full flex gap-2 mt-5"><img src="../../../assets/Img/icon/gmail.svg" alt="" class="w-6 h-6" /> duongtrieuhai@icloud.com</a>
-                        <a href="https://www.facebook.com/nuoiemmocchau/about" target="_blank" class="w-full flex gap-2 mt-3"><img src="../../../assets/Img/icon/fb.svg" alt="" class="w-6 h-6" />https://www.facebook.com/nuoiemmocchau/about</a>
+                        <a :href="`tel:${detail?.organization?.phoneNumber}`" target="_blank" class="w-full flex gap-2 mt-5" v-if="detail?.organization?.phoneNumber"
+                            ><img src="../../../assets/Img/icon/phone.svg" alt="" class="w-6 h-6" /> {{ detail?.organization?.phoneNumber }}</a
+                        >
+                        <a :href="`mailto:${detail?.organization?.email}`" target="_blank" class="w-full flex gap-2 mt-5" v-if="detail?.organization?.email"
+                            ><img src="../../../assets/Img/icon/gmail.svg" alt="" class="w-6 h-6" /> {{ detail?.organization?.email }}</a
+                        >
+                        <a :href="`${detail?.organization?.facebook}`" target="_blank" class="w-full flex gap-2 mt-3" v-if="detail?.organization?.facebook"
+                            ><img src="../../../assets/Img/icon/fb.svg" alt="" class="w-6 h-6" /> {{ detail?.organization?.facebook }}</a
+                        >
                     </div>
                 </div>
             </div>
@@ -211,8 +212,11 @@
     </div>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import CardProject from '../../../components/dashboard/CardProject.vue';
+import { linkUploads } from '../../../constant/api';
+import apiService from '../../../service/api.service';
 import parseNum from '../../../utils/parseNum';
 const url = ref(window.location.href);
 const payment = ref([
@@ -284,26 +288,6 @@ const userCampaign = ref([
         startDate: '24/12/2024'
     }
 ]);
-const images = ref([
-    {
-        itemImageSrc: 'https://primefaces.org/cdn/primevue/images/galleria/galleria1.jpg'
-    },
-    {
-        itemImageSrc: 'https://primefaces.org/cdn/primevue/images/galleria/galleria1.jpg'
-    },
-    {
-        itemImageSrc: 'https://primefaces.org/cdn/primevue/images/galleria/galleria1.jpg'
-    },
-    {
-        itemImageSrc: 'https://primefaces.org/cdn/primevue/images/galleria/galleria1.jpg'
-    },
-    {
-        itemImageSrc: 'https://primefaces.org/cdn/primevue/images/galleria/galleria1.jpg'
-    },
-    {
-        itemImageSrc: 'https://primefaces.org/cdn/primevue/images/galleria/galleria2.jpg'
-    }
-]);
 
 const responsiveOptions = ref([
     {
@@ -315,6 +299,30 @@ const responsiveOptions = ref([
         numVisible: 4
     }
 ]);
+
+const router = useRoute();
+const detail = ref({});
+const getDetail = async () => {
+    try {
+        const res = await apiService.get(`projects/${router.params.id}`);
+        detail.value = res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+const projectByCampaign = ref([]);
+const getProjectByCampaign = async () => {
+    try {
+        const res = await apiService.get(`projects?page=1&size=3&filter=campaign=${detail.value.campaign._id}`);
+        projectByCampaign.value = res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+onMounted(async () => {
+    await getDetail();
+    await getProjectByCampaign();
+});
 </script>
 <style>
 .p-galleria {

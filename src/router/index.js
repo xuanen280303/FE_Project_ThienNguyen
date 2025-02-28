@@ -69,7 +69,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/client/index.vue')
                 },
                 {
-                    path: 'category',
+                    path: 'category/:id',
                     name: 'category',
                     component: () => import('@/views/pages/client/Category.vue')
                 },
