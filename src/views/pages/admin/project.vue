@@ -168,6 +168,7 @@ async function saveData() {
     submitted.value = true;
     const { address, conscious, district, ward } = eventData.value;
     const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + conscious?.name;
+    eventData.value.detailAddress = mergeLocation;
     if (!validate()) {
         return;
     }
@@ -176,10 +177,10 @@ async function saveData() {
     try {
         await uploadFile();
         if (eventData.value._id) {
-            const res = await apiService.patch(urlApi + '/' + eventData.value._id, { ...eventData.value, detailAddress: mergeLocation });
+            const res = await apiService.patch(urlApi + '/' + eventData.value._id, { ...eventData.value });
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thành công', life: 3000 });
         } else {
-            const res = await apiService.post(urlApi, { ...eventData.value, detailAddress: mergeLocation });
+            const res = await apiService.post(urlApi, { ...eventData.value});
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Thêm thành công', life: 3000 });
         }
         getAll();
