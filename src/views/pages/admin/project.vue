@@ -166,13 +166,13 @@ const uploadFile = async () => {
 
 async function saveData() {
     submitted.value = true;
+    const { address, conscious, district, ward } = eventData.value;
+    const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + conscious?.name;
     if (!validate()) {
         return;
     }
     isLoadingData.value = true;
 
-    const { address, conscious, district, ward } = eventData.value;
-    const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + conscious?.name;
     try {
         await uploadFile();
         if (eventData.value._id) {
