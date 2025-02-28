@@ -198,21 +198,24 @@
                 <RouterLink to="/" class="text-orange-600 text-xl hover:underline">Xem tất cả</RouterLink>
             </div>
             <div class="flex gap-6 mt-5 pb-16">
-                <div class="w-1/3">
-                    <CardProject imageUrl="/Image/cardImage.jpg" title="Chiến dịch gây quỹ cho người nghèo" amount="100.000.000" progress="50" supporters="100" daysLeft="10" />
-                </div>
-                <div class="w-1/3">
-                    <CardProject imageUrl="/Image/cardImage.jpg" title="Chiến dịch gây quỹ cho người nghèo" amount="100.000.000" progress="50" supporters="100" daysLeft="10" />
-                </div>
-                <div class="w-1/3">
-                    <CardProject imageUrl="/Image/cardImage.jpg" title="Chiến dịch gây quỹ cho người nghèo" amount="100.000.000" progress="50" supporters="100" daysLeft="10" />
+                <div class="w-1/3" v-for="(item, index) in projectByCampaign" :key="index">
+                    <CardProject
+                        :imageUrl="linkUploads(item.image)"
+                        :title="item.name"
+                        :amount="item.currentAmount || 0"
+                        :link="item._id"
+                        :progress="(item.currentAmount / item.goalAmount) * 100 || 0"
+                        :supporters="23"
+                        :daysLeft="Math.ceil((new Date(item.endDate) - new Date()) / (1000 * 60 * 60 * 24))"
+                    />
                 </div>
             </div>
         </div>
     </div>
+    <Loading v-if="isLoading" />
 </template>
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import CardProject from '../../../components/dashboard/CardProject.vue';
 import { linkUploads } from '../../../constant/api';
@@ -288,7 +291,7 @@ const userCampaign = ref([
         startDate: '24/12/2024'
     }
 ]);
-
+const isLoading = ref(false);
 const responsiveOptions = ref([
     {
         breakpoint: '1300px',
@@ -303,26 +306,38 @@ const responsiveOptions = ref([
 const router = useRoute();
 const detail = ref({});
 const getDetail = async () => {
+    isLoading.value = true;
     try {
         const res = await apiService.get(`projects/${router.params.id}`);
         detail.value = res.data;
     } catch (error) {
         console.log(error);
+    } finally {
+        isLoading.value = false;
     }
 };
 const projectByCampaign = ref([]);
 const getProjectByCampaign = async () => {
     try {
         const res = await apiService.get(`projects?page=1&size=3&filter=campaign=${detail.value.campaign._id}`);
-        projectByCampaign.value = res.data;
+        projectByCampaign.value = res.data.items;
     } catch (error) {
         console.log(error);
     }
 };
+
 onMounted(async () => {
     await getDetail();
     await getProjectByCampaign();
 });
+
+watch(
+    () => router.params.id,
+    async () => {
+        await getDetail();
+        await getProjectByCampaign();
+    }
+);
 </script>
 <style>
 .p-galleria {
