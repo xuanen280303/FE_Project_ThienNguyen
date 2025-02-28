@@ -6,7 +6,7 @@
                 <div class="w-full shadow-lg rounded-2xl overflow-hidden">
                     <Galleria :value="detail.listImage" :responsiveOptions="responsiveOptions" :numVisible="5" :circular="true" containerStyle="w-full">
                         <template #item="slotProps">
-                            <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" style="width: 100%; display: block; border-radius: 15px" />
+                            <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" class="w-[90%] object-contain rounded-2xl" />
                         </template>
                         <template #thumbnail="slotProps">
                             <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" style="width: 90%; display: block; border-radius: 5px; height: 100px" />

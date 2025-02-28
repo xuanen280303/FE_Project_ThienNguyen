@@ -81,12 +81,6 @@ const validate = () => {
         isValid = false;
     }
 
-    // Kiểm tra hình thức
-    if (!eventData.value.type) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn hình thức', life: 3000 });
-        isValid = false;
-    }
-
     // Kiểm tra trạng thái
     if (!eventData.value.status) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn trạng thái', life: 3000 });
@@ -129,11 +123,24 @@ const validate = () => {
         isValid = false;
     }
 
+    // Kiểm tra địa chỉ
+    if (!eventData.value.address?.trim()) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập địa chỉ', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra địa chỉ chi tiết
+    if (!eventData.value.detailAddress?.trim()) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập đầy đủ các trường địa chỉ', life: 3000 });
+        isValid = false;
+    }
+
     // Kiểm tra ảnh nổi bật
     if (!eventData.value.image && !dataFileInput.value) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn ảnh nổi bật', life: 3000 });
         isValid = false;
     }
+
     // Kiểm tra danh sách ảnh
     if (eventData.value.listImage?.length === 0 && dataFileInputs.value.length === 0) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn danh sách ảnh', life: 3000 });
@@ -159,11 +166,11 @@ const uploadFile = async () => {
 
 async function saveData() {
     submitted.value = true;
-    isLoadingData.value = true;
     if (!validate()) {
-        isLoadingData.value = false;
         return;
     }
+    isLoadingData.value = true;
+
     const { address, conscious, district, ward } = eventData.value;
     const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + conscious?.name;
     try {
