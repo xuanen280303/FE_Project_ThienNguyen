@@ -113,7 +113,7 @@
                         </div>
                         <div class="w-full mt-6 flex gap-2 items-center">
                             <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
-                            <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="router-link" :to="`/info-donate/21`" />
+                            <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="router-link" :to="`/info-donate/${detail._id}`" />
                         </div>
                         <a
                             :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`"
@@ -167,7 +167,7 @@
                     <div class="px-5 py-7">
                         <div class="w-full flex gap-2 mb-2">
                             <div class="max-w-20 max-h-20 min-w-20 min-h-20">
-                                <img :src="linkUploads(detail?.organization?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
+                                <img :src="detail?.organization?.avatar ? linkUploads(detail?.organization?.avatar) : 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
                             </div>
                             <div class="w-full flex flex-col gap-1">
                                 <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail?.organization?.name }} </router-link>

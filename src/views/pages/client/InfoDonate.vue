@@ -4,33 +4,39 @@
             <div class="w-5/12 bg-white shadow-lg rounded-2xl">
                 <div class="px-5 py-5 border-b-4 border-[#F9F3EE]">
                     <div class="w-full flex gap-2">
-                        <div class="min-w-16 min-h-16 border-[3px] border-primary-500 rounded-full">
-                            <img src="https://placehold.co/50x50" alt="" class="w-full h-full object-cover rounded-full" />
+                        <div class="min-w-16 min-h-16 max-w-16 max-h-16 border-[3px] border-primary-500 rounded-full">
+                            <img :src="detail?.organization?.avatar ? linkUploads(detail?.organization?.avatar) : 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
                         </div>
                         <div class="w-full flex flex-col gap-1">
                             <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
-                            <router-link to="/" class="text-primary-500 font-bold text-lg">Dự án Nuôi em Mộc Châu </router-link>
+                            <router-link :to="`/info-donate/${detail._id}`" class="text-primary-500 font-bold text-lg">{{ detail.name }}</router-link>
                         </div>
                     </div>
                 </div>
                 <div class="p-5 flex flex-col gap-4">
                     <p>Bạn đang ủng hộ cho chiến dịch</p>
                     <div class="w-full flex justify-center rounded-3xl h-[320px] relative">
-                        <p class="absolute top-2 left-2 font-medium bg-gray-100 px-3 py-1 rounded-full">Còn 35 ngày</p>
-                        <img src="https://placehold.co/50x50" alt="" class="w-full h-full object-cover rounded-3xl" />
+                        <p class="absolute top-2 left-2 font-medium bg-gray-100 px-3 py-1 rounded-full">Còn {{ Math.ceil((new Date(detail.endDate) - new Date()) / (1000 * 60 * 60 * 24)) }} ngày</p>
+                        <img :src="detail?.image ? linkUploads(detail?.image) : 'https://placehold.co/50x50'" alt="" class="w-full h-full object-contain rounded-3xl bg-orange-100" />
                     </div>
-                    <h4 class="text-xl font-semibold text-zinc-800">Rootopia - The Green Angels: Gieo mầm xanh, dựng tương lai</h4>
+                    <h4 class="text-xl font-semibold text-zinc-800">{{ detail.name }}</h4>
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between text-base">
-                            <p>Đã đạt được <span class="text-primary-500 font-bold text-xl">2.594.861 VND</span></p>
-                            <p class="font-bold">13%</p>
+                            <p>
+                                Đã đạt được <span class="text-primary-500 font-bold text-xl">{{ parseNum(detail.currentAmount) }} VND</span>
+                            </p>
+                            <p class="font-bold">{{ (detail.currentAmount / detail.goalAmount) * 100 }}%</p>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-[10px]">
-                            <div class="bg-gradient-to-r from-orange-300 via-orange-500 to-red-500 h-[10px] rounded-full" :style="{ width: `20%` }"></div>
+                            <div class="bg-gradient-to-r from-orange-300 via-orange-500 to-red-500 h-[10px] rounded-full" :style="{ width: `${(detail.currentAmount / detail.goalAmount) * 100}%` }"></div>
                         </div>
                         <div class="flex justify-between text-base">
-                            <p class="text-zinc-500">Của mục tiêu <span class="text-zinc-800 font-medium text-base">2.594.861 VND</span></p>
-                            <p class="text-zinc-500"><span class="text-zinc-800 font-medium text-base">52</span> lượt ủng hộp</p>
+                            <p class="text-zinc-500">
+                                Của mục tiêu <span class="text-zinc-800 font-medium text-base">{{ parseNum(detail.goalAmount) }} VND</span>
+                            </p>
+                            <p class="text-zinc-500">
+                                <span class="text-zinc-800 font-medium text-base">{{ detail.turn }} lượt ủng hộp</span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -84,9 +90,27 @@
 </template>
 <script setup>
 import { InputGroup, InputGroupAddon, InputNumber } from 'primevue';
-import { ref } from 'vue';
-
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { linkUploads } from '../../../constant/api';
+import apiService from '../../../service/api.service';
+import parseNum from '../../../utils/parseNum';
 const total = ref(0);
 const amounts = [50000, 100000, 200000, 500000];
+
+const router = useRoute();
+const detail = ref({});
+const getDetail = async () => {
+    try {
+        const res = await apiService.get(`projects/${router.params.id}`);
+        detail.value = res.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+onMounted(() => {
+    getDetail();
+});
 </script>
 <style></style>
