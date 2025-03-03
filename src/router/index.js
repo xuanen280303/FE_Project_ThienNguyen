@@ -56,6 +56,11 @@ const router = createRouter({
                     path: 'companion',
                     name: 'companion',
                     component: () => import('@/views/pages/admin/companion.vue')
+                },
+                {
+                    path: 'organization',
+                    name: 'organization',
+                    component: () => import('@/views/pages/admin/organization.vue')
                 }
             ]
         },

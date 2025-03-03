@@ -155,9 +155,12 @@ const uploadFile = async () => {
             const res = await apiService.upload(dataFileInput.value, 'projects');
             eventData.value.image = res.data.fileName;
         }
-        if (dataFileInputs.value.length > 0) {
-            const resImages = await Promise.all(dataFileInputs.value.map(async (item) => await apiService.upload(item, 'projects')));
-            eventData.value.listImage.push(...resImages.map((item) => item.data.fileName));
+        if (dataFileInputs.value.length == 1) {
+            const resImage = await apiService.upload(dataFileInputs.value[0], 'projects');
+            eventData.value.listImage.push(resImage.data.fileName);
+        } else if (dataFileInputs.value.length > 1) {
+            const resImages = await apiService.upload(dataFileInputs.value, 'projects');
+            resImages.map((item) => eventData.value.listImage.push(item.data.fileName));
         }
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
@@ -173,14 +176,13 @@ async function saveData() {
         return;
     }
     isLoadingData.value = true;
-
     try {
         await uploadFile();
         if (eventData.value._id) {
             const res = await apiService.patch(urlApi + '/' + eventData.value._id, { ...eventData.value });
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thành công', life: 3000 });
         } else {
-            const res = await apiService.post(urlApi, { ...eventData.value});
+            const res = await apiService.post(urlApi, { ...eventData.value });
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Thêm thành công', life: 3000 });
         }
         getAll();
@@ -520,18 +522,18 @@ const removeImageList = (index) => {
                 <div class="flex flex-col gap-4 w-1/2">
                     <div>
                         <label for="name" class="block font-bold mb-1">Tên dự án <small class="text-red-500">*</small></label>
-                        <InputText id="name" v-model.trim="eventData.name" autofocus :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên dự án" />
+                        <InputText id="name" v-model="eventData.name" autofocus :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên dự án" />
                     </div>
                     <div class="flex gap-3 w-full">
                         <div class="w-1/2">
                             <label for="gender" class="block font-bold mb-1">Trạng thái <small class="text-red-500">*</small></label>
-                            <Select id="status" v-model.trim="eventData.status" :options="valueStatus" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
+                            <Select id="status" v-model="eventData.status" :options="valueStatus" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
                         </div>
                         <div class="w-1/2">
                             <label for="role" class="block font-bold mb-1">Tỉnh thành <small class="text-red-500">*</small></label>
                             <Select
                                 id="role"
-                                v-model.trim="eventData.conscious"
+                                v-model="eventData.conscious"
                                 :options="dataGetAllOption.conscious"
                                 optionLabel="full_name"
                                 @change="getAllLocation(eventData.conscious, 'district')"
@@ -551,7 +553,7 @@ const removeImageList = (index) => {
                             <Select
                                 :disabled="!eventData.conscious"
                                 id="role"
-                                v-model.trim="eventData.district"
+                                v-model="eventData.district"
                                 :options="dataGetAllOption.district"
                                 optionLabel="full_name"
                                 @change="getAllLocation(eventData.district, 'ward')"
@@ -568,7 +570,7 @@ const removeImageList = (index) => {
                             <Select
                                 id="role"
                                 :disabled="!eventData.district"
-                                v-model.trim="eventData.ward"
+                                v-model="eventData.ward"
                                 :options="dataGetAllOption.ward"
                                 optionLabel="full_name"
                                 required="true"
@@ -583,13 +585,13 @@ const removeImageList = (index) => {
 
                     <div>
                         <label for="name" class="block font-bold mb-1">Địa chỉ <small class="text-red-500">*</small></label>
-                        <InputText id="address" v-model.trim="eventData.address" autofocus :invalid="submitted && !eventData.address" fluid placeholder="Vui lòng nhập địa chỉ" />
+                        <InputText id="address" v-model="eventData.address" autofocus :invalid="submitted && !eventData.address" fluid placeholder="Vui lòng nhập địa chỉ" />
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 w-1/2">
                     <div>
                         <label for="goalAmount" class="block font-bold mb-1">Mục tiêu quyên góp (VNĐ) <small class="text-red-500">*</small></label>
-                        <InputNumber id="goalAmount" v-model.trim="eventData.goalAmount" :min="1" autofocus :invalid="submitted && !eventData.goalAmount" fluid placeholder="Vui lòng nhập mục tiêu quyên góp" />
+                        <InputNumber id="goalAmount" v-model="eventData.goalAmount" :min="1" autofocus :invalid="submitted && !eventData.goalAmount" fluid placeholder="Vui lòng nhập mục tiêu quyên góp" />
                     </div>
 
                     <div class="flex gap-3 w-full">
@@ -599,7 +601,7 @@ const removeImageList = (index) => {
                                 id="startDate"
                                 showTime
                                 hourFormat="24"
-                                v-model.trim="eventData.startDate"
+                                v-model="eventData.startDate"
                                 :maxDate="eventData.endDate ? new Date(eventData.endDate) : null"
                                 autofocus
                                 :invalid="submitted && !eventData.startDate"
@@ -616,7 +618,7 @@ const removeImageList = (index) => {
                                 showTime
                                 hourFormat="24"
                                 :minDate="eventData.startDate ? new Date(eventData.startDate) : null"
-                                v-model.trim="eventData.endDate"
+                                v-model="eventData.endDate"
                                 autofocus
                                 :invalid="submitted && !eventData.endDate"
                                 fluid
@@ -628,7 +630,7 @@ const removeImageList = (index) => {
                         <label for="organization" class="block font-bold mb-1">Tổ chức kêu gọi <small class="text-red-500">*</small></label>
                         <Select
                             id="organization"
-                            v-model.trim="eventData.organization"
+                            v-model="eventData.organization"
                             :options="dataGetAllOption.user"
                             optionLabel="name"
                             optionValue="_id"
@@ -644,7 +646,7 @@ const removeImageList = (index) => {
                         <label for="role" class="block font-bold mb-1">Chiến dịch <small class="text-red-500">*</small></label>
                         <Select
                             id="role"
-                            v-model.trim="eventData.campaign"
+                            v-model="eventData.campaign"
                             :options="dataGetAllOption.campaign"
                             optionLabel="name"
                             optionValue="_id"

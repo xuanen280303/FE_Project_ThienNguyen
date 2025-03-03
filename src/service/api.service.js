@@ -34,11 +34,18 @@ class API {
 
     async upload(file, nameForder) {
         const bodyFormData = new FormData();
-        bodyFormData.append('fileUpload', file);
-        const response = await apiClient.post('/files/upload', bodyFormData, {
+        if (file.length > 1) {
+            file.forEach((item) => {
+                bodyFormData.append('fileUploads', item);
+            });
+        } else {
+            bodyFormData.append('fileUpload', file);
+        }
+        const response = await apiClient.post(file.length > 1 ? '/files/upload-many' : '/files/upload', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                folder_type: nameForder
+                folder_type: nameForder,
+                'X-Upload-Multiple': 'true'
             }
         });
         return response.data;

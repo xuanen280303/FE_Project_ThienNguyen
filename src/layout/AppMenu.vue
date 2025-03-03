@@ -49,6 +49,10 @@ const model = ref([
                     {
                         label: 'Quản lý người đồng hành',
                         to: '/admin/companion'
+                    },
+                    {
+                        label: 'Quản lý người đồng hành',
+                        to: '/admin/organization'
                     }
                 ]
             },

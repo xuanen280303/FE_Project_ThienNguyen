@@ -11,7 +11,7 @@ import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
 import { createPinia } from 'pinia';
 import LoadingVue from './components/Loading.vue';
-import viLocale from './utils/viLocale';
+// import viLocale from './utils/viLocale';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -25,8 +25,8 @@ app.use(PrimeVue, {
         options: {
             darkModeSelector: '.app-dark'
         }
-    },
-    locale: viLocale
+    }
+    // locale: viLocale
 });
 
 app.use(pinia);

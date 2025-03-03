@@ -21,7 +21,7 @@
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
     margin: 5px;
     opacity: 0;
-    animation: fade-in-out 1.5s ease-in-out infinite;
+    animation: fade-in-out 1s ease-in-out infinite;
 }
 
 .diamond.middle {
