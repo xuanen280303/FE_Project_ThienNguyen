@@ -155,6 +155,9 @@ const uploadFile = async () => {
             const res = await apiService.upload(dataFileInput.value, 'projects');
             eventData.value.image = res.data.fileName;
         }
+        if (dataFileInputs.value.length > 20) {
+            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn không quá 20 ảnh', life: 3000 });
+        }
         if (dataFileInputs.value.length == 1) {
             const resImage = await apiService.upload(dataFileInputs.value[0], 'projects');
             eventData.value.listImage.push(resImage.data.fileName);
