@@ -43,7 +43,12 @@ const dataGetAllOption = ref({
     user: [],
     conscious: [],
     district: [],
-    ward: []
+    ward: [],
+    organization: [],
+    type: [
+        { label: 'Cá nhân', value: 'CN' },
+        { label: 'Tổ chức', value: 'TC' }
+    ]
 });
 
 function openEventDialog() {
@@ -67,6 +72,7 @@ function getDataDetail(prod) {
     eventData.value = {
         ...prod,
         organization: prod.organization?._id,
+        user: prod.user?._id,
         campaign: prod.campaign?._id
     };
     isEventDialog.value = true;
@@ -110,28 +116,26 @@ const validate = () => {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn ngày kết thúc', life: 3000 });
         isValid = false;
     }
+    if (!eventData.value.type) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn hình thức', life: 3000 });
+        isValid = false;
+    }
 
     // Kiểm tra tổ chức kêu gọi
-    if (!eventData.value.organization) {
+    if (!eventData.value.organization && eventData.value.type == 'TC') {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn tổ chức kêu gọi', life: 3000 });
+        isValid = false;
+    }
+
+    // Kiểm tra tổ chức kêu gọi
+    if (!eventData.value.user && eventData.value.type == 'CN') {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn cá nhân kêu gọi', life: 3000 });
         isValid = false;
     }
 
     // Kiểm tra mô tả
     if (!eventData.value.description?.trim()) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập mô tả', life: 3000 });
-        isValid = false;
-    }
-
-    // Kiểm tra địa chỉ
-    if (!eventData.value.address?.trim()) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập địa chỉ', life: 3000 });
-        isValid = false;
-    }
-
-    // Kiểm tra địa chỉ chi tiết
-    if (!eventData.value.detailAddress?.trim()) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập đầy đủ các trường địa chỉ', life: 3000 });
         isValid = false;
     }
 
@@ -151,22 +155,21 @@ const validate = () => {
 };
 const uploadFile = async () => {
     try {
+        debugger;
         if (dataFileInput.value) {
             const res = await apiService.upload(dataFileInput.value, 'projects');
             eventData.value.image = res.data.fileName;
         }
         if (dataFileInputs.value.length > 20) {
             toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn không quá 20 ảnh', life: 3000 });
+            return;
         }
-        if (dataFileInputs.value.length == 1) {
-            const resImage = await apiService.upload(dataFileInputs.value[0], 'projects');
-            eventData.value.listImage.push(resImage.data.fileName);
-        } else if (dataFileInputs.value.length > 1) {
-            const resImages = await apiService.upload(dataFileInputs.value, 'projects');
-            resImages.map((item) => eventData.value.listImage.push(item.data.fileName));
+        if (dataFileInputs.value.length > 0) {
+            const resImages = await apiService.upload(dataFileInputs.value, 'projects', true);
+            resImages.data.map((item) => eventData.value.listImage.push(item.fileName));
         }
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định từ upload file', life: 10000 });
     }
 };
 
@@ -191,7 +194,7 @@ async function saveData() {
         getAll();
         hideDialog();
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định từ save data', life: 10000 });
     } finally {
         isLoadingData.value = false;
     }
@@ -214,18 +217,19 @@ const getAll = async () => {
         valueData.value = res.data.items;
         pagination.value.total = res.data.total;
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ get all', life: 3000 });
     } finally {
         isLoadingData.value = false;
     }
 };
 const getAllOption = async () => {
     try {
-        const [resCampaign, resUser] = await Promise.all([apiService.get('campaigns/getAll'), apiService.get('users/getAll')]);
+        const [resCampaign, resUser, resOrganization] = await Promise.all([apiService.get('campaigns/getAll'), apiService.get('users/getAll'), apiService.get('organizations/getAll')]);
         dataGetAllOption.value.campaign = resCampaign.data;
         dataGetAllOption.value.user = resUser.data;
+        dataGetAllOption.value.organization = resOrganization.data;
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ get all option', life: 3000 });
     }
 };
 const getAllLocation = async (event, type = null) => {
@@ -243,7 +247,7 @@ const getAllLocation = async (event, type = null) => {
             dataGetAllOption.value.conscious = res.data;
         }
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ lấy tỉnh thành', life: 3000 });
     }
 };
 const handlePage = (event) => {
@@ -269,7 +273,7 @@ const deleteProduct = async () => {
         hideDialog();
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Xóa thành công', life: 3000 });
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ xoá dự án', life: 3000 });
     } finally {
         isLoadingData.value = false;
     }
@@ -278,7 +282,6 @@ const deleteProduct = async () => {
 const inputData = ref(null);
 const inputDatas = ref([]);
 const UploadFileLocal = async (event, images = false) => {
-    debugger;
     if (images) {
         const files = Array.from(event.target.files);
         dataFileInputs.value = files;
@@ -426,7 +429,11 @@ const removeImageList = (index) => {
                 </Column>
                 <Column field="name" header="Tên dự án" style="min-width: 14rem"></Column>
                 <Column field="campaign.name" header="Chiến dịch" style="min-width: 8rem"> </Column>
-                <Column field="organization.name" header="Bời" style="min-width: 8rem"> </Column>
+                <Column header="Bởi" style="min-width: 8rem">
+                    <template #body="slotProps">
+                        {{ slotProps.data.type ? (slotProps.data.type == 'CN' ? slotProps.data.user.name : slotProps.data.organization.name) : '--' }}
+                    </template>
+                </Column>
                 <Column field="status" header="Trạng thái" style="min-width: 7rem">
                     <template #body="slotProps">
                         {{ getStatus(slotProps.data.status) }}
@@ -533,7 +540,7 @@ const removeImageList = (index) => {
                             <Select id="status" v-model="eventData.status" :options="valueStatus" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
                         </div>
                         <div class="w-1/2">
-                            <label for="role" class="block font-bold mb-1">Tỉnh thành <small class="text-red-500">*</small></label>
+                            <label for="role" class="block font-bold mb-1">Tỉnh thành</label>
                             <Select
                                 id="role"
                                 v-model="eventData.conscious"
@@ -552,7 +559,7 @@ const removeImageList = (index) => {
 
                     <div class="flex gap-3 w-full">
                         <div class="w-1/2">
-                            <label for="role" class="block font-bold mb-1">Quận huyện<small class="text-red-500">*</small></label>
+                            <label for="role" class="block font-bold mb-1">Quận huyện</label>
                             <Select
                                 :disabled="!eventData.conscious"
                                 id="role"
@@ -569,7 +576,7 @@ const removeImageList = (index) => {
                             />
                         </div>
                         <div class="w-1/2">
-                            <label for="role" class="block font-bold mb-1">Phường xã <small class="text-red-500">*</small></label>
+                            <label for="role" class="block font-bold mb-1">Phường xã</label>
                             <Select
                                 id="role"
                                 :disabled="!eventData.district"
@@ -587,7 +594,7 @@ const removeImageList = (index) => {
                     </div>
 
                     <div>
-                        <label for="name" class="block font-bold mb-1">Địa chỉ <small class="text-red-500">*</small></label>
+                        <label for="name" class="block font-bold mb-1">Địa chỉ </label>
                         <InputText id="address" v-model="eventData.address" autofocus :invalid="submitted && !eventData.address" fluid placeholder="Vui lòng nhập địa chỉ" />
                     </div>
                 </div>
@@ -629,22 +636,57 @@ const removeImageList = (index) => {
                             />
                         </div>
                     </div>
-                    <div>
-                        <label for="organization" class="block font-bold mb-1">Tổ chức kêu gọi <small class="text-red-500">*</small></label>
-                        <Select
-                            id="organization"
-                            v-model="eventData.organization"
-                            :options="dataGetAllOption.user"
-                            optionLabel="name"
-                            optionValue="_id"
-                            required="true"
-                            autofocus
-                            :invalid="submitted && !eventData.organization"
-                            filter
-                            fluid
-                            placeholder="Vui lòng chọn tổ chức kêu gọi"
-                        />
+                    <div class="flex gap-2">
+                        <div class="w-1/3">
+                            <label for="type" class="block font-bold mb-1">Thuộc <small class="text-red-500">*</small></label>
+                            <Select
+                                id="type"
+                                v-model="eventData.type"
+                                :options="dataGetAllOption.type"
+                                optionLabel="label"
+                                optionValue="value"
+                                required="true"
+                                autofocus
+                                :invalid="submitted && !eventData.type"
+                                fluid
+                                placeholder="Vui lòng chọn thuộc loại"
+                            />
+                        </div>
+                        <div class="w-2/3">
+                            <label for="organization" class="block font-bold mb-1">{{ eventData.type == 'CN' ? 'Cá nhân kêu gọi' : 'Tổ chức kêu gọi' }} <small class="text-red-500">*</small></label>
+                            <Select
+                                v-if="eventData.type == 'CN'"
+                                :disabled="!eventData.type"
+                                id="organization"
+                                v-model="eventData.user"
+                                :options="dataGetAllOption.user"
+                                optionLabel="name"
+                                optionValue="_id"
+                                required="true"
+                                autofocus
+                                :invalid="submitted && !eventData.organization"
+                                filter
+                                fluid
+                                placeholder="Vui lòng chọn tổ chức kêu gọi"
+                            />
+                            <Select
+                                v-else
+                                :disabled="!eventData.type"
+                                id="organization"
+                                v-model="eventData.organization"
+                                :options="dataGetAllOption.organization"
+                                optionLabel="name"
+                                optionValue="_id"
+                                required="true"
+                                autofocus
+                                :invalid="submitted && !eventData.organization"
+                                filter
+                                fluid
+                                placeholder="Vui lòng chọn tổ chức kêu gọi"
+                            />
+                        </div>
                     </div>
+
                     <div>
                         <label for="role" class="block font-bold mb-1">Chiến dịch <small class="text-red-500">*</small></label>
                         <Select

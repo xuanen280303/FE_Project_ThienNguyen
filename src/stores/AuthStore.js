@@ -31,12 +31,12 @@ export const useAuthStore = defineStore('auth', () => {
                 return access_token;
             }
         } catch (error) {
-            debugger;
-            console.log(error);
-            if (error.status == 404 && error.response?.data?.message == 'Token không tồn tại.') {
+            if (error.status == 410 && error.response?.data?.message == 'token_refresh_not_found') {
+                debugger;
                 alert('Tài khoản đã được đăng nhập từ nơi khác');
                 await logout(false);
             }
+            console.log(error);
         }
     };
 

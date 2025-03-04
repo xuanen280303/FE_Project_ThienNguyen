@@ -319,7 +319,7 @@ const getDetail = async () => {
 const projectByCampaign = ref([]);
 const getProjectByCampaign = async () => {
     try {
-        const res = await apiService.get(`projects?page=1&size=3&filter=campaign=${detail.value.campaign._id}`);
+        const res = await apiService.get(`projects?page=1&pageSize=3&filter=campaign=${detail.value.campaign._id}`);
         projectByCampaign.value = res.data.items;
     } catch (error) {
         console.log(error);

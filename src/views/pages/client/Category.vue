@@ -13,33 +13,33 @@
                 <button
                     @click="
                         () => {
-                            valueFilter.organization = '';
+                            valueFilter.type = '';
                             handleFilter();
                         }
                     "
-                    :class="['px-5 py-2', valueFilter.organization === '' ? 'text-orange-500' : 'text-gray-500']"
+                    :class="['px-5 py-2', valueFilter.type === '' ? 'text-orange-500' : 'text-gray-500']"
                 >
                     Tất cả
                 </button>
                 <button
                     @click="
                         () => {
-                            valueFilter.organization = 'TC';
+                            valueFilter.type = 'TC';
                             handleFilter();
                         }
                     "
-                    :class="['px-5 py-2', valueFilter.organization === 'TC' ? 'text-orange-500' : 'text-gray-500']"
+                    :class="['px-5 py-2', valueFilter.type === 'TC' ? 'text-orange-500' : 'text-gray-500']"
                 >
                     Tổ chức
                 </button>
                 <button
                     @click="
                         () => {
-                            valueFilter.organization = 'CN';
+                            valueFilter.type = 'CN';
                             handleFilter();
                         }
                     "
-                    :class="['px-5 py-2', valueFilter.organization === 'CN' ? 'text-orange-500' : 'text-gray-500']"
+                    :class="['px-5 py-2', valueFilter.type === 'CN' ? 'text-orange-500' : 'text-gray-500']"
                 >
                     Cá nhân
                 </button>
@@ -85,7 +85,7 @@ import apiService from '../../../service/api.service';
 
 const router = useRoute();
 const getLeftPosition = () => {
-    switch (valueFilter.value.organization) {
+    switch (valueFilter.value.type) {
         case '':
             return '0px';
         case 'TC':
@@ -100,7 +100,7 @@ const isLoading = ref(false);
 const valueFilter = ref({
     status: '',
     sort: false,
-    organization: '',
+    type: '',
     campaign: router.params.id
 });
 const keySearch = ref('');
@@ -125,9 +125,6 @@ const getCategory = async () => {
         .map(([key, value]) => {
             if (key === 'sort') {
                 return `sort=${value ? 'createdAt' : '-createdAt'}`;
-            }
-            if (key === 'organization') {
-                return `organization.type=${value}`;
             }
             return `${key}=${value}`;
         });
@@ -164,7 +161,7 @@ const handleReset = () => {
     valueFilter.value = {
         status: '',
         sort: false,
-        organization: '',
+        type: '',
         campaign: router.params.id
     };
     keySearch.value = '';

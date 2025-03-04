@@ -157,36 +157,64 @@ const UploadFileLocal = async (event) => {
                 </template>
 
                 <template #end>
-                    <Select v-model="valueFilter.isActive" :options="[
-                        { label: 'Tất cả', value: null },
-                        { label: 'Hoạt động', value: true },
-                        { label: 'Không hoạt động', value: false }
-                    ]" placeholder="Tất cả" optionLabel="label" optionValue="value" @change="handleFilter"
-                        class="mr-2" />
+                    <Select
+                        v-model="valueFilter.isActive"
+                        :options="[
+                            { label: 'Tất cả', value: null },
+                            { label: 'Hoạt động', value: true },
+                            { label: 'Không hoạt động', value: false }
+                        ]"
+                        placeholder="Tất cả"
+                        optionLabel="label"
+                        optionValue="value"
+                        @change="handleFilter"
+                        class="mr-2"
+                    />
 
                     <Button label="Làm mới" icon="pi pi-refresh" severity="secondary" @click="getAll" class="mr-2" />
-                    <Button v-if="valueFilter.sort" label="Mới nhất" icon="pi pi-arrow-down" severity="secondary"
+                    <Button
+                        v-if="valueFilter.sort"
+                        label="Mới nhất"
+                        icon="pi pi-arrow-down"
+                        severity="secondary"
                         @click="
                             () => {
                                 valueFilter.sort = false;
                                 getAll();
                             }
-                        " class="mr-2" />
-                    <Button v-else label="Cũ nhất" icon="pi pi-arrow-up" severity="secondary" @click="
-                        () => {
-                            valueFilter.sort = true;
-                            getAll();
-                        }
-                    " class="mr-2" />
+                        "
+                        class="mr-2"
+                    />
+                    <Button
+                        v-else
+                        label="Cũ nhất"
+                        icon="pi pi-arrow-up"
+                        severity="secondary"
+                        @click="
+                            () => {
+                                valueFilter.sort = true;
+                                getAll();
+                            }
+                        "
+                        class="mr-2"
+                    />
                 </template>
             </Toolbar>
 
-            <DataTable ref="dt" lazy :value="valueData" :paginator="true" :loading="isLoadingData"
-                :rows="pagination.pageSize" :page="pagination.page"
+            <DataTable
+                ref="dt"
+                lazy
+                :value="valueData"
+                :paginator="true"
+                :loading="isLoadingData"
+                :rows="pagination.pageSize"
+                :page="pagination.page"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25, 50, 100]"
                 currentPageReportTemplate="Từ {first} đến {last} trong {totalRecords} dữ liệu"
-                :totalRecords="pagination.total" @page="handlePage($event)">
+                :totalRecords="pagination.total"
+                @page="handlePage($event)"
+            >
                 <template #empty>
                     <div class="flex justify-center items-center h-full">
                         <span class="text-gray-500">Không có dữ liệu</span>
@@ -211,8 +239,7 @@ const UploadFileLocal = async (event) => {
                 </Column>
                 <Column field="image" header="Ảnh chiến dịch" style="min-width: 6rem">
                     <template #body="slotProps">
-                        <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/150x150'"
-                            alt="image" class="rounded-lg w-[90px] h-[90px] object-cover" />
+                        <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/150x150'" alt="image" class="rounded-lg w-[90px] h-[90px] object-cover" />
                     </template>
                 </Column>
 
@@ -225,16 +252,13 @@ const UploadFileLocal = async (event) => {
                 </Column>
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
                     <template #body="slotProps">
-                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt,
-                        'HH:mm') }}
+                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
                     </template>
                 </Column>
                 <Column :exportable="false" style="min-width: 7rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)"
-                            v-tooltip="'Chức năng sửa'" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger"
-                            @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
+                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
                 </Column>
             </DataTable>
@@ -242,20 +266,17 @@ const UploadFileLocal = async (event) => {
 
         <Dialog v-model:visible="isEventDialog" :style="{ width: '500px' }" :modal="true">
             <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?.id ? 'Cập nhật tài khoản
-                    người dùng' : 'Thêm tài khoản người dùng' }} -
-                    <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">
+                    {{ eventData?.id ? 'Cập nhật tài người dùng' : 'Thêm tài khoản người dùng' }}
+                    - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái
                 </h4>
             </template>
             <div class="flex flex-col gap-4">
                 <div>
                     <label class="block font-bold mb-1">Ảnh chiến dịch</label>
-                    <div class="relative group w-full h-[200px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer"
-                        @click="$refs.fileInput.click()">
-                        <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/400x200')"
-                            alt="image" class="w-full h-full object-contain" />
-                        <div
-                            class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="relative group w-full h-[200px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
+                        <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/400x200')" alt="image" class="w-full h-full object-contain" />
+                        <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <i class="pi pi-upload text-orange-500" style="font-size: 2rem"></i>
                         </div>
                     </div>
@@ -264,14 +285,12 @@ const UploadFileLocal = async (event) => {
 
                 <div>
                     <label for="name" class="block font-bold mb-1">Tên chiến dịch</label>
-                    <InputText id="name" v-model="eventData.name" required="true" autofocus fluid
-                        placeholder="Tên chiến dịch" />
+                    <InputText id="name" v-model="eventData.name" required="true" autofocus fluid placeholder="Tên chiến dịch" />
                 </div>
 
                 <div>
                     <label for="description" class="block font-bold mb-1">Mô tả</label>
-                    <Textarea id="description" v-model="eventData.description" required="true" autofocus fluid
-                        placeholder="Vui lòng nhập mô tả" />
+                    <Textarea id="description" v-model="eventData.description" required="true" autofocus fluid placeholder="Vui lòng nhập mô tả" />
                 </div>
             </div>
 

@@ -32,16 +32,16 @@ class API {
         return response.data;
     }
 
-    async upload(file, nameForder) {
+    async upload(file, nameForder, isMany = false) {
         const bodyFormData = new FormData();
-        if (file.length > 1) {
+        if (isMany) {
             file.forEach((item) => {
                 bodyFormData.append('fileUploads', item);
             });
         } else {
             bodyFormData.append('fileUpload', file);
         }
-        const response = await apiClient.post(file.length > 1 ? '/files/upload-many' : '/files/upload', bodyFormData, {
+        const response = await apiClient.post(isMany ? '/files/upload-many' : '/files/upload', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 folder_type: nameForder,

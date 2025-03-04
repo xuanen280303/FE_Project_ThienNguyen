@@ -51,7 +51,7 @@ const model = ref([
                         to: '/admin/companion'
                     },
                     {
-                        label: 'Quản lý người đồng hành',
+                        label: 'Quản lý tổ chức',
                         to: '/admin/organization'
                     }
                 ]
