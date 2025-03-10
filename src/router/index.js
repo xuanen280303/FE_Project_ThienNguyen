@@ -96,6 +96,16 @@ const router = createRouter({
             ]
         },
         {
+            path: '/success/:id',
+            name: 'success',
+            component: () => import('@/views/pages/client/success.vue')
+        },
+        {
+            path: '/cancel/:id',
+            name: 'cancel',
+            component: () => import('@/views/pages/client/cancel.vue')
+        },
+        {
             path: '/notfound',
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')

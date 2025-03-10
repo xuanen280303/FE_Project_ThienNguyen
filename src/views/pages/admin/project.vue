@@ -431,7 +431,7 @@ const removeImageList = (index) => {
                 <Column field="campaign.name" header="Chiến dịch" style="min-width: 8rem"> </Column>
                 <Column header="Bởi" style="min-width: 8rem">
                     <template #body="slotProps">
-                        {{ slotProps.data.type ? (slotProps.data.type == 'CN' ? slotProps.data.user.name : slotProps.data.organization.name) : '--' }}
+                        {{ slotProps.data.type ? (slotProps.data.type == 'CN' ? slotProps.data.user?.name : slotProps.data.organization?.name) : '--' }}
                     </template>
                 </Column>
                 <Column field="status" header="Trạng thái" style="min-width: 7rem">

@@ -110,7 +110,7 @@ const deleteProduct = async () => {
     }
 };
 const optionMethod = ref(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']);
-const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGNS', 'COMPANIONS', 'ORGANIZATIONS']);
+const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGNS', 'COMPANIONS', 'ORGANIZATIONS', 'DONATIONS']);
 </script>
 
 <template>
@@ -124,27 +124,49 @@ const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGN
 
                 <template #end>
                     <Button label="Làm mới" icon="pi pi-refresh" severity="secondary" @click="getAll" class="mr-2" />
-                    <Button v-if="isSort" label="Mới nhất" icon="pi pi-arrow-down" severity="secondary" @click="
-                        () => {
-                            isSort = false;
-                            getAll();
-                        }
-                    " class="mr-2" />
-                    <Button v-else label="Cũ nhất" icon="pi pi-arrow-up" severity="secondary" @click="
-                        () => {
-                            isSort = true;
-                            getAll();
-                        }
-                    " class="mr-2" />
+                    <Button
+                        v-if="isSort"
+                        label="Mới nhất"
+                        icon="pi pi-arrow-down"
+                        severity="secondary"
+                        @click="
+                            () => {
+                                isSort = false;
+                                getAll();
+                            }
+                        "
+                        class="mr-2"
+                    />
+                    <Button
+                        v-else
+                        label="Cũ nhất"
+                        icon="pi pi-arrow-up"
+                        severity="secondary"
+                        @click="
+                            () => {
+                                isSort = true;
+                                getAll();
+                            }
+                        "
+                        class="mr-2"
+                    />
                 </template>
             </Toolbar>
 
-            <DataTable ref="dt" lazy :value="valueData" :paginator="true" :loading="isLoadingData"
-                :rows="pagination.pageSize" :page="pagination.page"
+            <DataTable
+                ref="dt"
+                lazy
+                :value="valueData"
+                :paginator="true"
+                :loading="isLoadingData"
+                :rows="pagination.pageSize"
+                :page="pagination.page"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25, 50, 100]"
                 currentPageReportTemplate="Từ {first} đến {last} trong {totalRecords} dữ liệu"
-                :totalRecords="pagination.total" @page="handlePage($event)">
+                :totalRecords="pagination.total"
+                @page="handlePage($event)"
+            >
                 <template #empty>
                     <div class="flex justify-center items-center h-full">
                         <span class="text-gray-500">Không có dữ liệu</span>
@@ -174,48 +196,39 @@ const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGN
                 <Column field="apiPath" header="API" style="min-width: 12rem"> </Column>
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
                     <template #body="slotProps">
-                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt,
-                        'HH:mm') }}
+                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
                     </template>
                 </Column>
                 <Column :exportable="false" style="min-width: 7rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getData(slotProps.data)"
-                            v-tooltip="'Chức năng sửa'" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger"
-                            @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getData(slotProps.data)" v-tooltip="'Chức năng sửa'" />
+                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="isEventDialog" :style="{ width: '450px' }"
-            :header="eventData.id ? 'Cập nhật quyền' : 'Thêm quyền'" :modal="true">
+        <Dialog v-model:visible="isEventDialog" :style="{ width: '450px' }" :header="eventData.id ? 'Cập nhật quyền' : 'Thêm quyền'" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="name" class="block font-bold mb-3">Tên quyền</label>
-                    <InputText id="name" v-model="eventData.name" required="true" autofocus
-                        :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên quyền" />
+                    <InputText id="name" v-model="eventData.name" required="true" autofocus :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên quyền" />
                     <small v-if="submitted && !eventData.name" class="text-red-500">Tên quyền là bắt buộc.</small>
                 </div>
                 <div>
                     <label for="apiPath" class="block font-bold mb-3">API</label>
-                    <InputText id="apiPath" v-model="eventData.apiPath" required="true" autofocus
-                        :invalid="submitted && !eventData.apiPath" fluid placeholder="Vui lòng nhập API" />
+                    <InputText id="apiPath" v-model="eventData.apiPath" required="true" autofocus :invalid="submitted && !eventData.apiPath" fluid placeholder="Vui lòng nhập API" />
                     <small v-if="submitted && !eventData.apiPath" class="text-red-500">API là bắt buộc.</small>
                 </div>
                 <div>
                     <label for="method" class="block font-bold mb-3">Phương thức</label>
-                    <Select id="method" editable v-model="eventData.method" :options="optionMethod"
-                        placeholder="Vui lòng chọn phương thức" fluid
-                        :invalid="submitted && !eventData.method"></Select>
+                    <Select id="method" editable v-model="eventData.method" :options="optionMethod" placeholder="Vui lòng chọn phương thức" fluid :invalid="submitted && !eventData.method"></Select>
                     <small v-if="submitted && !eventData.method" class="text-red-500">Phương thức là bắt buộc.</small>
                 </div>
                 <div>
                     <label for="module" class="block font-bold mb-3">Mô đun</label>
 
-                    <Select id="module" editable v-model="eventData.module" :options="optionModule"
-                        placeholder="Vui lòng chọn mô đun" fluid :invalid="submitted && !eventData.module"></Select>
+                    <Select id="module" editable v-model="eventData.module" :options="optionModule" placeholder="Vui lòng chọn mô đun" fluid :invalid="submitted && !eventData.module"></Select>
                     <small v-if="submitted && !eventData.module" class="text-red-500">Mô đun là bắt buộc.</small>
                 </div>
             </div>

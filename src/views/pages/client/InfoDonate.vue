@@ -46,13 +46,13 @@
                 <div class="flex flex-col gap-1">
                     <label for="total" class="text-[13px]">Nhập số tiền ủng hộ <small class="text-red-500">*</small> </label>
                     <InputGroup>
-                        <InputNumber v-model="total" size="large" :pt:pcinputtext:root:class="'h-[58px] !rounded-s-2xl !border-r-0 !text-primary-500 !text-xl font-semibold'" />
+                        <InputNumber :invalid="submitted && !dataDonate.amount" v-model="dataDonate.amount" size="large" :pt:pcinputtext:root:class="'h-[58px] !rounded-s-2xl !border-r-0 !text-primary-500 !text-xl font-semibold'" />
                         <InputGroupAddon class="!text-primary font-bold" :pt:root:class="'!rounded-e-2xl !border-l-none'">VNĐ</InputGroupAddon>
                     </InputGroup>
                     <div class="flex gap-5 mt-3">
                         <div v-for="amount in amounts" :key="amount" class="w-1/4">
                             <div class="relative">
-                                <input type="radio" :id="'amount-' + amount" :value="amount" v-model="total" class="hidden peer" />
+                                <input type="radio" :id="'amount-' + amount" :value="amount" v-model="dataDonate.amount" class="hidden peer" />
                                 <label :for="'amount-' + amount" class="block bg-gray-50 rounded-2xl px-3 py-2 shadow-lg text-center text-lg font-semibold cursor-pointer hover:bg-orange-400 peer-checked:bg-orange-500 peer-checked:text-white">
                                     {{ amount.toLocaleString() }}
                                 </label>
@@ -62,26 +62,26 @@
                 </div>
                 <div class="flex flex-col gap-1">
                     <label for="name" class="text-[13px]">Lời chúc </label>
-                    <InputText v-model="name" placeholder="Nhập lời chúc trao gửi yêu thương" size="large" class="!rounded-xl" />
+                    <InputText v-model="dataDonate.description" placeholder="Nhập lời chúc trao gửi yêu thương" size="large" class="!rounded-xl" />
                 </div>
                 <h3 class="text-xl font-medium">Thông tin của bạn</h3>
                 <div class="flex flex-col gap-1">
                     <label for="name" class="text-[13px]">Họ và Tên</label>
-                    <InputText v-model="name" placeholder="Họ tên" size="large" class="!rounded-xl" />
+                    <InputText v-model="dataDonate.buyerName" placeholder="Họ tên" size="large" class="!rounded-xl" />
                 </div>
                 <div class="flex flex-col gap-1">
                     <label for="email" class="text-[13px]">Địa chỉ Email</label>
-                    <InputText v-model="email" placeholder="Nhập địa chỉ email" size="large" class="!rounded-xl" />
+                    <InputText v-model="dataDonate.buyerEmail" placeholder="Nhập địa chỉ email" size="large" class="!rounded-xl" />
                     <p class="text-[13px] text-gray-500">Bạn sẽ nhận được một email xác nhận về thông tin đóng góp của mình</p>
                 </div>
                 <div class="flex flex-col gap-1">
                     <div class="flex items-center gap-2">
-                        <Checkbox v-model="pizza" inputId="ingredient1" name="pizza" binary />
+                        <Checkbox v-model="dataDonate.isAnonymous" inputId="ingredient1" name="pizza" binary />
                         <label for="ingredient1"> Ủng hộ ẩn danh </label>
                     </div>
                 </div>
                 <div class="mt-5">
-                    <Button label="Ủng hộ" class="w-full !rounded-2xl h-[45px] !text-xl" style="background: linear-gradient(88.87deg, #ff922e -5.14%, #ff6c57 119.29%)" />
+                    <Button @click="handleDonate" :loading="isLoading" label="Ủng hộ" class="w-full !rounded-2xl h-[45px] !text-xl" style="background: linear-gradient(88.87deg, #ff922e -5.14%, #ff6c57 119.29%)" />
                     <p class="text-[13px] font-semibold text-center mt-5">Bằng việc ủng hộ, bạn đã đồng ý với <a href="#" class="text-primary-500">Điều khoản và Điều kiện</a> của chúng tôi</p>
                 </div>
             </div>
@@ -89,15 +89,14 @@
     </div>
 </template>
 <script setup>
-import { InputGroup, InputGroupAddon, InputNumber } from 'primevue';
+import { InputGroup, InputGroupAddon, InputNumber, useToast } from 'primevue';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
 import parseNum from '../../../utils/parseNum';
-const total = ref(0);
 const amounts = [50000, 100000, 200000, 500000];
-
+const toast = useToast();
 const router = useRoute();
 const detail = ref({});
 const getDetail = async () => {
@@ -112,5 +111,49 @@ const getDetail = async () => {
 onMounted(() => {
     getDetail();
 });
+const dataDonate = ref({
+    amount: 0,
+    buyerName: '',
+    buyerEmail: '',
+    description: '',
+    isAnonymous: false,
+    cancelUrl: window.location.origin + '/cancel/' + router.params.id,
+    returnUrl: window.location.origin + '/success/' + router.params.id
+});
+const isLoading = ref(false);
+const submitted = ref(false);
+const validate = () => {
+    if (!dataDonate.value.amount) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập số tiền ủng hộ', life: 3000 });
+        return false;
+    }
+    if (!dataDonate.value.isAnonymous) {
+        if (!dataDonate.value.buyerName) {
+            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập họ tên', life: 3000 });
+            return false;
+        }
+        if (!dataDonate.value.buyerEmail) {
+            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập địa chỉ email', life: 3000 });
+            return false;
+        }
+    }
+    submitted.value = false;
+    return true;
+};
+const handleDonate = async () => {
+    submitted.value = true;
+    if (!validate()) return;
+    isLoading.value = true;
+    try {
+        const res = await apiService.post(`donations`, { ...dataDonate.value, project: detail.value._id });
+        if (res.data.paymentLink?.checkoutUrl) {
+            window.open(res.data.paymentLink.checkoutUrl, '_blank');
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isLoading.value = false;
+    }
+};
 </script>
 <style></style>

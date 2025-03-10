@@ -24,15 +24,17 @@ export const useAuthStore = defineStore('auth', () => {
 
     const refreshToken = async () => {
         try {
+            debugger;
+
             const res = await apiService.get(`auth/refresh`);
             if (res.data) {
                 const { access_token } = res.data;
-                tokenService.updateToken(access_token);
+                console.log(access_token);
+                await tokenService.updateToken(access_token);
                 return access_token;
             }
         } catch (error) {
             if (error.status == 410 && error.response?.data?.message == 'token_refresh_not_found') {
-                debugger;
                 alert('Tài khoản đã được đăng nhập từ nơi khác');
                 await logout(false);
             }

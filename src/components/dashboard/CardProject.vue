@@ -1,5 +1,5 @@
 <template>
-    <div class="p-1 rounded-xl hover:shadow-xl hover:p-0 shadow-md transition-all duration-100 group">
+    <div class="p-1 rounded-xl hover:shadow-xl hover:p-0 transition-all duration-100 group">
         <router-link :to="'/detail/' + link" class="max-w-full overflow-hidden bg-white">
             <!-- Phần hình ảnh -->
             <div class="relative rounded-xl overflow-hidden">

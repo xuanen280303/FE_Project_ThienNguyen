@@ -35,7 +35,7 @@ const eventData = ref({
     users: [
         {
             _id: null,
-            type: null
+            type: 'Trưởng nhóm'
         }
     ],
     socialLinks: [
@@ -53,7 +53,7 @@ const valueFilter = ref({
 });
 
 const options = ref({
-    role: ['Trưởng tổ chức', 'Thành viên', 'Phó tổ chức'],
+    role: ['Trưởng nhóm', 'Thành viên', 'Phó nhóm'],
     user: []
 });
 function openEventDialog() {
