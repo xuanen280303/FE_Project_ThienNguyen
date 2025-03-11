@@ -10,18 +10,20 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
-const router = useRoute();
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter(); // Sử dụng useRouter thay vì useRoute
 const countdown = ref(5);
 
 onMounted(() => {
     // Lấy ID từ URL
-    const projectId = router.params.id || router.query.id;
+    const projectId = router.currentRoute.value.params.id || router.currentRoute.value.query.id; // Sử dụng currentRoute để lấy params và query
     const timer = setInterval(() => {
         countdown.value--;
         if (countdown.value <= 0) {
             clearInterval(timer);
-            router.push(`/info-donate/${projectId}`);
+            router.push(`/detail/${projectId}`);
         }
     }, 1000);
 });

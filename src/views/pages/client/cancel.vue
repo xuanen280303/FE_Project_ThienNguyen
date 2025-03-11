@@ -1,12 +1,27 @@
 <template>
-    <div class="error-container">
-        <div class="error-content animate__animated animate__fadeIn">
-            <i class="fas fa-times-circle error-icon animate__animated animate__headShake"></i>
-            <h1 class="animate__animated animate__fadeInDown">Thanh toán thất bại!</h1>
-            <p class="animate__animated animate__fadeInUp">Đã xảy ra lỗi trong quá trình thanh toán</p>
-            <p class="countdown animate__animated animate__fadeInUp">
-                Tự động chuyển hướng sau <span class="timer">{{ countdown }}</span> giây
-            </p>
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 to-pink-50">
+        <div class="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-xl transform transition-all hover:-translate-y-1 duration-300">
+            <div class="text-center space-y-6">
+                <div class="inline-block animate__animated animate__fadeIn">
+                    <i class="pi pi-heart-broken text-7xl text-rose-500 animate__animated animate__headShake"></i>
+                </div>
+
+                <h1 class="text-3xl font-bold text-rose-600 animate__animated animate__fadeInDown">Rất tiếc, giao dịch chưa hoàn thành</h1>
+
+                <div class="space-y-4">
+                    <p class="text-gray-600 text-lg animate__animated animate__fadeInUp">Chúng tôi rất tiếc vì sự bất tiện này. Mỗi đóng góp của bạn đều là nguồn động viên quý giá cho những hoàn cảnh khó khăn.</p>
+
+                    <p class="text-gray-500 animate__animated animate__fadeInUp">Bạn có thể thử lại hoặc chọn phương thức thanh toán khác</p>
+
+                    <div class="countdown text-gray-600 animate__animated animate__fadeInUp">
+                        Tự động quay lại sau
+                        <span class="inline-block min-w-[40px] font-bold text-rose-600 bg-rose-50 rounded-full px-3 py-1">
+                            {{ countdown }}
+                        </span>
+                        giây
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -14,103 +29,38 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
+import apiService from '../../../service/api.service';
 const router = useRouter();
 const route = useRoute();
-const countdown = ref(5);
+const countdown = ref(10);
 
 onMounted(() => {
     // Lấy ID từ URL
-    const projectId = route.params.id || route.query.id;
-
+    const projectId = route.params.id;
+    const orderCode = route.query.orderCode;
+    const isCancel = route.query.cancel == 'true';
+    const updateStatus = async () => {
+        try {
+            if (isCancel) {
+                await apiService.delete('donations/' + orderCode);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    updateStatus();
     // Đếm ngược và chuyển hướng
     const timer = setInterval(() => {
         countdown.value--;
         if (countdown.value <= 0) {
             clearInterval(timer);
-            router.push(`/info-donate/${projectId}`);
+            router.push(`/detail/${projectId}`);
         }
     }, 1000);
 });
 </script>
 
 <style scoped>
-.error-container {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-.error-content {
-    text-align: center;
-    padding: 3rem;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.error-content:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-}
-
-.error-icon {
-    font-size: 6rem;
-    color: #dc3545;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.error-icon:hover {
-    transform: scale(1.1);
-}
-
-h1 {
-    color: #dc3545;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-p {
-    color: #6c757d;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
-.countdown {
-    margin-top: 2rem;
-}
-
-.timer {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #dc3545;
-    background: #fff0f3;
-    padding: 5px 15px;
-    border-radius: 20px;
-    display: inline-block;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-/* Add animate.css classes */
 .animate__animated {
     animation-duration: 1s;
 }

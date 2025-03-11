@@ -9,7 +9,7 @@
                     <div class="w-full flex flex-col justify-end mb-2">
                         <div class="flex items-center justify-between text-white text-[13px] font-semibold mb-0.5">
                             <span>{{ formattedNumber(amount) }} đ</span>
-                            <span>{{ progress }}%</span>
+                            <span>{{ roundToTwoDecimals(progress) }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-[4px]">
                             <div class="bg-gradient-to-r from-orange-300 via-orange-500 to-red-500 h-[4px] rounded-full" :style="{ width: `${progress}%` }"></div>
@@ -34,6 +34,10 @@
 </template>
 
 <script setup>
+const roundToTwoDecimals = (num) => {
+    if (typeof num !== 'number') return 0; // Trả về 0 nếu không phải là số
+    return Math.round((num + Number.EPSILON) * 100) / 100; // Làm tròn đến 2 chữ số thập phân
+};
 defineProps({
     imageUrl: {
         type: String,

@@ -93,12 +93,14 @@ import { InputGroup, InputGroupAddon, InputNumber, useToast } from 'primevue';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { linkUploads } from '../../../constant/api';
+import accountService from '../../../service/account.service';
 import apiService from '../../../service/api.service';
 import parseNum from '../../../utils/parseNum';
 const amounts = [50000, 100000, 200000, 500000];
 const toast = useToast();
 const router = useRoute();
 const detail = ref({});
+const { account } = accountService.getAccount();
 const getDetail = async () => {
     try {
         const res = await apiService.get(`projects/${router.params.id}`);
@@ -111,11 +113,12 @@ const getDetail = async () => {
 onMounted(() => {
     getDetail();
 });
+
 const dataDonate = ref({
     amount: 0,
-    buyerName: '',
-    buyerEmail: '',
-    description: '',
+    buyerName: account.name,
+    buyerEmail: account.email,
+    description: 'Lời chúc!',
     isAnonymous: false,
     cancelUrl: window.location.origin + '/cancel/' + router.params.id,
     returnUrl: window.location.origin + '/success/' + router.params.id
@@ -147,10 +150,10 @@ const handleDonate = async () => {
     try {
         const res = await apiService.post(`donations`, { ...dataDonate.value, project: detail.value._id });
         if (res.data.paymentLink?.checkoutUrl) {
-            window.open(res.data.paymentLink.checkoutUrl, '_blank');
+            window.location.href = res.data.paymentLink.checkoutUrl;
         }
     } catch (error) {
-        console.log(error);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response.data.message || 'Đã xảy ra lỗi trong quá trình thanh toán', life: 3000 });
     } finally {
         isLoading.value = false;
     }

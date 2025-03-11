@@ -108,19 +108,30 @@
                                 <div class="bg-gradient-to-r from-orange-300 via-orange-500 to-red-500 h-[13px] rounded-full" :style="{ width: `${(detail.currentAmount / detail.goalAmount) * 100}%` }"></div>
                             </div>
                         </div>
-                        <div class="w-full mt-6 flex gap-2 items-center">
-                            Đã đạt được <span class="text-orange-600 font-semibold text-xl">{{ parseNum(detail.currentAmount) }} VND</span>
+                        <div class="w-full mt-6 flex gap-2 items-center justify-between">
+                            <span
+                                >Đã đạt được <span class="text-orange-600 font-semibold text-xl">{{ parseNum(detail.currentAmount) }} VND</span></span
+                            >
+
+                            <span class="text-gray-800">{{ roundToTwoDecimals((detail.currentAmount / detail.goalAmount) * 100) + '%' }}</span>
                         </div>
-                        <div class="w-full mt-6 flex gap-2 items-center">
-                            <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
-                            <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="router-link" :to="`/info-donate/${detail._id}`" />
+                        <div v-if="detail.status != 'DMT'">
+                            <div class="w-full mt-6 flex gap-2 items-center">
+                                <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
+                                <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="RouterLink" :to="`/info-donate/${detail._id}`" />
+                            </div>
+                            <a
+                                :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`"
+                                target="_blank"
+                                class="w-full mt-6 flex gap-2 items-center italic text-orange-600 hover:underline"
+                                >Chia sẻ chiến dịch để lan tỏa yêu thương đến mọi người <i class="pi pi-share-alt"></i
+                            ></a>
                         </div>
-                        <a
-                            :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`"
-                            target="_blank"
-                            class="w-full mt-6 flex gap-2 items-center italic text-orange-600 hover:underline"
-                            >Chia sẻ chiến dịch để lan tỏa yêu thương đến mọi người <i class="pi pi-share-alt"></i
-                        ></a>
+                        <div class="mt-4">
+                            <a class="w-full" :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`" target="_blank">
+                                <Button label="Chia sẻ  " variant="outlined" class="w-full !rounded-2xl" size="large" />
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -195,7 +206,7 @@
                 <div class="w-1/2">
                     <h2 class="text-gray-800 font-semibold text-xl">Bản đồ thiện nguyện</h2>
                 </div>
-                <RouterLink to="/" class="text-orange-600 text-xl hover:underline">Xem tất cả</RouterLink>
+                <RouterLink :to="`/category/${detail?.campaign?._id}`" class="text-orange-600 text-xl hover:underline">Xem tất cả</RouterLink>
             </div>
             <div class="flex gap-6 mt-5 pb-16">
                 <div class="w-1/3" v-for="(item, index) in projectByCampaign" :key="index">
@@ -338,6 +349,11 @@ watch(
         await getProjectByCampaign();
     }
 );
+
+const roundToTwoDecimals = (num) => {
+    if (typeof num !== 'number') return 0; // Trả về 0 nếu không phải là số
+    return Math.round((num + Number.EPSILON) * 100) / 100; // Làm tròn đến 2 chữ số thập phân
+};
 </script>
 <style>
 .p-galleria {
