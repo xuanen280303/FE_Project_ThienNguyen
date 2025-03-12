@@ -18,6 +18,7 @@
                         <TabList>
                             <Tab value="0">Câu chuyện</Tab>
                             <Tab value="2">Danh sách ủng hộ</Tab>
+                            <Tab value="3">Tương tác</Tab>
                         </TabList>
                         <TabPanels>
                             <TabPanel value="0">
@@ -50,6 +51,11 @@
                                         <Column field="createdDate" header="Thời gian ủng hộ"></Column>
                                     </DataTable>
                                 </div>
+                            </TabPanel>
+                            <TabPanel value="3">
+                                <p>
+                                    <Comment :projectId="router.params.id" />
+                                </p>
                             </TabPanel>
                         </TabPanels>
                     </Tabs>
@@ -228,6 +234,7 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import Comment from '../../../components/Comment.vue';
 import CardProject from '../../../components/dashboard/CardProject.vue';
 import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
