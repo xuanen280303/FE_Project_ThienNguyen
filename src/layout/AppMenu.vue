@@ -53,6 +53,10 @@ const model = ref([
                     {
                         label: 'Quản lý tổ chức',
                         to: '/admin/organization'
+                    },
+                    {
+                        label: 'Quản lý thông báo',
+                        to: '/admin/notification'
                     }
                 ]
             },
