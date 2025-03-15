@@ -37,18 +37,42 @@
                                         <span class="text-orange-600 font-bold text-xl border-b-2 border-orange-600 h-full px-4 flex items-center">Danh sách ủng hộ</span>
                                     </div>
 
-                                    <DataTable :value="payment" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="width: 100%">
+                                    <DataTable
+                                        :value="payment"
+                                        paginator
+                                        :rows="pagination.pageSize"
+                                        :totalRecords="pagination.total"
+                                        @page="
+                                            () => {
+                                                pagination.page = event.page;
+                                                pagination.pageSize = event.rows;
+                                                getDonation();
+                                            }
+                                        "
+                                        :rowsPerPageOptions="[5, 10, 20, 50]"
+                                        tableStyle="width: 100%"
+                                    >
                                         <template #header>
                                             <IconField>
                                                 <InputIcon>
                                                     <i class="pi pi-search" />
                                                 </InputIcon>
-                                                <InputText class="w-full" placeholder="Nhập tên người ủng hộ" />
+                                                <InputText class="w-full" placeholder="Nhập tên hoặc email người ủng hộ" v-model="pagination.search" @keyup.enter="getDonation" />
                                             </IconField>
                                         </template>
-                                        <Column field="name" header="Người ủng hộ" style="width: 40%"></Column>
-                                        <Column field="total" header="Số tiền ủng hộ"></Column>
-                                        <Column field="createdDate" header="Thời gian ủng hộ"></Column>
+                                        <Column field="name" header="Người ủng hộ" style="width: 40%">
+                                            <template #body="slotProps">
+                                                {{ slotProps.data.isAnonymous ? 'Ẩn danh' : slotProps.data.buyerName }}
+                                            </template>
+                                        </Column>
+                                        <Column field="amount" header="Số tiền ủng hộ">
+                                            <template #body="slotProps"> {{ parseNum(slotProps.data.amount) }} VNĐ </template>
+                                        </Column>
+                                        <Column field="createdAt" header="Thời gian ủng hộ">
+                                            <template #body="slotProps">
+                                                {{ format(slotProps.data.createdAt, 'dd/MM/yyyy HH:mm') }}
+                                            </template>
+                                        </Column>
                                     </DataTable>
                                 </div>
                             </TabPanel>
@@ -133,7 +157,7 @@
                                 >Chia sẻ chiến dịch để lan tỏa yêu thương đến mọi người <i class="pi pi-share-alt"></i
                             ></a>
                         </div>
-                        <div class="mt-4">
+                        <div class="mt-4" v-else>
                             <a class="w-full" :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`" target="_blank">
                                 <Button label="Chia sẻ  " variant="outlined" class="w-full !rounded-2xl" size="large" />
                             </a>
@@ -232,6 +256,7 @@
     <Loading v-if="isLoading" />
 </template>
 <script setup>
+import { format } from 'date-fns';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Comment from '../../../components/Comment.vue';
@@ -240,13 +265,7 @@ import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
 import parseNum from '../../../utils/parseNum';
 const url = ref(window.location.href);
-const payment = ref([
-    {
-        name: 'Trần Quốc Anh',
-        total: '100.000.000 VNĐ',
-        createdDate: '24/12/2024'
-    }
-]);
+const payment = ref([]);
 const userCampaign = ref([
     {
         avatar: 'https://placehold.co/50x50',
@@ -343,10 +362,25 @@ const getProjectByCampaign = async () => {
         console.log(error);
     }
 };
-
+const pagination = ref({
+    page: 0,
+    pageSize: 5,
+    total: 0,
+    search: ''
+});
+const getDonation = async () => {
+    try {
+        const res = await apiService.get(`donations?pagination=${router.params.id}&page=${pagination.value.page + 1}&pageSize=${pagination.value.pageSize}${pagination.value.search ? `&search=${pagination.value.search}` : ''}`);
+        payment.value = res.data.items;
+        pagination.value.total = res.data.total;
+    } catch (error) {
+        console.log(error);
+    }
+};
 onMounted(async () => {
     await getDetail();
     await getProjectByCampaign();
+    await getDonation();
 });
 
 watch(

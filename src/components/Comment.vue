@@ -5,7 +5,7 @@
                 <h3 class="text-lg font-semibold text-gray-800">Thêm Bình Luận Mới</h3>
                 <Textarea v-model="newComment.message" placeholder="Nhập bình luận của bạn" autoResize rows="2" cols="30" />
 
-                <Button @click="handleAddComment" class="py-2 px-1 bg-primary-500 text-white rounded hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500" aria-label="Thêm Bình Luận">Thêm Bình Luận</Button>
+                <Button :loading="isLoading" @click="handleAddComment" class="py-2 px-1" aria-label="Thêm Bình Luận">Thêm Bình Luận</Button>
             </div>
         </div>
         <div class="max-h-[600px] overflow-auto">
@@ -20,6 +20,7 @@ import { onMounted, ref } from 'vue';
 import apiService from '../service/api.service';
 import CommentNode from './CommentNode.vue';
 const toast = useToast();
+const isLoading = ref(false);
 const props = defineProps({
     projectId: String
 });
@@ -45,6 +46,7 @@ const newComment = ref({
 });
 
 const handleAddComment = async () => {
+    isLoading.value = true;
     if (newComment.value.message.trim() === '') {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập bình luận', life: 3000 });
     }
@@ -52,9 +54,11 @@ const handleAddComment = async () => {
         await apiService.post(`comments`, newComment.value);
         newComment.value = { message: '', project: props.projectId };
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Bình luận đã được thêm', life: 3000 });
-        getCommentByProjectId();
+        await getCommentByProjectId();
     } catch (error) {
         console.log(error);
+    } finally {
+        isLoading.value = false;
     }
 };
 

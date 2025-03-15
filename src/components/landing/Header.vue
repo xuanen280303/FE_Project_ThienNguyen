@@ -5,8 +5,10 @@ import router from '../../router';
 import accountService from '../../service/account.service';
 import tokenService from '../../service/token.service';
 import { useAuthStore } from '../../stores/AuthStore';
+import { useNotificationStore } from '../../stores/Notification';
 
 const authStore = useAuthStore();
+const { state } = useNotificationStore();
 function smoothScroll(id: any) {
     document.body.click();
     const element = document.getElementById(id);
@@ -107,6 +109,11 @@ const itemAccount = ref([
 const toggle = (event) => {
     menu.value.toggle(event);
 };
+
+const op = ref();
+const toggleNotification = (event) => {
+    op.value.toggle(event);
+};
 </script>
 
 <template>
@@ -139,8 +146,33 @@ const toggle = (event) => {
 
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 items-center">
                 <Button class="h-9 !rounded-xl" label="Tạo chiến dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
+                <div class="pt-2 px-2">
+                    <OverlayBadge :value="state.notifications.length > 0 ? state.notifications.filter((item) => item.isRead === false).length : 0" @click="toggleNotification">
+                        <i class="pi pi-bell" style="font-size: 1.7rem" />
+                    </OverlayBadge>
+                    <Popover ref="op">
+                        <div class="flex flex-col gap-2 w-[30rem]">
+                            <span class="font-medium block mb-1">Thông báo</span>
+                            <ul class="list-none p-0 m-0 flex flex-col max-h-[30rem] overflow-y-auto">
+                                <li v-for="item in state.notifications" :key="item._id" class="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200">
+                                    <div class="min-w-14 min-h-14 max-w-14 max-h-14 rounded-full overflow-hidden border-primary border">
+                                        <img :src="`https://placehold.co/500x550`" class="w-full h-full" />
+                                    </div>
+                                    <div class="flex flex-col gap-1 justify-start flex-1">
+                                        <span class="font-medium" :class="{ 'text-primary dark:text-primary': !item.isRead }">{{ item.title }}</span>
+                                        <div class="text-sm text-surface-500 dark:text-surface-400">
+                                            {{ item.message }}
+                                        </div>
+                                    </div>
+                                    <div v-if="!item.isRead" class="w-3 h-3 rounded-full bg-primary"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </Popover>
+                </div>
+
                 <Button label="Đăng nhập" to="/login" as="router-link" text severity="warn" v-if="!tokenService.getToken().storage"></Button>
-                <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-12 !h-12'" aria-controls="overlay_menu" @click="toggle" v-else />
+                <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-11 !h-11 border border-primary !bg-white'" class="!rounded-full" aria-controls="overlay_menu" @click="toggle" v-else />
                 <Menu ref="menu" id="overlay_menu" :model="itemAccount" :popup="true" />
             </div>
         </div>

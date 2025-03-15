@@ -29,6 +29,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
+const isEventRead = ref(false);
 const object = {
     title: '',
     message: '',
@@ -61,14 +62,27 @@ function openEventDialog() {
 
 function hideDialog() {
     isEventDialog.value = false;
-    eventData.value = {};
+    eventData.value = object;
     submitted.value = false;
     deleteDialog.value = false;
 }
 
-function getData(prod) {
-    eventData.value = { ...prod, project: prod.project._id, userInvite: prod.userInvite._id, supporterInvite: prod.supporterInvite.map((item) => item._id) };
-    isEventDialog.value = true;
+function hideRead() {
+    isEventRead.value = false;
+    eventData.value = object;
+}
+
+async function getData(prod) {
+    eventData.value = { ...prod };
+    isEventRead.value = true;
+    try {
+        if (!eventData.value.isRead) {
+            await apiService.get(urlApi + '/markAsRead/' + eventData.value._id);
+            getAll();
+        }
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
+    }
 }
 
 async function saveData() {
@@ -197,10 +211,10 @@ const getOptionType = (type) => {
                             { label: 'Cá nhân', value: false },
                             { label: 'Tất cả', value: true }
                         ]"
-                        placeholder="Tất cả"
+                        placeholder="Toàn bộ"
                         optionLabel="label"
                         optionValue="value"
-                        v-tooltip="'Chức năng lọc theo loại thông báo'"
+                        v-tooltip="'Chức năng lọc theo đối tượng'"
                         @change="handleFilter"
                         class="mr-2"
                     />
@@ -299,7 +313,42 @@ const getOptionType = (type) => {
                 </Column>
             </DataTable>
         </div>
+        <Dialog v-model:visible="isEventRead" :style="{ width: '900px' }" :modal="true">
+            <template #header>
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">Thông báo</h4>
+            </template>
 
+            <div class="flex flex-col gap-4 mb-2">
+                <div>
+                    <label for="title" class="block font-bold mb-1">Tiêu đề thông báo</label>
+                    <span>{{ eventData.title }}</span>
+                </div>
+                <div>
+                    <label for="message" class="block font-bold mb-1">Nội dung thông báo</label>
+                    <span>{{ eventData.message }}</span>
+                </div>
+                <div>
+                    <label for="type" class="block font-bold mb-1">Loại thông báo</label>
+                    <span>{{ getOptionType(eventData.type) }}</span>
+                </div>
+                <div>
+                    <label for="createdAt" class="block font-bold mb-1">Ngày tạo</label>
+                    <span>{{ format(eventData.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(eventData.createdAt, 'HH:mm') }}</span>
+                </div>
+                <div>
+                    <label for="isRead" class="block font-bold mb-1">Gửi từ</label>
+                    <div>
+                        <span>{{ eventData.objInfo.name }}</span>
+                        <span>{{ eventData.objInfo.type }}</span>
+                        <span>{{ eventData.objInfo._id }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <template #footer>
+                <Button label="Quay lại" @click="hideRead" />
+            </template>
+        </Dialog>
         <Dialog v-model:visible="isEventDialog" :style="{ width: '900px' }" :modal="true">
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">

@@ -118,7 +118,7 @@ const dataDonate = ref({
     amount: 0,
     buyerName: account.name,
     buyerEmail: account.email,
-    description: 'Lời chúc!',
+    description: '',
     isAnonymous: false,
     cancelUrl: window.location.origin + '/cancel/' + router.params.id,
     returnUrl: window.location.origin + '/success/' + router.params.id
@@ -128,6 +128,10 @@ const submitted = ref(false);
 const validate = () => {
     if (!dataDonate.value.amount) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập số tiền ủng hộ', life: 3000 });
+        return false;
+    }
+    if (!dataDonate.value.description) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập lời chúc', life: 3000 });
         return false;
     }
     if (!dataDonate.value.isAnonymous) {
