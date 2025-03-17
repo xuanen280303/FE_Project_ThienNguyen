@@ -370,7 +370,7 @@ const pagination = ref({
 });
 const getDonation = async () => {
     try {
-        const res = await apiService.get(`donations?pagination=${router.params.id}&page=${pagination.value.page + 1}&pageSize=${pagination.value.pageSize}${pagination.value.search ? `&search=${pagination.value.search}` : ''}`);
+        const res = await apiService.get(`donations?filter=project=${router.params.id}&page=${pagination.value.page + 1}&pageSize=${pagination.value.pageSize}${pagination.value.search ? `&search=${pagination.value.search}` : ''}`);
         payment.value = res.data.items;
         pagination.value.total = res.data.total;
     } catch (error) {

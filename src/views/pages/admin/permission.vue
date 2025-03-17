@@ -115,7 +115,7 @@ const deleteProduct = async () => {
     }
 };
 const optionMethod = ref(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']);
-const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGNS', 'COMPANIONS', 'ORGANIZATIONS', 'DONATIONS', 'NOTIFICATIONS', 'COMMENTS', 'FILES']);
+const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGNS', 'COMPANIONS', 'ORGANIZATIONS', 'DONATIONS', 'NOTIFICATIONS', 'COMMENTS', 'FILES', 'LETTER']);
 </script>
 
 <template>

@@ -4,91 +4,90 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import Loading from '../../../components/Loading.vue';
 import apiService from '../../../service/api.service';
-
 onMounted(async () => {
     isLoading.value = true;
-
     await getAll();
-    await getOption();
+    await getAllOption();
     isLoading.value = false;
 });
 
 const toast = useToast();
 const dt = ref();
 const keySearch = ref('');
-const urlApi = 'notifications';
+const urlApi = 'letter';
 
 const pagination = ref({
     page: 1,
     pageSize: 10,
     total: 0
 });
-
 const valueData = ref([]);
 const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
-const isEventRead = ref(false);
-const object = {
-    title: '',
-    message: '',
-    type: 'UPDATE',
-    isGlobal: false,
-    objInfo: {
-        _id: '',
-        type: 'APP',
-        name: ''
-    },
-    userIds: []
-};
-const eventData = ref(object);
+const eventData = ref({});
+const dataFileInput = ref(null);
 const deleteDialog = ref(false);
-const options = ref({
-    user: [],
-    projects: []
-});
 const valueFilter = ref({
-    type: null,
-    isGlobal: null,
+    isActive: null,
     sort: false
+});
+const dataGetAllOption = ref({
+    user: [],
+    organization: [],
+    type: [
+        { label: 'Cá nhân', value: 'CN' },
+        { label: 'Tổ chức', value: 'TC' }
+    ]
 });
 
 function openEventDialog() {
-    eventData.value = object;
+    eventData.value = {};
+    dataFileInput.value = null;
     submitted.value = false;
     isEventDialog.value = true;
+    imageData.value = null;
 }
 
 function hideDialog() {
     isEventDialog.value = false;
-    eventData.value = object;
+    eventData.value = {};
+    dataFileInput.value = null;
     submitted.value = false;
     deleteDialog.value = false;
 }
 
-function hideRead() {
-    isEventRead.value = false;
-    eventData.value = object;
+function getDataDetail(prod) {
+    imageData.value = null;
+    dataFileInput.value = null;
+    isEventDialog.value = true;
+    eventData.value = { ...prod, user: prod.user._id, userSent: prod.userSent._id, organization: prod.organization._id };
 }
 
-async function getData(prod) {
-    eventData.value = { ...prod };
-    isEventRead.value = true;
+const uploadFile = async () => {
+    if (!dataFileInput.value) return;
     try {
-        if (!eventData.value.isRead) {
-            await apiService.get(urlApi + '/markAsRead/' + eventData.value._id);
-            getAll();
-        }
+        const res = await apiService.upload(dataFileInput.value, 'campaign');
+        eventData.value.image = res.data.fileName;
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
     }
-}
-
+};
+const getAllOption = async () => {
+    try {
+        const [resUser, resOrganization] = await Promise.all([apiService.get('users/getAll'), apiService.get('organizations/getAll')]);
+        dataGetAllOption.value.user = resUser.data;
+        dataGetAllOption.value.organization = resOrganization.data;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ get all option', life: 3000 });
+    }
+};
 async function saveData() {
     submitted.value = true;
     isLoadingData.value = true;
     try {
+        await uploadFile();
         if (eventData.value._id) {
             const res = await apiService.patch(urlApi + '/' + eventData.value._id, eventData.value);
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thành công', life: 3000 });
@@ -99,7 +98,7 @@ async function saveData() {
         getAll();
         hideDialog();
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
     } finally {
         isLoadingData.value = false;
     }
@@ -127,7 +126,6 @@ const getAll = async () => {
         isLoadingData.value = false;
     }
 };
-
 const handlePage = (event) => {
     pagination.value.page = event.page + 1;
     pagination.value.pageSize = event.rows;
@@ -157,33 +155,12 @@ const deleteProduct = async () => {
     }
 };
 
-const getOption = async () => {
-    try {
-        const [resUser, resProject] = await Promise.all([apiService.get('users/getAll'), apiService.get('projects/getAll')]);
-        options.value.user = resUser.data;
-        options.value.projects = resProject.data;
-    } catch (error) {
-        console.log(error);
-    }
+const imageData = ref(null);
+const UploadFileLocal = async (event) => {
+    const file = event.target.files[0];
+    dataFileInput.value = file;
+    imageData.value = URL.createObjectURL(file);
 };
-
-const getOptionType = (type) => {
-    switch (type) {
-        case 'UPDATE':
-            return 'Cập nhật';
-        case 'NOTIFICATION':
-            return 'Thông báo';
-        case 'WARNING':
-            return 'Cảnh báo';
-    }
-};
-const optionType = [
-    { label: 'Hoàn thành', value: 'SUCCESS' },
-    { label: 'Thông báo', value: 'NOTIFICATION' },
-    { label: 'Cảnh báo', value: 'WARNING' },
-    { label: 'Lỗi', value: 'ERROR' },
-    { label: 'Yêu thương', value: 'HEART' }
-];
 </script>
 
 <template>
@@ -197,35 +174,19 @@ const optionType = [
 
                 <template #end>
                     <Select
-                        v-model="valueFilter.type"
+                        v-model="valueFilter.isActive"
                         :options="[
                             { label: 'Tất cả', value: null },
-                            { label: 'Hoàn thành', value: 'SUCCESS' },
-                            { label: 'Thông báo', value: 'NOTIFICATION' },
-                            { label: 'Cảnh báo', value: 'WARNING' },
-                            { label: 'Lỗi', value: 'ERROR' }
+                            { label: 'Hoạt động', value: true },
+                            { label: 'Không hoạt động', value: false }
                         ]"
-                        placeholder="Lọc loại thông báo"
+                        placeholder="Tất cả"
                         optionLabel="label"
                         optionValue="value"
-                        v-tooltip="'Chức năng lọc theo loại thông báo'"
                         @change="handleFilter"
                         class="mr-2"
                     />
-                    <Select
-                        v-model="valueFilter.isGlobal"
-                        :options="[
-                            { label: 'Toàn bộ', value: null },
-                            { label: 'Cá nhân', value: false },
-                            { label: 'Tất cả', value: true }
-                        ]"
-                        placeholder="Lọc đối tượng"
-                        optionLabel="label"
-                        optionValue="value"
-                        v-tooltip="'Chức năng lọc theo đối tượng'"
-                        @change="handleFilter"
-                        class="mr-2"
-                    />
+
                     <Button label="Làm mới" icon="pi pi-refresh" severity="secondary" @click="getAll" class="mr-2" />
                     <Button
                         v-if="valueFilter.sort"
@@ -277,7 +238,7 @@ const optionType = [
                 </template>
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0 text-lg font-bold">Trang quản lý thông báo</h4>
+                        <h4 class="m-0 text-lg font-bold">Trang quản lý thư</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -292,129 +253,112 @@ const optionType = [
                         {{ (pagination.page - 1) * pagination.pageSize + slotProps.index + 1 }}
                     </template>
                 </Column>
-                <Column field="title" header="Tiêu đề" style="min-width: 12rem"></Column>
-                <Column field="type" header="Loại thông báo" style="min-width: 10rem">
-                    <template #body="slotProps">
-                        {{ getOptionType(slotProps.data.type) }}
+                <Column field="title" header="Tiêu đề" style="min-width: 15rem"></Column>
+                <Column field="user" header="Người nhận" style="min-width: 15rem">
+                    <template #body="{ data }">
+                        {{ data.user.name }}
                     </template>
                 </Column>
-                <Column field="isGlobal" header="Đối tượng" style="min-width: 12rem">
-                    <template #body="slotProps">
-                        {{ slotProps.data.isGlobal ? 'Tất cả' : 'Cá nhân' }}
+                <Column header="Người gửi" style="min-width: 15rem">
+                    <template #body="{ data }">
+                        {{ data.type == 'CN' ? data.userSent.name : data.organization.name }}
                     </template>
                 </Column>
+
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
                     </template>
                 </Column>
-                <Column field="isRead" header="Trạng thái" style="min-width: 12rem">
-                    <template #body="slotProps">
-                        {{ slotProps.data.isRead ? 'Đã đọc' : 'Chưa đọc' }}
-                    </template>
-                </Column>
                 <Column :exportable="false" style="min-width: 7rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="getData(slotProps.data)" v-tooltip="'Chức năng xem chi tiết'" />
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
                 </Column>
             </DataTable>
         </div>
-        <Dialog v-model:visible="isEventRead" :style="{ width: '900px' }" :modal="true">
-            <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">Thông báo</h4>
-            </template>
 
-            <div class="flex flex-col gap-4 mb-2">
-                <div>
-                    <label for="title" class="block font-bold mb-1">Tiêu đề thông báo</label>
-                    <span>{{ eventData.title }}</span>
-                </div>
-                <div>
-                    <label for="message" class="block font-bold mb-1">Nội dung thông báo</label>
-                    <span>{{ eventData.message }}</span>
-                </div>
-                <div>
-                    <label for="type" class="block font-bold mb-1">Loại thông báo</label>
-                    <span>{{ getOptionType(eventData.type) }}</span>
-                </div>
-                <div>
-                    <label for="createdAt" class="block font-bold mb-1">Ngày tạo</label>
-                    <span>{{ format(eventData.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(eventData.createdAt, 'HH:mm') }}</span>
-                </div>
-                <div>
-                    <label for="isRead" class="block font-bold mb-1">Gửi từ</label>
-                    <div>
-                        <span>{{ eventData.objInfo.name }}</span>
-                        <span>{{ eventData.objInfo.type }}</span>
-                        <span>{{ eventData.objInfo._id }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <template #footer>
-                <Button label="Quay lại" @click="hideRead" />
-            </template>
-        </Dialog>
-        <Dialog v-model:visible="isEventDialog" :style="{ width: '900px' }" :modal="true">
+        <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true">
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">
-                    {{ eventData._id ? 'Cập nhật thông báo' : 'Thêm thông báo' }}
+                    {{ eventData?.id ? 'Sửa thư' : 'Gửi thư' }}
                 </h4>
             </template>
-
-            <div class="flex flex-col gap-4 mb-2">
+            <div class="flex flex-col gap-4">
+                <div class="flex gap-2">
+                    <div class="w-1/3">
+                        <label for="type" class="block font-bold mb-1">Thuộc <small class="text-red-500">*</small></label>
+                        <Select
+                            id="type"
+                            v-model="eventData.type"
+                            :options="dataGetAllOption.type"
+                            optionLabel="label"
+                            optionValue="value"
+                            required="true"
+                            autofocus
+                            :invalid="submitted && !eventData.type"
+                            fluid
+                            placeholder="Vui lòng chọn thuộc loại"
+                        />
+                    </div>
+                    <div class="w-2/3">
+                        <label for="organization" class="block font-bold mb-1">{{ eventData.type == 'CN' ? 'Cá nhân' : 'Tổ chức' }} <small class="text-red-500">*</small></label>
+                        <Select
+                            v-if="eventData.type == 'CN'"
+                            :disabled="!eventData.type"
+                            id="userSent"
+                            v-model="eventData.userSent"
+                            :options="dataGetAllOption.user"
+                            optionLabel="name"
+                            optionValue="_id"
+                            required="true"
+                            autofocus
+                            :invalid="submitted && !eventData.userSent"
+                            filter
+                            fluid
+                            placeholder="Vui lòng chọn người gửi"
+                        />
+                        <Select
+                            v-else
+                            :disabled="!eventData.type"
+                            id="organization"
+                            v-model="eventData.organization"
+                            :options="dataGetAllOption.organization"
+                            optionLabel="name"
+                            optionValue="_id"
+                            required="true"
+                            autofocus
+                            :invalid="submitted && !eventData.organization"
+                            filter
+                            fluid
+                            placeholder="Vui lòng chọn tổ chức gửi"
+                        />
+                    </div>
+                </div>
                 <div>
-                    <label for="title" class="block font-bold mb-1">Tiêu đề thông báo</label>
-                    <InputText fluid id="title" v-model="eventData.title" :class="{ 'p-invalid': submitted && !eventData.title }" placeholder="Nhập tiêu đề thông báo" />
-                    <small v-if="submitted && !eventData.title" class="text-red-500">Tiêu đề là bắt buộc.</small>
-                </div>
-
-                <div>
-                    <label for="message" class="block font-bold mb-1">Nội dung thông báo</label>
-                    <Textarea fluid id="message" v-model="eventData.message" cols="5" rows="5" placeholder="Nhập nội dung thông báo" />
-                    <small v-if="submitted && !eventData.message" class="text-red-500">Nội dung là bắt buộc.</small>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-1/2">
-                        <label for="objInfo" class="block font-bold mb-1">Mã mô đun</label>
-                        <InputText fluid v-model="eventData.objInfo._id" placeholder="ID ứng dụng" />
-                    </div>
-                    <div class="w-1/2">
-                        <label for="objInfo" class="block font-bold mb-1">Tên mô đun</label>
-                        <InputText fluid v-model="eventData.objInfo.name" placeholder="Tên mô đun" />
-                    </div>
-                </div>
-                <div class="flex gap-4">
-                    <div class="w-1/2">
-                        <label for="objInfo" class="block font-bold mb-1">Loại mô đun</label>
-                        <InputText fluid v-model="eventData.objInfo.type" placeholder="Loại mô đun" />
-                    </div>
-                    <div class="w-1/2">
-                        <label for="type" class="block font-bold mb-1">Loại thông báo</label>
-                        <Select fluid id="type" v-model="eventData.type" :options="optionType" optionLabel="label" optionValue="value" placeholder="Chọn loại thông báo" />
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <label class="font-bold">Gửi cho tất cả</label>
-                    <ToggleSwitch v-model="eventData.isGlobal" :disabled="eventData.userIds.length > 0" />
-                </div>
-                <div>
-                    <label for="userIds" class="block font-bold mb-1">Người nhận thông báo</label>
-                    <MultiSelect
-                        :disabled="eventData.isGlobal"
-                        fluid
-                        id="userIds"
-                        v-model="eventData.userIds"
-                        :options="options.user"
+                    <label for="user" class="block font-bold mb-1">Người nhận</label>
+                    <Select
+                        id="user"
+                        v-model="eventData.user"
+                        :options="dataGetAllOption.user"
                         optionLabel="name"
                         optionValue="_id"
-                        :class="{ 'p-invalid': submitted && !eventData.isGlobal && !eventData.userIds.length }"
-                        placeholder="Chọn người nhận thông báo"
+                        required="true"
+                        autofocus
+                        :invalid="submitted && !eventData.user"
                         filter
+                        fluid
+                        placeholder="Vui lòng chọn người nhận"
                     />
-                    <small v-if="submitted && !eventData.isGlobal && !eventData.userIds.length" class="text-red-500"> Vui lòng chọn ít nhất một người nhận. </small>
+                </div>
+                <div>
+                    <label for="title" class="block font-bold mb-1">Tiêu đề</label>
+                    <InputText id="title" v-model="eventData.title" required="true" autofocus fluid placeholder="Tiêu đề" />
+                </div>
+                <div class="w-full">
+                    <label class="block font-bold mb-1">Nội dung <small class="text-red-500">*</small></label>
+                    <RichTextEditor v-model="eventData.message" />
                 </div>
             </div>
 

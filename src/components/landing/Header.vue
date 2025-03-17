@@ -1,4 +1,9 @@
-<script setup lang="ts">
+<script setup>
+import errorIcon from '@/assets/Img/status/error.svg';
+import heartIcon from '@/assets/Img/status/heart.svg';
+import infoIcon from '@/assets/Img/status/info.svg';
+import successIcon from '@/assets/Img/status/success.svg';
+import warnIcon from '@/assets/Img/status/warn.svg';
 import { ref } from 'vue';
 import { linkUploads } from '../../constant/api';
 import router from '../../router';
@@ -6,10 +11,9 @@ import accountService from '../../service/account.service';
 import tokenService from '../../service/token.service';
 import { useAuthStore } from '../../stores/AuthStore';
 import { useNotificationStore } from '../../stores/Notification';
-
 const authStore = useAuthStore();
 const { state } = useNotificationStore();
-function smoothScroll(id: any) {
+function smoothScroll(id) {
     document.body.click();
     const element = document.getElementById(id);
     if (element) {
@@ -114,6 +118,26 @@ const op = ref();
 const toggleNotification = (event) => {
     op.value.toggle(event);
 };
+const linkNotification = (key) => {
+    const icons = {
+        SUCCESS: successIcon,
+        NOTIFICATION: infoIcon,
+        WARNING: warnIcon,
+        ERROR: errorIcon,
+        HEART: heartIcon
+    };
+    return icons[key] || infoIcon;
+};
+const BGNotification = (key) => {
+    const icons = {
+        SUCCESS: 'bg-[#F1FDF5] border-[#24A955]',
+        NOTIFICATION: 'bg-[#F0F7FF]  border-[#2967EB]',
+        WARNING: 'border-[#EA580C]  bg-[#FEFCE9]',
+        ERROR: 'bg-[#FEF3F3] border-[#DE3333]',
+        HEART: 'bg-[#FEF3F3] border-[#DE3333]'
+    };
+    return icons[key] || 'bg-[#F0F7FF]  border-[#2967EB]';
+};
 </script>
 
 <template>
@@ -155,8 +179,8 @@ const toggleNotification = (event) => {
                             <span class="font-medium block mb-1">Thông báo</span>
                             <ul class="list-none p-0 m-0 flex flex-col max-h-[30rem] overflow-y-auto">
                                 <li v-for="item in state.notifications" :key="item._id" class="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200">
-                                    <div class="min-w-14 min-h-14 max-w-14 max-h-14 rounded-full overflow-hidden border-primary border">
-                                        <img :src="`https://placehold.co/500x550`" class="w-full h-full" />
+                                    <div :class="BGNotification(item.type)" class="min-w-14 min-h-14 max-w-14 max-h-14 rounded-full overflow-hidden border flex justify-center items-center">
+                                        <img :src="linkNotification(item.type)" class="w-5/12 h-5/12" />
                                     </div>
                                     <div class="flex flex-col gap-1 justify-start flex-1">
                                         <span class="font-medium" :class="{ 'text-primary dark:text-primary': !item.isRead }">{{ item.title }}</span>
