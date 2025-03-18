@@ -47,5 +47,5 @@ export const useNotificationStore = defineStore('notification', () => {
         }
     });
 
-    return { state };
+    return { state, getNotification };
 });

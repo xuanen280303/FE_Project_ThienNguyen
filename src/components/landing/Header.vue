@@ -4,15 +4,18 @@ import heartIcon from '@/assets/Img/status/heart.svg';
 import infoIcon from '@/assets/Img/status/info.svg';
 import successIcon from '@/assets/Img/status/success.svg';
 import warnIcon from '@/assets/Img/status/warn.svg';
+import { useToast } from 'primevue';
 import { ref } from 'vue';
 import { linkUploads } from '../../constant/api';
 import router from '../../router';
 import accountService from '../../service/account.service';
+import apiService from '../../service/api.service';
 import tokenService from '../../service/token.service';
 import { useAuthStore } from '../../stores/AuthStore';
 import { useNotificationStore } from '../../stores/Notification';
 const authStore = useAuthStore();
-const { state } = useNotificationStore();
+const { state, getNotification } = useNotificationStore();
+const toast = useToast();
 function smoothScroll(id) {
     document.body.click();
     const element = document.getElementById(id);
@@ -138,6 +141,54 @@ const BGNotification = (key) => {
     };
     return icons[key] || 'bg-[#F0F7FF]  border-[#2967EB]';
 };
+
+const checkTypeNotification = (objInfo) => {
+    const { name, _id, type } = objInfo;
+    if (type == 'LETTER') {
+        if (name == 'POST') {
+            getLetterById(_id);
+        }
+    } else if (type == 'DONATION') {
+        if (name == 'SUCCESS') {
+            router.push(`/detail/${_id}`);
+        } else if (name == 'ERROR') {
+            router.push(`/detail/${_id}`);
+        }
+    }
+};
+const readNotification = async (item) => {
+    try {
+        debugger;
+        if (item.isRead === false) {
+            await apiService.get(`notifications/markAsRead/${item._id}`);
+            getNotification();
+        }
+        checkTypeNotification(item.objInfo);
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: error.response.data.message || 'Đã xảy ra lỗi',
+            life: 3000
+        });
+    }
+};
+const letter = ref({});
+const visibleLetter = ref(false);
+const getLetterById = async (id) => {
+    try {
+        const res = await apiService.get(`letter/${id}`);
+        letter.value = res.data;
+        visibleLetter.value = true;
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: error.response.data.message || 'Đã xảy ra lỗi',
+            life: 3000
+        });
+    }
+};
 </script>
 
 <template>
@@ -178,7 +229,12 @@ const BGNotification = (key) => {
                         <div class="flex flex-col gap-2 w-[30rem]">
                             <span class="font-medium block mb-1">Thông báo</span>
                             <ul class="list-none p-0 m-0 flex flex-col max-h-[30rem] overflow-y-auto">
-                                <li v-for="item in state.notifications" :key="item._id" class="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200">
+                                <li
+                                    @click="readNotification(item)"
+                                    v-for="item in state.notifications"
+                                    :key="item._id"
+                                    class="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200"
+                                >
                                     <div :class="BGNotification(item.type)" class="min-w-14 min-h-14 max-w-14 max-h-14 rounded-full overflow-hidden border flex justify-center items-center">
                                         <img :src="linkNotification(item.type)" class="w-5/12 h-5/12" />
                                     </div>
@@ -201,6 +257,45 @@ const BGNotification = (key) => {
             </div>
         </div>
     </div>
+    <Dialog v-model:visible="visibleLetter" :modal="true" :showHeader="false" class="letter-dialog" :style="{ width: '700px', padding: '0' }">
+        <div class="bg-white pt-5 rounded-xl">
+            <!-- Header với nút đóng -->
+            <div class="flex justify-between items-center mb-5">
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-envelope text-2xl text-orange-500"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">{{ letter.title }}</h2>
+                </div>
+                <Button icon="pi pi-times" @click="visibleLetter = false" text rounded class="hover:bg-gray-100" />
+            </div>
+
+            <!-- Thông tin người gửi và thời gian -->
+            <div class="flex items-center gap-4 mb-3 rounded-lg">
+                <img :src="linkUploads(letter.organization?.avatar || letter.userSent?.avatar)" class="w-12 h-12 rounded-full object-cover border-2 border-orange-200" alt="Avatar" />
+                <div>
+                    <div class="font-semibold text-gray-800">
+                        {{ letter.organization ? letter.organization.name : letter.userSent.name }}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <i class="pi pi-calendar mr-2"></i>
+                        {{
+                            new Date(letter.createdAt).toLocaleDateString('vi-VN', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })
+                        }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nội dung thư -->
+            <div class="prose max-w-none min-h-[30rem] rounded-lg">
+                <div v-html="letter.message" class="text-gray-700 leading-relaxed"></div>
+            </div>
+        </div>
+    </Dialog>
 </template>
 <style>
 .p-menubar {
@@ -211,5 +306,21 @@ const BGNotification = (key) => {
 }
 .customerInput {
     border-radius: 50px !important;
+}
+.letter-dialog {
+    max-height: 90vh;
+}
+
+.letter-dialog :deep(.p-dialog-content) {
+    padding: 0;
+    border-radius: 1rem;
+}
+
+.prose {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #fafafa;
+    border-radius: 0.5rem;
 }
 </style>

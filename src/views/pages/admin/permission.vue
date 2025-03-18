@@ -189,14 +189,14 @@ const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGN
                     </div>
                 </template>
 
-                <Column header="STT" style="min-width: 5rem">
+                <Column header="STT" style="min-width: 3rem">
                     <template #body="slotProps">
                         {{ (pagination.page - 1) * pagination.pageSize + slotProps.index + 1 }}
                     </template>
                 </Column>
 
                 <Column field="name" header="Tên quyền" style="min-width: 16rem"></Column>
-                <Column field="method" header="Phương thức" style="min-width: 8rem"> </Column>
+                <Column field="method" header="Phương thức" style="min-width: 7rem"> </Column>
                 <Column field="module" header="Mô đun" style="min-width: 10rem"></Column>
                 <Column field="apiPath" header="API" style="min-width: 12rem"> </Column>
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
@@ -204,7 +204,7 @@ const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGN
                         {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
                     </template>
                 </Column>
-                <Column :exportable="false" style="min-width: 7rem">
+                <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-copy" severity="secondary" outlined rounded class="mr-2" @click="copyData(slotProps.data)" v-tooltip="'Sao chép'" />
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getData(slotProps.data)" v-tooltip="'Chức năng sửa'" />
