@@ -98,14 +98,14 @@ const getLeftPosition = () => {
 };
 const isLoading = ref(false);
 const valueFilter = ref({
-    status: '',
+    status: 'CXN',
     sort: false,
     type: '',
     campaign: router.params.id
 });
 const keySearch = ref('');
 const optionStatus = ref([
-    { label: 'Tất cả', value: '' },
+    { label: 'Tất cả', value: 'CXN' },
     { label: 'Đang thực hiện', value: 'DTH' },
     { label: 'Đạt mục tiêu', value: 'DMT' },
     { label: 'Đã kết thúc', value: 'DKT' },
@@ -125,6 +125,9 @@ const getCategory = async () => {
         .map(([key, value]) => {
             if (key === 'sort') {
                 return `sort=${value ? 'createdAt' : '-createdAt'}`;
+            }
+            if (key === 'status' && value === 'CXN') {
+                return `status!=CXN`;
             }
             return `${key}=${value}`;
         });

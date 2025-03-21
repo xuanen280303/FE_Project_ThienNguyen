@@ -43,7 +43,7 @@
                                         :rows="pagination.pageSize"
                                         :totalRecords="pagination.total"
                                         @page="
-                                            () => {
+                                            (event) => {
                                                 pagination.page = event.page;
                                                 pagination.pageSize = event.rows;
                                                 getDonation();
@@ -95,13 +95,22 @@
                     "
                 >
                     <div class="px-5 py-7 border-b-4 border-gray-200">
-                        <div class="w-full flex gap-2">
+                        <div class="w-full flex gap-2" v-if="detail.type == 'TC'">
                             <div class="min-w-20 max-w-20 min-h-20 max-h-20">
                                 <img :src="linkUploads(detail.organization?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
                             </div>
                             <div class="w-full flex flex-col gap-1">
                                 <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
                                 <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail.organization?.name }}</router-link>
+                            </div>
+                        </div>
+                        <div class="w-full flex gap-2" v-else>
+                            <div class="min-w-20 max-w-20 min-h-20 max-h-20">
+                                <img :src="linkUploads(detail.user?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
+                            </div>
+                            <div class="w-full flex flex-col gap-1">
+                                <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
+                                <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail.user?.name }}</router-link>
                             </div>
                         </div>
                         <div class="w-full mt-2">
@@ -125,7 +134,8 @@
                                 </div>
                                 <div class="w-full flex flex-col">
                                     <p class="text-gray-500 font-medium">Thời gian còn lại</p>
-                                    <p class="text-gray-800 font-semibold text-xl">{{ Math.ceil((new Date(detail.endDate) - new Date()) / (1000 * 60 * 60 * 24)) }} ngày</p>
+                                    <p class="text-gray-800 font-semibold text-xl" v-if="detail.status == 'DKT'">Đã kết thúc</p>
+                                    <p class="text-gray-800 font-semibold text-xl" v-else>{{ Math.ceil((new Date(detail.endDate) - new Date()) / (1000 * 60 * 60 * 24)) }} ngày</p>
                                 </div>
                             </div>
                         </div>
@@ -145,7 +155,7 @@
 
                             <span class="text-gray-800">{{ roundToTwoDecimals((detail.currentAmount / detail.goalAmount) * 100) + '%' }}</span>
                         </div>
-                        <div v-if="detail.status != 'DMT'">
+                        <div v-if="detail.status != 'DMT' && detail.status != 'DKT' && detail.status != 'CXN'">
                             <div class="w-full mt-6 flex gap-2 items-center">
                                 <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
                                 <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="RouterLink" :to="`/info-donate/${detail._id}`" />
@@ -356,7 +366,7 @@ const getDetail = async () => {
 const projectByCampaign = ref([]);
 const getProjectByCampaign = async () => {
     try {
-        const res = await apiService.get(`projects?page=1&pageSize=3&filter=campaign=${detail.value.campaign._id}`);
+        const res = await apiService.get(`projects?page=1&pageSize=3&filter=campaign=${detail.value.campaign._id},status!=CXN`);
         projectByCampaign.value = res.data.items;
     } catch (error) {
         console.log(error);

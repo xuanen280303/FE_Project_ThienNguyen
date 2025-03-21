@@ -13,6 +13,7 @@ import apiService from '../../service/api.service';
 import tokenService from '../../service/token.service';
 import { useAuthStore } from '../../stores/AuthStore';
 import { useNotificationStore } from '../../stores/Notification';
+import CreateProject from '../../views/pages/client/Component/CreateProject.vue';
 const authStore = useAuthStore();
 const { state, getNotification } = useNotificationStore();
 const toast = useToast();
@@ -102,6 +103,20 @@ const itemAccount = ref([
                 }
             },
             {
+                label: 'Quản lý chiến dịch',
+                icon: 'pi pi-fw pi-slack',
+                command: () => {
+                    router.push('/manager');
+                }
+            },
+            {
+                label: 'Tài khoản',
+                icon: 'pi pi-fw pi-user',
+                command: () => {
+                    router.push('/admin');
+                }
+            },
+            {
                 label: 'Đăng xuất',
                 icon: 'pi pi-sign-out',
                 command: () => {
@@ -154,6 +169,10 @@ const checkTypeNotification = (objInfo) => {
         } else if (name == 'ERROR') {
             router.push(`/detail/${_id}`);
         }
+    } else if (type == 'PROJECT') {
+        if (name == 'SUCCESS') {
+            router.push(`/detail/${_id}`);
+        }
     }
 };
 const readNotification = async (item) => {
@@ -189,6 +208,14 @@ const getLetterById = async (id) => {
         });
     }
 };
+
+const value = ref('');
+const itemSearch = ref([]);
+
+const search = async (event) => {
+    const res = await apiService.post(`projects/search`, { search: event.query });
+    itemSearch.value = res.data;
+};
 </script>
 
 <template>
@@ -212,15 +239,64 @@ const getLetterById = async (id) => {
         <i class="pi pi-bars !text-2xl"></i>
     </Button>
     <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
-        <IconField>
-            <InputIcon class="pi pi-search customInputIcon" />
-            <InputText placeholder="Tìm kiếm tên chiến dịch" class="rounded-full customerInput" size="large" />
-        </IconField>
+        <AutoComplete
+            v-model="value"
+            optionLabel="name"
+            :suggestions="itemSearch"
+            @complete="search"
+            placeholder="Tìm kiếm tên chiến dịch"
+            :pt:pcInputText:root:class="'!rounded-full'"
+            size="large"
+            @item-select="
+                (e) => {
+                    router.push(`/detail/${e.value._id}`), (value = '');
+                }
+            "
+        >
+            <template #option="slotProps">
+                <div class="flex items-center gap-4 cursor-pointer max-w-[500px] overflow-hidden hover:bg-gray-50" @click="router.push(`/detail/${slotProps.option._id}`)">
+                    <!-- Ảnh dự án -->
+                    <img :src="linkUploads(slotProps.option.image)" class="w-14 h-14 object-cover rounded-lg" alt="Project Image" />
+
+                    <!-- Thông tin chính -->
+                    <div class="flex flex-col min-w-0">
+                        <!-- Tên dự án -->
+                        <p class="font-semibold text-gray-800 w-full break-words truncate">
+                            {{ slotProps.option.name }}
+                        </p>
+                        <div class="flex items-center gap-2 text-sm text-gray-600 mt-1" v-if="slotProps.option.type == 'TC'">
+                            <img :src="linkUploads(slotProps.option.organization?.avatar)" class="w-5 h-5 rounded-full" alt="Org Avatar" />
+                            <span>{{ slotProps.option.organization?.name }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-600 mt-1" v-else>
+                            <img :src="linkUploads(slotProps.option.user?.avatar)" class="w-5 h-5 rounded-full" alt="Org Avatar" />
+                            <span>{{ slotProps.option.user?.name }}</span>
+                        </div>
+                        <!-- Địa chỉ và tiến độ -->
+                        <div class="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                            <!-- Thông tin tổ chức -->
+                            <div class="flex items-center gap-1">
+                                <i class="pi pi-map-marker"></i>
+                                <span>{{ slotProps.option.conscious?.name }}</span>
+                            </div>
+                            <!-- Tiến độ quyên góp -->
+                            <div class="flex items-center gap-1">
+                                <i class="pi pi-heart-fill text-red-500"></i>
+                                <span>{{ new Intl.NumberFormat('vi-VN').format(slotProps.option.currentAmount) }}đ</span>
+                                <span>/</span>
+                                <span>{{ new Intl.NumberFormat('vi-VN').format(slotProps.option.goalAmount) }}đ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </AutoComplete>
         <div class="flex">
             <Menubar :model="items" class="text-base font-medium" />
 
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 items-center">
-                <Button class="h-9 !rounded-xl" label="Tạo chiến dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
+                <!-- <Button class="h-9 !rounded-xl" label="Tạo chiến dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button> -->
+                <CreateProject />
                 <div class="pt-2 px-2">
                     <OverlayBadge :value="state.notifications.length > 0 ? state.notifications.filter((item) => item.isRead === false).length : 0" @click="toggleNotification">
                         <i class="pi pi-bell" style="font-size: 1.7rem" />

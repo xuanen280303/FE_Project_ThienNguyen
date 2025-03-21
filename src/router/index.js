@@ -102,6 +102,11 @@ const router = createRouter({
                     path: 'detail/companions/:id',
                     name: 'detailCompanions',
                     component: () => import('@/views/pages/client/Companions.vue')
+                },
+                {
+                    path: 'manager',
+                    name: 'manager',
+                    component: () => import('@/views/pages/client/Manager.vue')
                 }
             ]
         },

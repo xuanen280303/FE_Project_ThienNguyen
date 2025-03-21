@@ -37,7 +37,6 @@ const init = {
         'searchreplace',
         'visualblocks',
         'code',
-        'fullscreen',
         'insertdatetime',
         'media',
         'table',
@@ -56,7 +55,7 @@ const init = {
         'quickbars'
     ],
     toolbar1: 'undo redo | styles | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify',
-    toolbar2: 'bullist numlist outdent indent | link image media table | forecolor backcolor removeformat | code fullscreen help',
+    toolbar2: 'bullist numlist outdent indent | link image media table | forecolor backcolor removeformat | code help',
     content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
     base_url: '/tinymce',
     skin_url: '/tinymce/skins/ui/oxide',

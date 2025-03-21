@@ -63,8 +63,7 @@ const handleLogin = async () => {
             router.push('/');
         }
     } catch (error) {
-        console.log(error);
-        // toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: error.response.data.message, life: 3000 });
+        toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: error.response.data.message, life: 3000 });
     } finally {
         submitted.value = true;
 
