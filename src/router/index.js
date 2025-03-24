@@ -61,6 +61,16 @@ const router = createRouter({
                     path: 'organization',
                     name: 'organization',
                     component: () => import('@/views/pages/admin/organization.vue')
+                },
+                {
+                    path: 'notification',
+                    name: 'notification',
+                    component: () => import('@/views/pages/admin/notification.vue')
+                },
+                {
+                    path: 'letter',
+                    name: 'letter',
+                    component: () => import('@/views/pages/admin/letter.vue')
                 }
             ]
         },
@@ -92,6 +102,11 @@ const router = createRouter({
                     path: 'detail/companions/:id',
                     name: 'detailCompanions',
                     component: () => import('@/views/pages/client/Companions.vue')
+                },
+                {
+                    path: 'manager',
+                    name: 'manager',
+                    component: () => import('@/views/pages/client/Manager.vue')
                 }
             ]
         },

@@ -37,18 +37,42 @@
                                         <span class="text-orange-600 font-bold text-xl border-b-2 border-orange-600 h-full px-4 flex items-center">Danh sách ủng hộ</span>
                                     </div>
 
-                                    <DataTable :value="payment" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="width: 100%">
+                                    <DataTable
+                                        :value="payment"
+                                        paginator
+                                        :rows="pagination.pageSize"
+                                        :totalRecords="pagination.total"
+                                        @page="
+                                            (event) => {
+                                                pagination.page = event.page;
+                                                pagination.pageSize = event.rows;
+                                                getDonation();
+                                            }
+                                        "
+                                        :rowsPerPageOptions="[5, 10, 20, 50]"
+                                        tableStyle="width: 100%"
+                                    >
                                         <template #header>
                                             <IconField>
                                                 <InputIcon>
                                                     <i class="pi pi-search" />
                                                 </InputIcon>
-                                                <InputText class="w-full" placeholder="Nhập tên người ủng hộ" />
+                                                <InputText class="w-full" placeholder="Nhập tên hoặc email người ủng hộ" v-model="pagination.search" @keyup.enter="getDonation" />
                                             </IconField>
                                         </template>
-                                        <Column field="name" header="Người ủng hộ" style="width: 40%"></Column>
-                                        <Column field="total" header="Số tiền ủng hộ"></Column>
-                                        <Column field="createdDate" header="Thời gian ủng hộ"></Column>
+                                        <Column field="name" header="Người ủng hộ" style="width: 40%">
+                                            <template #body="slotProps">
+                                                {{ slotProps.data.isAnonymous ? 'Ẩn danh' : slotProps.data.buyerName }}
+                                            </template>
+                                        </Column>
+                                        <Column field="amount" header="Số tiền ủng hộ">
+                                            <template #body="slotProps"> {{ parseNum(slotProps.data.amount) }} VNĐ </template>
+                                        </Column>
+                                        <Column field="createdAt" header="Thời gian ủng hộ">
+                                            <template #body="slotProps">
+                                                {{ format(slotProps.data.createdAt, 'dd/MM/yyyy HH:mm') }}
+                                            </template>
+                                        </Column>
                                     </DataTable>
                                 </div>
                             </TabPanel>
@@ -71,13 +95,22 @@
                     "
                 >
                     <div class="px-5 py-7 border-b-4 border-gray-200">
-                        <div class="w-full flex gap-2">
+                        <div class="w-full flex gap-2" v-if="detail.type == 'TC'">
                             <div class="min-w-20 max-w-20 min-h-20 max-h-20">
                                 <img :src="linkUploads(detail.organization?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
                             </div>
                             <div class="w-full flex flex-col gap-1">
                                 <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
                                 <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail.organization?.name }}</router-link>
+                            </div>
+                        </div>
+                        <div class="w-full flex gap-2" v-else>
+                            <div class="min-w-20 max-w-20 min-h-20 max-h-20">
+                                <img :src="linkUploads(detail.user?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
+                            </div>
+                            <div class="w-full flex flex-col gap-1">
+                                <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
+                                <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail.user?.name }}</router-link>
                             </div>
                         </div>
                         <div class="w-full mt-2">
@@ -101,7 +134,8 @@
                                 </div>
                                 <div class="w-full flex flex-col">
                                     <p class="text-gray-500 font-medium">Thời gian còn lại</p>
-                                    <p class="text-gray-800 font-semibold text-xl">{{ Math.ceil((new Date(detail.endDate) - new Date()) / (1000 * 60 * 60 * 24)) }} ngày</p>
+                                    <p class="text-gray-800 font-semibold text-xl" v-if="detail.status == 'DKT'">Đã kết thúc</p>
+                                    <p class="text-gray-800 font-semibold text-xl" v-else>{{ Math.ceil((new Date(detail.endDate) - new Date()) / (1000 * 60 * 60 * 24)) }} ngày</p>
                                 </div>
                             </div>
                         </div>
@@ -121,7 +155,7 @@
 
                             <span class="text-gray-800">{{ roundToTwoDecimals((detail.currentAmount / detail.goalAmount) * 100) + '%' }}</span>
                         </div>
-                        <div v-if="detail.status != 'DMT'">
+                        <div v-if="detail.status != 'DMT' && detail.status != 'DKT' && detail.status != 'CXN'">
                             <div class="w-full mt-6 flex gap-2 items-center">
                                 <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
                                 <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="RouterLink" :to="`/info-donate/${detail._id}`" />
@@ -133,7 +167,7 @@
                                 >Chia sẻ chiến dịch để lan tỏa yêu thương đến mọi người <i class="pi pi-share-alt"></i
                             ></a>
                         </div>
-                        <div class="mt-4">
+                        <div class="mt-4" v-else>
                             <a class="w-full" :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`" target="_blank">
                                 <Button label="Chia sẻ  " variant="outlined" class="w-full !rounded-2xl" size="large" />
                             </a>
@@ -232,6 +266,7 @@
     <Loading v-if="isLoading" />
 </template>
 <script setup>
+import { format } from 'date-fns';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Comment from '../../../components/Comment.vue';
@@ -240,13 +275,7 @@ import { linkUploads } from '../../../constant/api';
 import apiService from '../../../service/api.service';
 import parseNum from '../../../utils/parseNum';
 const url = ref(window.location.href);
-const payment = ref([
-    {
-        name: 'Trần Quốc Anh',
-        total: '100.000.000 VNĐ',
-        createdDate: '24/12/2024'
-    }
-]);
+const payment = ref([]);
 const userCampaign = ref([
     {
         avatar: 'https://placehold.co/50x50',
@@ -337,16 +366,31 @@ const getDetail = async () => {
 const projectByCampaign = ref([]);
 const getProjectByCampaign = async () => {
     try {
-        const res = await apiService.get(`projects?page=1&pageSize=3&filter=campaign=${detail.value.campaign._id}`);
+        const res = await apiService.get(`projects?page=1&pageSize=3&filter=campaign=${detail.value.campaign._id},status!=CXN`);
         projectByCampaign.value = res.data.items;
     } catch (error) {
         console.log(error);
     }
 };
-
+const pagination = ref({
+    page: 0,
+    pageSize: 5,
+    total: 0,
+    search: ''
+});
+const getDonation = async () => {
+    try {
+        const res = await apiService.get(`donations?filter=project=${router.params.id}&page=${pagination.value.page + 1}&pageSize=${pagination.value.pageSize}${pagination.value.search ? `&search=${pagination.value.search}` : ''}`);
+        payment.value = res.data.items;
+        pagination.value.total = res.data.total;
+    } catch (error) {
+        console.log(error);
+    }
+};
 onMounted(async () => {
     await getDetail();
     await getProjectByCampaign();
+    await getDonation();
 });
 
 watch(

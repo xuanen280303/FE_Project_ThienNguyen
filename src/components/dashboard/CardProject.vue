@@ -26,7 +26,8 @@
                 <h3 class="font-semibold text-gray-700 text-lg mb-2 line-clamp-2 min-h-[55px]">{{ title }}</h3>
                 <div class="flex items-center justify-between text-gray-600">
                     <span>{{ supporters }} lượt ủng hộ</span>
-                    <span>Còn lại {{ formattedNumber(daysLeft) }} ngày</span>
+                    <span v-if="daysLeft > 0">Còn lại {{ formattedNumber(daysLeft) }} ngày</span>
+                    <span v-else>Đã kết thúc</span>
                 </div>
             </div>
         </router-link>

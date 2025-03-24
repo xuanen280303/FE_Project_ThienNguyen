@@ -1,0 +1,408 @@
+<template>
+    <div class="rounded-lg">
+        <DataTable
+            ref="dt"
+            lazy
+            v-model:expandedRows="expandedRows"
+            dataKey="_id"
+            :value="valueData"
+            :paginator="true"
+            @rowExpand="onRowExpand"
+            :loading="isLoadingData"
+            :rows="pagination.pageSize"
+            :page="pagination.page"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            :rowsPerPageOptions="[5, 10, 25, 50, 100]"
+            currentPageReportTemplate="Từ {first} đến {last} trong {totalRecords} dữ liệu"
+            :totalRecords="pagination.total"
+            scrollable
+            @page="handlePage($event)"
+        >
+            <template #empty>
+                <div class="flex justify-center items-center h-full">
+                    <span class="text-gray-500">Không có dữ liệu</span>
+                </div>
+            </template>
+            <template #header>
+                <div class="flex flex-wrap gap-2 items-center justify-between">
+                    <div>
+                        <Select
+                            v-model="valueFilter.isActive"
+                            :options="[
+                                { label: 'Tất cả', value: null },
+                                { label: 'Hoạt động', value: true },
+                                { label: 'Không hoạt động', value: false }
+                            ]"
+                            placeholder="Tất cả"
+                            optionLabel="label"
+                            optionValue="value"
+                            @change="handleFilter"
+                            class="mr-2"
+                        />
+
+                        <Button label="Làm mới" icon="pi pi-refresh" severity="secondary" @click="getAll" class="mr-2" />
+                        <Button
+                            v-if="valueFilter.sort"
+                            label="Mới nhất"
+                            icon="pi pi-arrow-down"
+                            severity="secondary"
+                            @click="
+                                () => {
+                                    valueFilter.sort = false;
+                                    getAll();
+                                }
+                            "
+                            class="mr-2"
+                        />
+                        <Button
+                            v-else
+                            label="Cũ nhất"
+                            icon="pi pi-arrow-up"
+                            severity="secondary"
+                            @click="
+                                () => {
+                                    valueFilter.sort = true;
+                                    getAll();
+                                }
+                            "
+                            class="mr-2"
+                        />
+                    </div>
+                    <IconField>
+                        <InputIcon>
+                            <i class="pi pi-search" />
+                        </InputIcon>
+                        <InputText v-model="keySearch" placeholder="Tìm kiếm..." @change="handleFilter" />
+                    </IconField>
+                </div>
+            </template>
+            <Column expander style="width: 5rem" />
+            <template #expansion="{ data }">
+                <div>
+                    <div class="overflow-hidden">
+                        <div class="h-14 flex items-center">
+                            <span class="text-orange-600 font-bold text-xl border-b-2 border-orange-600 h-full px-4 flex items-center">Danh sách ủng hộ</span>
+                        </div>
+                        <DataTable
+                            :value="payment"
+                            :loading="isLoadingDetail"
+                            paginator
+                            lazy
+                            :rows="paginationDetail.pageSize"
+                            :totalRecords="paginationDetail.total"
+                            @page="
+                                (event) => {
+                                    paginationDetail.page = event.page;
+                                    paginationDetail.pageSize = event.rows;
+                                    getDonation(data._id);
+                                }
+                            "
+                            :rowsPerPageOptions="[5, 10, 20, 50]"
+                            tableStyle="width: 100%"
+                        >
+                            <template #header>
+                                <IconField>
+                                    <InputIcon>
+                                        <i class="pi pi-search" />
+                                    </InputIcon>
+                                    <InputText class="w-full" placeholder="Nhập tên hoặc email người ủng hộ" v-model="paginationDetail.search" @keyup.enter="getDonation(data._id)" />
+                                </IconField>
+                            </template>
+                            <Column field="name" header="Người ủng hộ" style="width: 40%">
+                                <template #body="slotProps">
+                                    {{ slotProps.data.isAnonymous ? 'Ẩn danh' : slotProps.data.buyerName }}
+                                </template>
+                            </Column>
+                            <Column field="amount" header="Số tiền ủng hộ">
+                                <template #body="slotProps"> {{ parseNum(slotProps.data.amount) }} VNĐ </template>
+                            </Column>
+                            <Column field="createdAt" header="Thời gian ủng hộ">
+                                <template #body="slotProps">
+                                    {{ format(slotProps.data.createdAt, 'dd/MM/yyyy HH:mm') }}
+                                </template>
+                            </Column>
+                        </DataTable>
+                    </div>
+                </div>
+            </template>
+            <Column header="STT" style="min-width: 5rem">
+                <template #body="slotProps">
+                    {{ (pagination.page - 1) * pagination.pageSize + slotProps.index + 1 }}
+                </template>
+            </Column>
+
+            <Column field="avatar" header="Ảnh dự án" style="min-width: 8rem">
+                <template #body="slotProps">
+                    <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
+                </template>
+            </Column>
+            <Column field="name" header="Tên dự án" style="min-width: 14rem"></Column>
+            <Column field="campaign.name" header="Chiến dịch" style="min-width: 8rem"> </Column>
+            <Column header="Bởi" style="min-width: 8rem">
+                <template #body="slotProps">
+                    {{ slotProps.data.type ? (slotProps.data.type == 'CN' ? slotProps.data.user?.name : slotProps.data.organization?.name) : '--' }}
+                </template>
+            </Column>
+            <Column field="status" header="Trạng thái" style="min-width: 7rem">
+                <template #body="slotProps">
+                    {{ getStatus(slotProps.data.status) }}
+                </template>
+            </Column>
+            <Column field="startDate" header="Ngày bắt đầu" style="min-width: 12rem">
+                <template #body="slotProps">
+                    {{ slotProps.data.startDate ? format(slotProps.data.startDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.startDate, 'HH:mm') : '--' }}
+                </template>
+            </Column>
+
+            <Column field="endDate" header="Ngày kết thúc" style="min-width: 12rem">
+                <template #body="slotProps">
+                    {{ slotProps.data.endDate ? format(slotProps.data.endDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.endDate, 'HH:mm') : '--' }}
+                </template>
+            </Column>
+
+            <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
+                <template #body="slotProps">
+                    {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
+                </template>
+            </Column>
+            <Column field="isActive" header="Tình trạng" style="min-width: 8rem">
+                <template #body="slotProps">
+                    {{ slotProps.data.isActive ? 'Hoạt động' : 'Không hoạt động' }}
+                </template>
+            </Column>
+
+            <Column :exportable="false" style="min-width: 8rem" frozen alignFrozen="right">
+                <template #body="slotProps">
+                    <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
+                    <Button icon="pi pi-external-link" outlined rounded class="mr-2" @click="() => router.push(`/detail/${slotProps.data._id}`)" v-tooltip="'Tới link chiến dịch'" />
+                </template>
+            </Column>
+        </DataTable>
+    </div>
+    <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
+        <template #header>
+            <h4 class="m-0 text-xl font-bold">Chi tiết dự án</h4>
+        </template>
+
+        <div class="mb-8">
+            <div class="flex gap-6">
+                <div class="w-1/4">
+                    <h5 class="text-lg font-semibold">Ảnh nổi bật:</h5>
+                    <img :src="eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/128x128'" alt="avatar" class="w-full h-[180px] object-cover rounded" />
+                </div>
+                <div class="w-3/4">
+                    <h5 class="text-lg font-semibold">Danh sách ảnh:</h5>
+                    <div class="flex gap-4 overflow-x-auto">
+                        <template v-if="eventData.listImage?.length > 0">
+                            <img v-for="item in eventData.listImage" :key="item" :src="linkUploads(item)" alt="avatar" class="w-[200px] h-[180px] object-cover rounded flex-shrink-0" />
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-12 gap-y-6 mb-8">
+            <div>
+                <h5 class="text-lg font-semibold mb-4">Thông tin cơ bản</h5>
+
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-gray-600">Tên dự án:</p>
+                        <p class="text-lg">{{ eventData.name || '--' }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-600">Trạng thái:</p>
+                        <p class="text-lg">{{ getStatus(eventData.status) || '--' }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-600">Địa chỉ:</p>
+                        <p class="text-lg">{{ eventData.address || '--' }}</p>
+                        <p class="text-lg">
+                            {{ [eventData.ward?.full_name, eventData.district?.full_name, eventData.conscious?.full_name].filter(Boolean).join(', ') || '--' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h5 class="text-lg font-semibold mb-4">Thông tin quyên góp</h5>
+
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-gray-600">Mục tiêu quyên góp:</p>
+                        <p class="text-lg font-medium">{{ eventData.goalAmount?.toLocaleString() || '--' }} VNĐ</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-600">Thời gian:</p>
+                        <p class="text-lg">Từ: {{ eventData.startDate ? format(new Date(eventData.startDate), 'dd/MM/yyyy HH:mm') : '--' }}</p>
+                        <p class="text-lg">Đến: {{ eventData.endDate ? format(new Date(eventData.endDate), 'dd/MM/yyyy HH:mm') : '--' }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-600">Thuộc loại:</p>
+                        <p class="text-lg">{{ eventData.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-600">{{ eventData.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }} kêu gọi:</p>
+                        <p class="text-lg">{{ eventData.type === 'CN' ? eventData.user?.name : eventData.organization?.name }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-600">Chiến dịch:</p>
+                        <p class="text-lg">{{ eventData.campaign?.name || '--' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full mt-4">
+            <div class="border rounded-lg p-4 space-y-2">
+                <p class="font-bold">Mô tả</p>
+                <div class="prose max-w-none" v-html="eventData.description"></div>
+            </div>
+        </div>
+
+        <template #footer>
+            <Button label="Đóng" icon="pi pi-times" text @click="hideDialog" />
+        </template>
+    </Dialog>
+    <Loading v-if="isLoading" />
+</template>
+
+<script setup>
+import { format } from 'date-fns';
+import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { linkUploads } from '../../../../constant/api';
+import accountService from '../../../../service/account.service';
+import apiService from '../../../../service/api.service';
+import parseNum from '../../../../utils/parseNum';
+const router = useRouter();
+onMounted(async () => {
+    isLoading.value = true;
+    await getAll();
+    isLoading.value = false;
+});
+
+const toast = useToast();
+const dt = ref();
+const keySearch = ref('');
+const urlApi = 'projects';
+const account = accountService.getAccount().account;
+const pagination = ref({
+    page: 1,
+    pageSize: 10,
+    total: 0
+});
+const paginationDetail = ref({
+    page: 0,
+    pageSize: 10,
+    total: 0,
+    search: ''
+});
+const payment = ref([]);
+const expandedRows = ref({});
+
+const valueData = ref([]);
+const isLoading = ref(false);
+const isLoadingData = ref(false);
+const isEventDialog = ref(false);
+const eventData = ref({});
+
+const valueFilter = ref({
+    isActive: null,
+    sort: false,
+    user: account._id
+});
+
+function hideDialog() {
+    isEventDialog.value = false;
+    eventData.value = {};
+}
+
+function getDataDetail(prod) {
+    eventData.value = {
+        ...prod,
+        organization: prod.organization?._id,
+        user: prod.user?._id,
+        campaign: prod.campaign?._id,
+        startDate: new Date(prod.startDate),
+        endDate: new Date(prod.endDate)
+    };
+    isEventDialog.value = true;
+}
+
+const getAll = async () => {
+    isLoadingData.value = true;
+    const conditions = Object.entries(valueFilter.value)
+        .filter(([key, value]) => value !== null)
+        .map(([key, value]) => {
+            if (key === 'sort') {
+                return `sort=${value ? 'createdAt' : '-createdAt'}`;
+            }
+            return `${key}=${value}`;
+        });
+
+    const filter = conditions.join(',');
+    try {
+        const res = await apiService.get(urlApi + '?page=' + pagination.value.page + '&pageSize=' + pagination.value.pageSize + (keySearch.value ? '&search=' + keySearch.value : '') + (filter ? '&filter=' + filter : ''));
+        valueData.value = res.data.items;
+        pagination.value.total = res.data.total;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ get all', life: 3000 });
+    } finally {
+        isLoadingData.value = false;
+    }
+};
+const isLoadingDetail = ref(false);
+const onRowExpand = (event) => {
+    getDonation(event.data._id);
+    expandedRows.value = { [event.data._id]: true };
+};
+const getDonation = async (id) => {
+    isLoadingDetail.value = true;
+    try {
+        const res = await apiService.get(`donations?filter=project=${id}&page=${paginationDetail.value.page + 1}&pageSize=${paginationDetail.value.pageSize}${paginationDetail.value.search ? `&search=${paginationDetail.value.search}` : ''}`);
+        payment.value = res.data.items;
+        paginationDetail.value.total = res.data.total;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isLoadingDetail.value = false;
+    }
+};
+const handlePage = (event) => {
+    pagination.value.page = event.page + 1;
+    pagination.value.pageSize = event.rows;
+    getAll();
+};
+
+const handleFilter = () => {
+    pagination.value.page = 1;
+    getAll();
+};
+
+const getStatus = (status) => {
+    switch (status) {
+        case 'CXN':
+            return 'Chờ xác nhận';
+        case 'DTH':
+            return 'Đang thực hiện';
+        case 'DMT':
+            return 'Đạt mục tiêu';
+        case 'DKT':
+            return 'Đã kết thúc';
+        case 'TD':
+            return 'Tạm dừng';
+        default:
+            return status;
+    }
+};
+</script>
+
+<style></style>

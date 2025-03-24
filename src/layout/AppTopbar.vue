@@ -44,7 +44,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
             </button>
 
             <div class="layout-topbar-menu hidden lg:block">
-                <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-10 !h-10'" />
+                <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-10 !h-10 border border-primary !bg-white'" class="!rounded-full" />
             </div>
         </div>
     </div>

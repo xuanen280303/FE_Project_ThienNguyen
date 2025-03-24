@@ -1,5 +1,5 @@
 <template>
-    <div class="border-l-2 border-primary-200 pl-4 mb-4 rounded-lg" :class="{ '!border-primary': isReply }">
+    <div class="border-l-2 border-primary-200 pl-4 mb-4 rounded-lg" :class="{ 'border-none': isReply }">
         <div class="flex items-start mb-2">
             <div class="mr-2">
                 <img :src="linkUploads(comment.user.avatar)" alt="avatar" class="w-12 h-12 mt-2 rounded-full border border-primary" />
@@ -17,10 +17,14 @@
         </div>
         <div v-if="showReplyForm" class="flex flex-col gap-2">
             <Textarea v-model="newComment.message" placeholder="Nhập bình luận của bạn" autoResize rows="2" cols="30" />
-            <Button label="Gửi" @click="handleAddComment" class="max-w-28 !py-1 !text-base rounded-xl mb-2" />
+            <div class="flex gap-2">
+                <Button label="Gửi" @click="handleAddComment" class="min-w-28 !py-1 !text-base rounded-xl mb-2" />
+                <Button label="Hủy" @click="showReplyForm = false" severity="secondary" class="!py-1 !text-base rounded-xl mb-2" />
+            </div>
         </div>
         <CommentNode v-for="child in comment.replies" :key="child.id" :comment="child" :projectId="projectId" :isReply="true" :getCommentByProjectId="getCommentByProjectId" />
     </div>
+    <ConfirmPopup></ConfirmPopup>
 </template>
 
 <script setup>
@@ -72,15 +76,25 @@ const confirmDelete = () => {
         message: 'Bạn có chắc chắn muốn xóa bình luận này?',
         header: 'Xác nhận xóa',
         icon: 'pi pi-exclamation-triangle',
-        accept: handleDeleteComment
+        rejectProps: {
+            label: 'Hủy',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Xóa'
+        },
+        accept: () => {
+            handleDeleteComment();
+        }
     });
 };
 
 const handleDeleteComment = async () => {
     try {
         await apiService.delete(`comments/${props.comment._id}`);
+        await props.getCommentByProjectId();
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Bình luận đã được xóa', life: 3000 });
-        props.getCommentByProjectId();
     } catch (error) {
         console.log(error);
     }

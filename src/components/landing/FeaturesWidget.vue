@@ -217,7 +217,10 @@ const responsiveOptions = ref([
 const useGet = () => {
     const getAll = async () => {
         try {
-            const [resPersonal, resOrganization] = await Promise.all([apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,type=CN'), apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,type=TC')]);
+            const [resPersonal, resOrganization] = await Promise.all([
+                apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,type=CN,status!=CXN'),
+                apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,type=TC,status!=CXN')
+            ]);
             state.options.projectsPersonal = resPersonal.data.items;
             state.options.projectsOrganization = resOrganization.data.items;
         } catch (error) {}

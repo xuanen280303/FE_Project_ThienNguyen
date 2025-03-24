@@ -39,20 +39,28 @@ const model = ref([
                 icon: 'pi pi-fw pi-sitemap',
                 items: [
                     {
-                        label: 'Quản lý chiến dịch',
+                        label: 'Chiến dịch',
                         to: '/admin/campaign'
                     },
                     {
-                        label: 'Quản lý dự án',
+                        label: 'Dự án',
                         to: '/admin/project'
                     },
                     {
-                        label: 'Quản lý người đồng hành',
+                        label: 'Người đồng hành',
                         to: '/admin/companion'
                     },
                     {
-                        label: 'Quản lý tổ chức',
+                        label: 'Tổ chức',
                         to: '/admin/organization'
+                    },
+                    {
+                        label: 'Thông báo',
+                        to: '/admin/notification'
+                    },
+                    {
+                        label: 'Gửi thư',
+                        to: '/admin/letter'
                     }
                 ]
             },
