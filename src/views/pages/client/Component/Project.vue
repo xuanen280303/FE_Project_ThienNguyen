@@ -121,6 +121,14 @@
                                     {{ format(slotProps.data.createdAt, 'dd/MM/yyyy HH:mm') }}
                                 </template>
                             </Column>
+                            <Column field="status" header="Trạng thái">
+                                <template #body="slotProps"> {{ getStatusDonation(slotProps.data.status) }} </template>
+                            </Column>
+                            <Column header="Chức năng" headerStyle="max-width: 4rem">
+                                <template #body="slotProps">
+                                    <Button icon="pi pi-envelope" outlined rounded class="mr-2" @click="sendThankYouLetter(slotProps.data)" v-tooltip="'Gửi thư cảm ơn'" />
+                                </template>
+                            </Column>
                         </DataTable>
                     </div>
                 </div>
@@ -179,6 +187,42 @@
             </Column>
         </DataTable>
     </div>
+    <Dialog v-model:visible="isEventLetterDialog" :style="{ width: '1200px' }" :modal="true">
+        <template #header>
+            <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">Gửi thư cảm ơn</h4>
+        </template>
+        <div class="flex flex-col gap-4">
+            <div v-if="eventDataLetter.typeTemporary == 'TC'">
+                <label for="type" class="block font-bold mb-1">Đại diện gửi thư <small class="text-red-500">*</small></label>
+                <Select
+                    id="type"
+                    v-model="eventDataLetter.type"
+                    :options="dataGetAllOption.type"
+                    optionLabel="label"
+                    optionValue="value"
+                    required="true"
+                    @change="handleChangeType"
+                    autofocus
+                    :invalid="submitted && !eventDataLetter.type"
+                    fluid
+                    placeholder="Vui lòng chọn thuộc loại"
+                />
+            </div>
+            <div>
+                <label for="title" class="block font-bold mb-1">Tiêu đề <small class="text-red-500">*</small></label>
+                <InputText id="title" v-model="eventDataLetter.title" required="true" autofocus fluid placeholder="Tiêu đề" />
+            </div>
+            <div class="w-full">
+                <label class="block font-bold mb-1">Nội dung <small class="text-red-500">*</small></label>
+                <RichTextEditor v-model="eventDataLetter.message" />
+            </div>
+        </div>
+
+        <template #footer>
+            <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />
+            <Button label="Lưu" icon="pi pi-check" @click="saveData" :loading="isLoadingData" />
+        </template>
+    </Dialog>
     <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
         <template #header>
             <h4 class="m-0 text-xl font-bold">Chi tiết dự án</h4>
@@ -288,7 +332,9 @@ onMounted(async () => {
     await getAll();
     isLoading.value = false;
 });
-
+const eventDataLetter = ref({});
+const submitted = ref(false);
+const isEventLetterDialog = ref(false);
 const toast = useToast();
 const dt = ref();
 const keySearch = ref('');
@@ -304,6 +350,14 @@ const paginationDetail = ref({
     pageSize: 10,
     total: 0,
     search: ''
+});
+const dataGetAllOption = ref({
+    user: [],
+    organization: [],
+    type: [
+        { label: 'Cá nhân', value: 'CN' },
+        { label: 'Tổ chức', value: 'TC' }
+    ]
 });
 const payment = ref([]);
 const expandedRows = ref({});
@@ -322,7 +376,10 @@ const valueFilter = ref({
 
 function hideDialog() {
     isEventDialog.value = false;
+    isEventLetterDialog.value = false;
     eventData.value = {};
+    eventDataLetter.value = {};
+    submitted.value = false;
 }
 
 function getDataDetail(prod) {
@@ -403,6 +460,68 @@ const getStatus = (status) => {
             return status;
     }
 };
+const getStatusDonation = (status) => {
+    switch (status) {
+        case 'PENDING':
+            return 'Chờ thanh toán';
+        case 'PAID':
+            return 'Đã thanh toán';
+        case 'CANCEL':
+            return 'Đã hủy';
+        default:
+            return status;
+    }
+};
+//Xử lý letter
+const sendThankYouLetter = (data) => {
+    eventDataLetter.value = {
+        user: data.user?._id,
+        userSentTemporary: account._id,
+        type: data.project?.type == 'CN' ? 'CN' : null,
+        typeTemporary: data.project?.type,
+        userSent: data.project?.type == 'CN' ? data.project?.user : null,
+        organizationTemporary: data.project?.organization
+    };
+    isEventLetterDialog.value = true;
+};
+const handleChangeType = () => {
+    if (eventDataLetter.value.type == 'TC') {
+        eventDataLetter.value.userSent = null;
+        eventDataLetter.value.organization = eventDataLetter.value.organizationTemporary;
+    } else {
+        eventDataLetter.value.userSent = eventDataLetter.value.userSentTemporary;
+        eventDataLetter.value.organization = null;
+    }
+};
+const validate = () => {
+    if (!eventDataLetter.value.type) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn đại diện gửi thư', life: 3000 });
+        return false;
+    }
+    if (!eventDataLetter.value.title) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập tiêu đề', life: 3000 });
+        return false;
+    }
+    if (!eventDataLetter.value.message) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập nội dung', life: 3000 });
+        return false;
+    }
+    return true;
+};
+async function saveData() {
+    submitted.value = true;
+    if (!validate()) return;
+    isLoadingData.value = true;
+    try {
+        await apiService.post('letter', eventDataLetter.value);
+        toast.add({ severity: 'success', summary: 'Thành công', detail: 'Gửi thư thành công', life: 3000 });
+        isEventLetterDialog.value = false;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
+    } finally {
+        isLoadingData.value = false;
+    }
+}
 </script>
 
 <style></style>
