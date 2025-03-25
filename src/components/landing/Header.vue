@@ -300,28 +300,33 @@ const search = async (event) => {
                 <div class="pt-2 px-2">
                     <OverlayBadge v-if="account" :value="state.notifications.length > 0 ? state.notifications.filter((item) => item.isRead === false).length : 0" @click="toggleNotification">
                         <i class="pi pi-bell" style="font-size: 1.7rem" />
-                    </OverlayBadge>
+                    </OverlayBadge> 
                     <Popover ref="op">
                         <div class="flex flex-col gap-2 w-[30rem]">
                             <span class="font-medium block mb-1">Thông báo</span>
                             <ul class="list-none p-0 m-0 flex flex-col max-h-[30rem] overflow-y-auto">
-                                <li
-                                    @click="readNotification(item)"
-                                    v-for="item in state.notifications"
-                                    :key="item._id"
-                                    class="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200"
-                                >
-                                    <div :class="BGNotification(item.type)" class="min-w-14 min-h-14 max-w-14 max-h-14 rounded-full overflow-hidden border flex justify-center items-center">
-                                        <img :src="linkNotification(item.type)" class="w-5/12 h-5/12" />
-                                    </div>
-                                    <div class="flex flex-col gap-1 justify-start flex-1">
-                                        <span class="font-medium" :class="{ 'text-primary dark:text-primary': !item.isRead }">{{ item.title }}</span>
-                                        <div class="text-sm text-surface-500 dark:text-surface-400">
-                                            {{ item.message }}
+                                <template v-if="state.notifications.length > 0">
+                                    <li
+                                        @click="readNotification(item)"
+                                        v-for="item in state.notifications"
+                                        :key="item._id"
+                                        class="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 cursor-pointer transition-colors duration-200"
+                                    >
+                                        <div :class="BGNotification(item.type)" class="min-w-14 min-h-14 max-w-14 max-h-14 rounded-full overflow-hidden border flex justify-center items-center">
+                                            <img :src="linkNotification(item.type)" class="w-5/12 h-5/12" />
                                         </div>
-                                    </div>
-                                    <div v-if="!item.isRead" class="w-3 h-3 rounded-full bg-primary"></div>
-                                </li>
+                                        <div class="flex flex-col gap-1 justify-start flex-1">
+                                            <span class="font-medium" :class="{ 'text-primary dark:text-primary': !item.isRead }">{{ item.title }}</span>
+                                            <div class="text-sm text-surface-500 dark:text-surface-400">
+                                                {{ item.message }}
+                                            </div>
+                                        </div>
+                                        <div v-if="!item.isRead" class="w-3 h-3 rounded-full bg-primary"></div>
+                                    </li>
+                                </template>
+                                <template v-else>
+                                    <li class="flex items-center justify-center py-4 text-gray-500">Không có thông báo nào</li>
+                                </template>
                             </ul>
                         </div>
                     </Popover>

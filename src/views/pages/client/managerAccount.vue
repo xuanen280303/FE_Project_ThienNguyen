@@ -46,17 +46,37 @@
                                 <template v-else>
                                     <div v-for="(field, index) in userFields" :key="index" class="flex flex-col gap-2">
                                         <label class="text-sm font-medium">{{ field.label }}</label>
-                                        <InputText v-if="field.component === 'InputText'" v-model="userData[field.key]" :disabled="field.disabled" :class="field.class" :placeholder="field.props?.placeholder || ''" class="w-full" />
+                                        <InputText
+                                            :invalid="submit && !userData[field.key]"
+                                            v-if="field.component === 'InputText'"
+                                            v-model="userData[field.key]"
+                                            :disabled="field.disabled"
+                                            :class="field.class"
+                                            :maxlength="field?.length"
+                                            :placeholder="field.props?.placeholder || ''"
+                                            class="w-full"
+                                        />
                                         <Dropdown
                                             v-if="field.component === 'Dropdown'"
                                             v-model="userData[field.key]"
                                             :options="field.props?.options"
                                             :disabled="field.disabled"
+                                            :invalid="submit && !userData[field.key]"
                                             :class="field.class"
                                             :placeholder="field.props?.placeholder || ''"
                                             class="w-full"
                                         />
-                                        <DatePicker v-if="field.component === 'DatePicker'" v-model="userData[field.key]" :disabled="field.disabled" :class="field.class" dateFormat="dd/mm/yy" :showIcon="true" class="w-full" />
+                                        <DatePicker
+                                            :invalid="submit && !userData[field.key]"
+                                            v-if="field.component === 'DatePicker'"
+                                            v-model="userData[field.key]"
+                                            :disabled="field.disabled"
+                                            :class="field.class"
+                                            dateFormat="dd/mm/yy"
+                                            :showIcon="true"
+                                            class="w-full"
+                                            editable
+                                        />
                                     </div>
                                 </template>
                             </div>
@@ -71,7 +91,7 @@
                             <div class="flex flex-col gap-6 w-1/2 justify-center">
                                 <div class="w-2/3">
                                     <label class="block font-bold mb-1">Mật khẩu hiện tại</label>
-                                    <Password v-model="passwordData.currentPassword" toggleMask fluid />
+                                    <Password v-model="passwordData.oldPassword" toggleMask fluid />
                                 </div>
                                 <div class="w-2/3">
                                     <label class="block font-bold mb-1">Mật khẩu mới</label>
@@ -131,9 +151,10 @@ import { vi } from 'date-fns/locale';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import { linkUploads } from '../../../constant/api';
+import accountService from '../../../service/account.service';
 import apiService from '../../../service/api.service';
 import parseDate from '../../../utils/parseDate';
-
+const date = ref(null);
 const toast = useToast();
 const isLoading = ref(false);
 const isChangingPassword = ref(false);
@@ -146,6 +167,7 @@ const passwordData = ref({
 });
 const isEditing = ref(false);
 const originalUserData = ref({});
+const submit = ref(false);
 
 const userFields = [
     {
@@ -165,6 +187,7 @@ const userFields = [
         label: 'Số điện thoại',
         key: 'phoneNumber',
         icon: 'pi pi-phone',
+        length: 11,
         component: 'InputText'
     },
     {
@@ -208,6 +231,7 @@ const formatFieldValue = (key) => {
 const toggleEdit = () => {
     isEditing.value = true;
     originalUserData.value = JSON.parse(JSON.stringify(userData.value));
+    submit.value = false;
 };
 
 const cancelEdit = () => {
@@ -231,21 +255,42 @@ const getUserInfo = async () => {
     }
 };
 
+const validateProfile = () => {
+    const { name, email, phoneNumber, dateOfBirth, address, gender } = userData.value;
+    if (!name || !email || !phoneNumber || !dateOfBirth || !address) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập đầy đủ thông tin', life: 3000 });
+        return false;
+    }
+    if (!/^0\d{9,10}$/.test(phoneNumber)) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Số điện thoại không hợp lệ. Số điện thoại phải bắt đầu bằng số 0 và có 10 hoặc 11 chữ số.', life: 3000 });
+        return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Email không hợp lệ. Vui lòng nhập đúng định dạng email.', life: 3000 });
+        return false;
+    }
+
+    return true;
+};
 // Cập nhật thông tin
 const updateProfile = async () => {
+    submit.value = true;
+    if (!validateProfile()) return;
     try {
         isLoading.value = true;
-        await apiService.patch('users/profile', {
+        await apiService.patch('users/' + userData.value._id, {
             ...userData.value,
             dateOfBirth: userData.value.dateOfBirth ? parseDate(userData.value.dateOfBirth) : null
         });
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thông tin thành công', life: 3000 });
         isEditing.value = false;
+        accountService.updateAccount();
         originalUserData.value = JSON.parse(JSON.stringify(userData.value));
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Cập nhật thất bại', life: 3000 });
     } finally {
         isLoading.value = false;
+        submit.value = false;
     }
 };
 
@@ -268,21 +313,30 @@ const handleAvatarUpload = async (event) => {
 };
 
 // Đổi mật khẩu
-const changePassword = async () => {
+const validatePassword = () => {
+    if (!passwordData.value.oldPassword || !passwordData.value.newPassword || !passwordData.value.confirmPassword) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập đầy đủ thông tin', life: 3000 });
+        return false;
+    }
     if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Mật khẩu xác nhận không khớp', life: 3000 });
-        return;
+        return false;
     }
+    return true;
+};
+const changePassword = async () => {
+    submit.value = true;
+    if (!validatePassword()) return;
 
     try {
         isChangingPassword.value = true;
-        await apiService.patch('users/change-password', {
-            currentPassword: passwordData.value.currentPassword,
+        await apiService.post('users/change-password', {
+            oldPassword: passwordData.value.oldPassword,
             newPassword: passwordData.value.newPassword
         });
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Đổi mật khẩu thành công', life: 3000 });
         passwordData.value = {
-            currentPassword: '',
+            oldPassword: '',
             newPassword: '',
             confirmPassword: ''
         };
@@ -290,6 +344,7 @@ const changePassword = async () => {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Đổi mật khẩu thất bại', life: 3000 });
     } finally {
         isChangingPassword.value = false;
+        submit.value = false;
     }
 };
 
