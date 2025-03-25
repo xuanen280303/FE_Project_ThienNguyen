@@ -114,7 +114,7 @@ const itemAccount = ref([
                 label: 'Tài khoản',
                 icon: 'pi pi-fw pi-user',
                 command: () => {
-                    router.push('/admin');
+                    router.push('/manager-account');
                 }
             },
             {
