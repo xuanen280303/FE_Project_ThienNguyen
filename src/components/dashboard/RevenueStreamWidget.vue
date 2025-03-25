@@ -95,7 +95,7 @@ onMounted(() => {
 <template>
     <div class="card">
         <div class="flex justify-between items-center mb-6">
-            <div class="font-semibold text-xl mb-4">Số tiền đóng góp theo quý</div>
+            <div class="font-semibold text-xl mb-4">Số tiền quyên góp theo quý</div>
             <DatePicker v-model="year" view="year" dateFormat="yy" @date-select="setChartData" />
         </div>
         <Chart v-if="!isLoading" type="bar" :data="chartData" :options="chartOptions" class="h-80" />

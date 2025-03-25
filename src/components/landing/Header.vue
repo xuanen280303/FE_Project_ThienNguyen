@@ -96,13 +96,15 @@ const itemAccount = ref([
     {
         label: 'Tài khoản',
         items: [
-            {
-                label: 'Quản lý',
-                icon: 'pi pi-fw pi-users',
-                command: () => {
-                    router.push('/admin');
-                }
-            },
+            ...(account?.role?.name === 'SUPER_ADMIN'
+                ? [
+                      {
+                          label: 'Quản lý',
+                          icon: 'pi pi-fw pi-users',
+                          command: () => router.push('/admin')
+                      }
+                  ]
+                : []),
             {
                 label: 'Quản lý chiến dịch',
                 icon: 'pi pi-fw pi-slack',
@@ -300,7 +302,7 @@ const search = async (event) => {
                 <div class="pt-2 px-2">
                     <OverlayBadge v-if="account" :value="state.notifications.length > 0 ? state.notifications.filter((item) => item.isRead === false).length : 0" @click="toggleNotification">
                         <i class="pi pi-bell" style="font-size: 1.7rem" />
-                    </OverlayBadge> 
+                    </OverlayBadge>
                     <Popover ref="op">
                         <div class="flex flex-col gap-2 w-[30rem]">
                             <span class="font-medium block mb-1">Thông báo</span>

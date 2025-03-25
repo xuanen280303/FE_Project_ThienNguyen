@@ -4,7 +4,7 @@
             <TabView>
                 <!-- Tab thông tin tài khoản -->
                 <TabPanel header="Thông tin tài khoản">
-                    <div class="flex gap-6 p-6">
+                    <div class="flex gap-6 p-6 py-10">
                         <!-- Cột trái - Avatar và thông tin cơ bản -->
                         <div class="w-1/4 flex justify-center">
                             <div class="flex flex-col items-center justify-center gap-3">
@@ -21,7 +21,7 @@
                         </div>
 
                         <!-- Cột phải - Thông tin chi tiết -->
-                        <div class="w-3/4">
+                        <div class="w-3/4 pr-10">
                             <div class="flex justify-end mb-4">
                                 <Button v-if="!isEditing" type="button" icon="pi pi-pencil" label="Chỉnh sửa" @click="toggleEdit" class="p-button-secondary" />
                                 <div v-else class="flex gap-2">
@@ -35,7 +35,7 @@
                                 <template v-if="!isEditing">
                                     <div v-for="(field, index) in userFields" :key="index" class="flex flex-col gap-2">
                                         <label class="text-sm text-gray-600">{{ field.label }}</label>
-                                        <div class="p-2 bg-gray-50 rounded-md min-h-[40px] flex items-center">
+                                        <div class="p-2 bg-gray-50 rounded-md min-h-[40px] font-base text-lg flex items-center">
                                             <i :class="field.icon" class="mr-2 text-orange-500"></i>
                                             {{ formatFieldValue(field.key) }}
                                         </div>
@@ -87,21 +87,21 @@
                 <!-- Tab đổi mật khẩu -->
                 <TabPanel header="Đổi mật khẩu">
                     <div>
-                        <form @submit.prevent="changePassword" class="w-8/12 mx-auto py-10 flex">
+                        <form @submit.prevent="changePassword" class="w-9/12 mx-auto py-10 flex gap-32">
                             <div class="flex flex-col gap-6 w-1/2 justify-center">
-                                <div class="w-2/3">
+                                <div class="w-10/12">
                                     <label class="block font-bold mb-1">Mật khẩu hiện tại</label>
                                     <Password v-model="passwordData.oldPassword" toggleMask fluid />
                                 </div>
-                                <div class="w-2/3">
+                                <div class="w-10/12">
                                     <label class="block font-bold mb-1">Mật khẩu mới</label>
                                     <Password v-model="passwordData.newPassword" toggleMask fluid />
                                 </div>
-                                <div class="w-2/3">
+                                <div class="w-10/12">
                                     <label class="block font-bold mb-1">Xác nhận mật khẩu mới</label>
                                     <Password v-model="passwordData.confirmPassword" toggleMask fluid />
                                 </div>
-                                <div class="flex justify-end w-2/3">
+                                <div class="flex justify-end w-10/12">
                                     <Button type="submit" label="Đổi mật khẩu" icon="pi pi-lock" :loading="isChangingPassword" />
                                 </div>
                             </div>

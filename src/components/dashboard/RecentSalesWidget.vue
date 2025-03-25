@@ -34,7 +34,7 @@ onBeforeMount(async () => {
             <div class="font-semibold text-xl mb-4">Số giao dịch mới theo {{ valueDate === 'year' ? 'năm' : valueDate === 'week' ? 'tuần' : 'tháng' }}</div>
             <Select v-model="valueDate" :options="options" optionLabel="label" optionValue="value" @change="getAll" />
         </div>
-        <DataTable :value="countByMonth?.timeStats?.donationSeries" :rows="5" :paginator="true" responsiveLayout="scroll" :loading="isLoading">
+        <DataTable v-if="!isLoading" :value="countByMonth?.timeStats?.donationSeries" :rows="5" :paginator="true" responsiveLayout="scroll">
             <Column field="date" :header="valueDate === 'year' ? 'Tháng' : 'Ngày'" :sortable="true">
                 <template #body="{ data }">
                     {{ valueDate === 'year' ? format(new Date(data.date), 'MM/yyyy') : format(new Date(data.date), 'dd/MM/yyyy') }}
@@ -43,5 +43,8 @@ onBeforeMount(async () => {
             <Column field="count" header="Số giao dịch" :sortable="true"></Column>
             <Column field="amount" header="Số tiền" :sortable="true"> </Column>
         </DataTable>
+        <div v-else class="flex justify-center items-center">
+            <ProgressSpinner />
+        </div>
     </div>
 </template>

@@ -1,9 +1,15 @@
+import { useRouter } from 'vue-router';
 import { apiClient } from '../constant/api';
+
+const router = useRouter();
 
 class API {
     async handleRequest(request) {
         return request().catch((error) => {
-            if (error.code === 'ECONNABORTED') {
+            console.log(error.response?.status);
+            if (error.response?.status === 403) {
+                window.location.href = '/access';
+            } else if (error.code === 'ECONNABORTED') {
                 console.error('Request timed out');
             } else {
                 console.error('An error occurred:', error.message);

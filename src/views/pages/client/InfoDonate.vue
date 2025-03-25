@@ -81,12 +81,13 @@
                     </div>
                 </div>
                 <div class="mt-5">
-                    <Button @click="handleDonate" :loading="isLoading" label="Ủng hộ" class="w-full !rounded-2xl h-[45px] !text-xl" style="background: linear-gradient(88.87deg, #ff922e -5.14%, #ff6c57 119.29%)" />
+                    <Button @click="handleDonate" :loading="isLoadingBtn" label="Ủng hộ" class="w-full !rounded-2xl h-[45px] !text-xl" style="background: linear-gradient(88.87deg, #ff922e -5.14%, #ff6c57 119.29%)" />
                     <p class="text-[13px] font-semibold text-center mt-5">Bằng việc ủng hộ, bạn đã đồng ý với <a href="#" class="text-primary-500">Điều khoản và Điều kiện</a> của chúng tôi</p>
                 </div>
             </div>
         </div>
     </div>
+    <Loading v-if="isLoading" />
 </template>
 <script setup>
 import { InputGroup, InputGroupAddon, InputNumber, useToast } from 'primevue';
@@ -99,14 +100,18 @@ import parseNum from '../../../utils/parseNum';
 const amounts = [50000, 100000, 200000, 500000];
 const toast = useToast();
 const router = useRoute();
+const isLoading = ref(false);
 const detail = ref({});
 const { account } = accountService.getAccount();
 const getDetail = async () => {
     try {
+        isLoading.value = true;
         const res = await apiService.get(`projects/${router.params.id}`);
         detail.value = res.data;
     } catch (error) {
         console.log(error);
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -123,7 +128,7 @@ const dataDonate = ref({
     cancelUrl: window.location.origin + '/cancel/' + router.params.id,
     returnUrl: window.location.origin + '/success/' + router.params.id
 });
-const isLoading = ref(false);
+const isLoadingBtn = ref(false);
 const submitted = ref(false);
 const validate = () => {
     if (!dataDonate.value.amount) {
@@ -150,7 +155,7 @@ const validate = () => {
 const handleDonate = async () => {
     submitted.value = true;
     if (!validate()) return;
-    isLoading.value = true;
+    isLoadingBtn.value = true;
     try {
         const res = await apiService.post(`donations`, { ...dataDonate.value, project: detail.value._id });
         if (res.data.paymentLink?.checkoutUrl) {
@@ -159,7 +164,7 @@ const handleDonate = async () => {
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response.data.message || 'Đã xảy ra lỗi trong quá trình thanh toán', life: 3000 });
     } finally {
-        isLoading.value = false;
+        isLoadingBtn.value = false;
     }
 };
 </script>

@@ -46,5 +46,4 @@ onBeforeMount(async () => {
             <NotificationsWidget />
         </div>
     </div>
-    <ScrollTop />
 </template>

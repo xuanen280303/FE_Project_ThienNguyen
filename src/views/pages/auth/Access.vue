@@ -4,7 +4,7 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 
 <template>
     <FloatingConfigurator />
-    <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-[90vh] min-w-[100vw] overflow-hidden">
+    <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
         <div class="flex flex-col items-center justify-center">
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, rgba(247, 149, 48, 0.4) 10%, rgba(247, 149, 48, 0) 30%)">
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-5 sm:px-10 flex flex-col items-center" style="border-radius: 53px">
@@ -17,7 +17,7 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
                         <img src="/demo/images/access/asset-access.svg" alt="Access denied" class="mb-4" width="70%" />
 
                         <div class="col-span-12 mt-5 text-center">
-                            <Button as="router-link" label="Go to Dashboard" to="/" severity="warn" />
+                            <Button as="router-link" label="Về trang chủ" to="/" severity="warn" />
                         </div>
                     </div>
                 </div>

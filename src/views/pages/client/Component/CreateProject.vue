@@ -258,6 +258,7 @@ const isEventDialog = ref(false);
 const eventData = ref({
     user: account?._id,
     status: 'CXN',
+    type: 'CN',
     listImage: [] // Initialize listImage array
 });
 
@@ -288,6 +289,7 @@ function openEventDialog() {
     eventData.value = {
         user: account?._id,
         status: 'CXN',
+        type: 'CN',
         listImage: []
     };
     submitted.value = false;
@@ -303,6 +305,7 @@ function hideDialog() {
     eventData.value = {
         user: account?._id,
         status: 'CXN',
+        type: 'CN',
         listImage: []
     };
     submitted.value = false;
@@ -438,7 +441,8 @@ async function saveData() {
 
 const getAllOption = async () => {
     try {
-        const [resCampaign, resOrganization] = await Promise.all([apiService.get('campaigns/getAll'), apiService.get('organizations/getAll')]);
+        const resCampaign = await apiService.get('campaigns/getAll');
+        const resOrganization = await apiService.get('organizations/getAll');
         dataGetAllOption.value.campaign = resCampaign.data;
         dataGetAllOption.value.organization = resOrganization.data;
     } catch (error) {
