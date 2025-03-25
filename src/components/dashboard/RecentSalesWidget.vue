@@ -1,38 +1,47 @@
 <script setup>
-import { ProductService } from '@/service/ProductService';
-import { onMounted, ref } from 'vue';
+import apiService from '@/service/api.service';
+import { format } from 'date-fns';
+import { onBeforeMount, ref } from 'vue';
 
-const products = ref(null);
+const isLoading = ref(false);
+const countByMonth = ref({});
+const valueDate = ref('month');
+const options = ref([
+    { label: 'Tuần', value: 'week' },
+    { label: 'Tháng', value: 'month' },
+    { label: 'Năm', value: 'year' }
+]);
+const getAll = async () => {
+    try {
+        isLoading.value = true;
+        const results = await apiService.get(`statistics/overview?timeframe=${valueDate.value}`);
+        countByMonth.value = results.data;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isLoading.value = false;
+    }
+};
 
-function formatCurrency(value) {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-}
-
-onMounted(() => {
-    ProductService.getProductsSmall().then((data) => (products.value = data));
+onBeforeMount(async () => {
+    await getAll();
 });
 </script>
 
 <template>
     <div class="card">
-        <div class="font-semibold text-xl mb-4">Recent Sales</div>
-        <DataTable :value="products" :rows="5" :paginator="true" responsiveLayout="scroll">
-            <Column style="width: 15%" header="Image">
-                <template #body="slotProps">
-                    <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`" :alt="slotProps.data.image" width="50" class="shadow" />
+        <div class="flex justify-between items-center mb-6">
+            <div class="font-semibold text-xl mb-4">Số giao dịch mới theo {{ valueDate === 'year' ? 'năm' : valueDate === 'week' ? 'tuần' : 'tháng' }}</div>
+            <Select v-model="valueDate" :options="options" optionLabel="label" optionValue="value" @change="getAll" />
+        </div>
+        <DataTable :value="countByMonth?.timeStats?.donationSeries" :rows="5" :paginator="true" responsiveLayout="scroll" :loading="isLoading">
+            <Column field="date" :header="valueDate === 'year' ? 'Tháng' : 'Ngày'" :sortable="true">
+                <template #body="{ data }">
+                    {{ valueDate === 'year' ? format(new Date(data.date), 'MM/yyyy') : format(new Date(data.date), 'dd/MM/yyyy') }}
                 </template>
             </Column>
-            <Column field="name" header="Name" :sortable="true" style="width: 35%"></Column>
-            <Column field="price" header="Price" :sortable="true" style="width: 35%">
-                <template #body="slotProps">
-                    {{ formatCurrency(slotProps.data.price) }}
-                </template>
-            </Column>
-            <Column style="width: 15%" header="View">
-                <template #body>
-                    <Button icon="pi pi-search" type="button" class="p-button-text"></Button>
-                </template>
-            </Column>
+            <Column field="count" header="Số giao dịch" :sortable="true"></Column>
+            <Column field="amount" header="Số tiền" :sortable="true"> </Column>
         </DataTable>
     </div>
 </template>

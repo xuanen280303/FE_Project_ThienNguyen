@@ -1,46 +1,50 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
+import { format } from 'date-fns';
 import { onMounted, ref, watch } from 'vue';
+import apiService from '../../service/api.service';
 
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
 
 const chartData = ref(null);
 const chartOptions = ref(null);
-
-function setChartData() {
+const year = ref(new Date());
+const data = ref({});
+const isLoading = ref(false);
+const getChartData = async () => {
+    try {
+        isLoading.value = true;
+        const res = await apiService.get(`statistics/donations-by-quarter?year=${format(year.value, 'yyyy')}`);
+        data.value = res.data;
+        console.log('response', res.data);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+async function setChartData() {
+    await getChartData();
     const documentStyle = getComputedStyle(document.documentElement);
+    data.value.datasets = data.value.datasets.map((item, index) => {
+        return {
+            type: 'bar',
+            ...item,
+            backgroundColor: item.label == 'Đang xử lý' ? documentStyle.getPropertyValue('--p-primary-200') : item.label == 'Đã hủy' ? documentStyle.getPropertyValue('--p-primary-300') : documentStyle.getPropertyValue('--p-primary-500'),
+            barThickness: 32,
+            ...(index === data.value.datasets.length - 1
+                ? {
+                      borderRadius: {
+                          topLeft: 8,
+                          topRight: 8
+                      },
+                      borderSkipped: true
+                  }
+                : {})
+        };
+    });
 
-    return {
-        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-        datasets: [
-            {
-                type: 'bar',
-                label: 'Subscriptions',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
-                data: [4000, 10000, 15000, 4000],
-                barThickness: 32
-            },
-            {
-                type: 'bar',
-                label: 'Advertising',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-300'),
-                data: [2100, 8400, 2400, 7500],
-                barThickness: 32
-            },
-            {
-                type: 'bar',
-                label: 'Affiliate',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                data: [4100, 5200, 3400, 7400],
-                borderRadius: {
-                    topLeft: 8,
-                    topRight: 8
-                },
-                borderSkipped: true,
-                barThickness: 32
-            }
-        ]
-    };
+    chartData.value = data.value;
 }
 
 function setChartOptions() {
@@ -78,19 +82,25 @@ function setChartOptions() {
 }
 
 watch([getPrimary, getSurface, isDarkTheme], () => {
-    chartData.value = setChartData();
+    setChartData();
     chartOptions.value = setChartOptions();
 });
 
 onMounted(() => {
-    chartData.value = setChartData();
+    setChartData();
     chartOptions.value = setChartOptions();
 });
 </script>
 
 <template>
     <div class="card">
-        <div class="font-semibold text-xl mb-4">Revenue Stream</div>
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
+        <div class="flex justify-between items-center mb-6">
+            <div class="font-semibold text-xl mb-4">Số tiền đóng góp theo quý</div>
+            <DatePicker v-model="year" view="year" dateFormat="yy" @date-select="setChartData" />
+        </div>
+        <Chart v-if="!isLoading" type="bar" :data="chartData" :options="chartOptions" class="h-80" />
+        <div v-else class="flex justify-center items-center">
+            <ProgressSpinner />
+        </div>
     </div>
 </template>

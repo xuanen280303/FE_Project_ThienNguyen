@@ -77,42 +77,42 @@
                             <div class="w-[12px] h-[12px] rounded-full bg-[#999EF5] mt-3"></div>
                             <div class="flex flex-col">
                                 <span class="text-2xl font-medium text-start">Tổ chức</span>
-                                <span class="text-5xl text-gray-600 font-bold text-start">233</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">{{ formatNumber(count?.totalOrganizations || 0) }}</span>
                             </div>
                         </div>
                         <div class="w-1/3 flex gap-2">
                             <div class="w-[12px] h-[12px] rounded-full bg-[#18CBD7] mt-3"></div>
                             <div class="flex flex-col">
                                 <span class="text-2xl font-medium text-start">Cá nhân</span>
-                                <span class="text-5xl text-gray-600 font-bold text-start">1.228</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">{{ formatNumber(count?.totalUsers || 0) }}</span>
                             </div>
                         </div>
                         <div class="w-1/3 flex gap-2">
                             <div class="w-[12px] h-[12px] rounded-full bg-[#FF6D6D] mt-3"></div>
                             <div class="flex flex-col">
-                                <span class="text-2xl font-medium text-start">Chiến dịch</span>
-                                <span class="text-5xl text-gray-600 font-bold text-start">{{ formatNumber(count.project) }}</span>
+                                <span class="text-2xl font-medium text-start">Dự án</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">{{ formatNumber(count?.totalProjects || 0) }}</span>
                             </div>
                         </div>
                         <div class="w-1/3 flex gap-2">
                             <div class="w-[12px] h-[12px] rounded-full bg-[#0DA059] mt-3"></div>
                             <div class="flex flex-col">
-                                <span class="text-2xl font-medium text-start">Thành viên</span>
-                                <span class="text-5xl text-gray-600 font-bold text-start">1.382.560</span>
+                                <span class="text-2xl font-medium text-start">Chiến dịch</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">{{ formatNumber(count?.totalCampaigns || 0) }}</span>
                             </div>
                         </div>
                         <div class="w-1/3 flex gap-2">
                             <div class="w-[12px] h-[12px] rounded-full bg-[#FF9D2E] mt-3"></div>
                             <div class="flex flex-col">
                                 <span class="text-2xl font-medium text-start">Lượt ủng hộ</span>
-                                <span class="text-5xl text-gray-600 font-bold text-start">2.298.906</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">{{ formatNumber(count?.totalDonations || 0) }}</span>
                             </div>
                         </div>
                         <div class="w-1/3 flex gap-2">
                             <div class="w-[12px] h-[12px] rounded-full bg-[#7AB6FC] mt-3"></div>
                             <div class="flex flex-col">
-                                <span class="text-2xl font-medium text-start">Số tiền (tỷ đồng)</span>
-                                <span class="text-5xl text-gray-600 font-bold text-start">10.035,28</span>
+                                <span class="text-2xl font-medium text-start">Số tiền</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">{{ count?.totalDonationAmount }}</span>
                             </div>
                         </div>
                     </div>
@@ -120,6 +120,7 @@
             </div>
         </div>
     </div>
+    <Loading v-if="isLoading" />
 </template>
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
@@ -131,74 +132,9 @@ const initialState = {
         projectsOrganization: []
     }
 };
+const isLoading = ref(false);
 const state = reactive({ ...initialState });
-const count = ref({
-    organization: 0,
-    personal: 0,
-    project: 0,
-    campaign: 0,
-    member: 0,
-    support: 0,
-    amount: 0
-});
-const dataOrganizations = ref([
-    {
-        id: 1,
-        title: 'Chung tay hỗ trợ, chăm lo hơn 2000 sinh viên và người lao động khó khăn lo hơn 2000 sinh viên và người lao động khó khăn',
-        amount: 57715000,
-        progress: 100,
-        supporters: 17,
-        daysLeft: 33
-    },
-    {
-        id: 2,
-        title: 'Xây dựng thư viện cho trẻ em vùng cao tại Hà Giang',
-        amount: 125000000,
-        progress: 75,
-        supporters: 42,
-        daysLeft: 15
-    },
-    {
-        id: 3,
-        title: 'Hỗ trợ người già neo đơn tại Trung tâm Bảo trợ xã hội',
-        amount: 85000000,
-        progress: 60,
-        supporters: 28,
-        daysLeft: 25
-    },
-    {
-        id: 4,
-        title: 'Quyên góp xây dựng cầu dân sinh tại Đồng Tháp',
-        amount: 250000000,
-        progress: 40,
-        supporters: 89,
-        daysLeft: 45
-    },
-    {
-        id: 5,
-        title: 'Chương trình "Áo ấm mùa đông" cho trẻ em vùng núi',
-        amount: 75000000,
-        progress: 85,
-        supporters: 63,
-        daysLeft: 10
-    },
-    {
-        id: 6,
-        title: 'Hỗ trợ phẫu thuật tim bẩm sinh cho trẻ em nghèo',
-        amount: 350000000,
-        progress: 65,
-        supporters: 125,
-        daysLeft: 30
-    },
-    {
-        id: 7,
-        title: 'Xây dựng trường mầm non cho trẻ em vùng sâu vùng xa',
-        amount: 180000000,
-        progress: 55,
-        supporters: 72,
-        daysLeft: 40
-    }
-]);
+const count = ref({});
 const responsiveOptions = ref([
     {
         breakpoint: '1400px',
@@ -227,15 +163,21 @@ const formatNumber = (number) => {
 const useGet = () => {
     const getAll = async () => {
         try {
-            const [resPersonal, resOrganization, total] = await Promise.all([
+            isLoading.value = true;
+            const results = await Promise.allSettled([
                 apiService.get('projects/public?page=1&pageSize=10&filter=sort=-createdAt,type=CN,status!=CXN'),
                 apiService.get('projects/public?page=1&pageSize=10&filter=sort=-createdAt,type=TC,status!=CXN'),
-                apiService.get('projects/public?page=1&pageSize=10')
+                apiService.get('statistics/overview?timeframe=all')
             ]);
-            count.value.project = total.data.total;
+            const [resPersonal, resOrganization, total] = results.map((result) => (result.status === 'fulfilled' ? result.value : null));
+            count.value = total.data;
             state.options.projectsPersonal = resPersonal.data.items;
             state.options.projectsOrganization = resOrganization.data.items;
-        } catch (error) {}
+        } catch (error) {
+            console.log(error);
+        } finally {
+            isLoading.value = false;
+        }
     };
     return { getAll };
 };
