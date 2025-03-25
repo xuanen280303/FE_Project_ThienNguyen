@@ -24,10 +24,11 @@ export const useAuthStore = defineStore('auth', () => {
 
     const refreshToken = async () => {
         try {
+            const account = accountService.getAccount();
+            if (!account) return;
             const res = await apiService.get(`auth/refresh`);
             if (res.data) {
                 const { access_token } = res.data;
-                console.log(access_token);
                 await tokenService.updateToken(access_token);
                 return access_token;
             }

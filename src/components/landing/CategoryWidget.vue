@@ -44,7 +44,7 @@ const useCategory = () => {
 
     const getAll = async () => {
         try {
-            const res = await apiService.get('/campaigns?page=1&pageSize=100');
+            const res = await apiService.get('/campaigns/public?page=1&pageSize=100');
             Object.assign(dataCategory, res.data.items);
         } catch (error) {}
     };

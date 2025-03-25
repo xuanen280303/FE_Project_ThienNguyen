@@ -1,4 +1,5 @@
 import { apiClient } from '../constant/api';
+import accountService from './account.service';
 
 const moduleName = '/auth';
 export const loginApi = async (username, password) => {
@@ -60,6 +61,8 @@ export const logoutApi = async () => {
 
 export const accountApi = async () => {
     try {
+        const account = accountService.getAccount();
+        if (!account) return;
         const res = await apiClient.get(`${moduleName}/account`);
         return res.data;
     } catch (err) {}

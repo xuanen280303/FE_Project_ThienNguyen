@@ -3,9 +3,16 @@
         <div class="mb-6">
             <div class="flex flex-col space-y-4 p-4 bg-white border border-primary-300 rounded-lg">
                 <h3 class="text-lg font-semibold text-gray-800">Thêm Bình Luận Mới</h3>
-                <Textarea v-model="newComment.message" placeholder="Nhập bình luận của bạn" autoResize rows="2" cols="30" />
-
-                <Button :loading="isLoading" @click="handleAddComment" class="py-2 px-1" aria-label="Thêm Bình Luận">Thêm Bình Luận</Button>
+                <template v-if="account">
+                    <Textarea v-model="newComment.message" placeholder="Nhập bình luận của bạn" autoResize rows="2" cols="30" />
+                    <Button :loading="isLoading" @click="handleAddComment" class="py-2 px-1" aria-label="Thêm Bình Luận">Thêm Bình Luận</Button>
+                </template>
+                <template v-else>
+                    <div class="text-center">
+                        <p class="text-gray-600 mb-2">Vui lòng đăng nhập để bình luận</p>
+                        <Button class="py-2 px-4" @click="$router.push('/login')">Đăng nhập</Button>
+                    </div>
+                </template>
             </div>
         </div>
         <div class="max-h-[600px] overflow-auto">
@@ -17,10 +24,12 @@
 <script setup>
 import { useToast } from 'primevue';
 import { onMounted, ref } from 'vue';
+import accountService from '../service/account.service';
 import apiService from '../service/api.service';
 import CommentNode from './CommentNode.vue';
 const toast = useToast();
 const isLoading = ref(false);
+const account = accountService.getAccount().account;
 const props = defineProps({
     projectId: String
 });
@@ -29,11 +38,10 @@ onMounted(() => {
     getCommentByProjectId();
 });
 
-// Dữ liệu giả
 const comments = ref([]);
 const getCommentByProjectId = async () => {
     try {
-        const res = await apiService.get(`comments?page=1&pageSize=10&filter=project=${props.projectId},sort=-createdAt`);
+        const res = await apiService.get(`comments/public?page=1&pageSize=10&filter=project=${props.projectId},sort=-createdAt`);
         comments.value = res.data.items;
     } catch (error) {
         console.log(error);

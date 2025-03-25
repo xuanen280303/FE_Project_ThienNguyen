@@ -91,7 +91,7 @@
                             <div class="w-[12px] h-[12px] rounded-full bg-[#FF6D6D] mt-3"></div>
                             <div class="flex flex-col">
                                 <span class="text-2xl font-medium text-start">Chiến dịch</span>
-                                <span class="text-5xl text-gray-600 font-bold text-start">6.052</span>
+                                <span class="text-5xl text-gray-600 font-bold text-start">{{ formatNumber(count.project) }}</span>
                             </div>
                         </div>
                         <div class="w-1/3 flex gap-2">
@@ -132,7 +132,15 @@ const initialState = {
     }
 };
 const state = reactive({ ...initialState });
-
+const count = ref({
+    organization: 0,
+    personal: 0,
+    project: 0,
+    campaign: 0,
+    member: 0,
+    support: 0,
+    amount: 0
+});
 const dataOrganizations = ref([
     {
         id: 1,
@@ -213,14 +221,18 @@ const responsiveOptions = ref([
         numScroll: 1
     }
 ]);
-
+const formatNumber = (number) => {
+    return number.toLocaleString('vi-VN');
+};
 const useGet = () => {
     const getAll = async () => {
         try {
-            const [resPersonal, resOrganization] = await Promise.all([
-                apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,type=CN,status!=CXN'),
-                apiService.get('projects?page=1&pageSize=10&filter=sort=-createdAt,type=TC,status!=CXN')
+            const [resPersonal, resOrganization, total] = await Promise.all([
+                apiService.get('projects/public?page=1&pageSize=10&filter=sort=-createdAt,type=CN,status!=CXN'),
+                apiService.get('projects/public?page=1&pageSize=10&filter=sort=-createdAt,type=TC,status!=CXN'),
+                apiService.get('projects/public?page=1&pageSize=10')
             ]);
+            count.value.project = total.data.total;
             state.options.projectsPersonal = resPersonal.data.items;
             state.options.projectsOrganization = resOrganization.data.items;
         } catch (error) {}

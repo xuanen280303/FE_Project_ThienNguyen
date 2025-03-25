@@ -355,7 +355,7 @@ const detail = ref({});
 const getDetail = async () => {
     isLoading.value = true;
     try {
-        const res = await apiService.get(`projects/${router.params.id}`);
+        const res = await apiService.get(`projects/public/${router.params.id}`);
         detail.value = res.data;
     } catch (error) {
         console.log(error);
@@ -366,7 +366,7 @@ const getDetail = async () => {
 const projectByCampaign = ref([]);
 const getProjectByCampaign = async () => {
     try {
-        const res = await apiService.get(`projects?page=1&pageSize=3&filter=campaign=${detail.value.campaign._id},status!=CXN`);
+        const res = await apiService.get(`projects/public?page=1&pageSize=3&filter=campaign=${detail.value.campaign._id},status!=CXN,_id!=${router.params.id}`);
         projectByCampaign.value = res.data.items;
     } catch (error) {
         console.log(error);
@@ -380,7 +380,7 @@ const pagination = ref({
 });
 const getDonation = async () => {
     try {
-        const res = await apiService.get(`donations?filter=project=${router.params.id},status=PAID&page=${pagination.value.page + 1}&pageSize=${pagination.value.pageSize}${pagination.value.search ? `&search=${pagination.value.search}` : ''}`);
+        const res = await apiService.get(`donations/public?filter=project=${router.params.id},status=PAID&page=${pagination.value.page + 1}&pageSize=${pagination.value.pageSize}${pagination.value.search ? `&search=${pagination.value.search}` : ''}`);
         payment.value = res.data.items;
         pagination.value.total = res.data.total;
     } catch (error) {

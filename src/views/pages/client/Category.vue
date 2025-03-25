@@ -134,7 +134,7 @@ const getCategory = async () => {
 
     const filter = conditions.join(',');
     try {
-        const res = await apiService.get(`projects?page=${pagination.value.page}&pageSize=${pagination.value.pageSize}&filter=${filter}&search=${keySearch.value}`);
+        const res = await apiService.get(`projects/public?page=${pagination.value.page}&pageSize=${pagination.value.pageSize}&filter=${filter}&search=${keySearch.value}`);
         pagination.value.total = res.data.total;
         dataCategory.value = res.data.items;
     } catch (error) {
@@ -151,6 +151,7 @@ const getAllCategory = async () => {
         console.log(error);
     }
 };
+
 const handleFilter = () => {
     pagination.value.page = 1;
     getCategory();

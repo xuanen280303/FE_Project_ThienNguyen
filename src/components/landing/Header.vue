@@ -178,7 +178,6 @@ const checkTypeNotification = (objInfo) => {
 };
 const readNotification = async (item) => {
     try {
-        debugger;
         if (item.isRead === false) {
             await apiService.get(`notifications/markAsRead/${item._id}`);
             getNotification();
@@ -299,7 +298,7 @@ const search = async (event) => {
                 <!-- <Button class="h-9 !rounded-xl" label="Tạo chiến dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button> -->
                 <CreateProject />
                 <div class="pt-2 px-2">
-                    <OverlayBadge :value="state.notifications.length > 0 ? state.notifications.filter((item) => item.isRead === false).length : 0" @click="toggleNotification">
+                    <OverlayBadge v-if="account" :value="state.notifications.length > 0 ? state.notifications.filter((item) => item.isRead === false).length : 0" @click="toggleNotification">
                         <i class="pi pi-bell" style="font-size: 1.7rem" />
                     </OverlayBadge>
                     <Popover ref="op">

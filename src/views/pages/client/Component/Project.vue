@@ -371,7 +371,7 @@ const eventData = ref({});
 const valueFilter = ref({
     isActive: null,
     sort: false,
-    user: account._id
+    user: account?._id
 });
 
 function hideDialog() {

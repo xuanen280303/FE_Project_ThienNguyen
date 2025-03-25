@@ -1,4 +1,5 @@
 import { accountApi } from './auth.service';
+import tokenService from './token.service';
 
 class AccountService {
     getAccount() {
@@ -14,6 +15,8 @@ class AccountService {
     }
 
     async createAccount(isRemember) {
+        const { storage } = tokenService.getToken();
+        if (!storage) return;
         const newAccount = await accountApi();
         if (isRemember) {
             return localStorage.setItem('account', JSON.stringify(newAccount.data));
@@ -22,11 +25,13 @@ class AccountService {
     }
 
     async updateAccount() {
+        const { storage } = tokenService.getToken();
+        if (!storage) return;
         const newAccount = await accountApi();
-        const { storage } = this.getAccount();
-        if (storage === 'local') {
+        const account = this.getAccount().storage;
+        if (account === 'local') {
             return localStorage.setItem('account', JSON.stringify(newAccount.data));
-        } else if (storage === 'session') {
+        } else if (account === 'session') {
             return sessionStorage.setItem('account', JSON.stringify(newAccount.data));
         }
     }
