@@ -107,6 +107,11 @@ const router = createRouter({
                     path: 'manager',
                     name: 'manager',
                     component: () => import('@/views/pages/client/Manager.vue')
+                },
+                {
+                    path: 'manager-account',
+                    name: 'managerAccount',
+                    component: () => import('@/views/pages/client/managerAcount.vue')
                 }
             ]
         },
