@@ -230,6 +230,5 @@ const useGet = () => {
 const { getAll } = useGet();
 onMounted(async () => {
     await getAll();
-    console.log(state.options);
 });
 </script>
