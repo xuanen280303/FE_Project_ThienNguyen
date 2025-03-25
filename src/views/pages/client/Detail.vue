@@ -156,10 +156,12 @@
                             <span class="text-gray-800">{{ roundToTwoDecimals((detail.currentAmount / detail.goalAmount) * 100) + '%' }}</span>
                         </div>
                         <div v-if="detail.status != 'DMT' && detail.status != 'DKT' && detail.status != 'CXN'">
-                            <div class="w-full mt-6 flex gap-2 items-center">
+                            <div class="w-full mt-6 flex gap-2 items-center" v-if="account">
                                 <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
                                 <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="RouterLink" :to="`/info-donate/${detail._id}`" />
                             </div>
+                            <Button label="Đăng nhập để ủng hộ" class="w-full !rounded-2xl mt-6" size="large" as="RouterLink" :to="`/login`" v-else />
+
                             <a
                                 :href="`https://www.facebook.com/share_channel/?type=reshare&link=${url}&source_surface=external_reshare&display&hashtag=%23thiennguyen`"
                                 target="_blank"
@@ -272,9 +274,11 @@ import { useRoute } from 'vue-router';
 import Comment from '../../../components/Comment.vue';
 import CardProject from '../../../components/dashboard/CardProject.vue';
 import { linkUploads } from '../../../constant/api';
+import accountService from '../../../service/account.service';
 import apiService from '../../../service/api.service';
 import parseNum from '../../../utils/parseNum';
 const url = ref(window.location.href);
+const account = accountService.getAccount().account;
 const payment = ref([]);
 const userCampaign = ref([
     {
