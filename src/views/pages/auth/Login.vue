@@ -70,6 +70,13 @@ const handleLogin = async () => {
         isLoading.value = false;
     }
 };
+
+// Thêm hàm xử lý sự kiện nhấn Enter
+const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        handleLogin();
+    }
+};
 </script>
 
 <template>
@@ -107,14 +114,14 @@ const handleLogin = async () => {
 
                     <div class="flex flex-col form-animation">
                         <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email1" type="text" placeholder="Vui lòng nhập địa chỉ Email..." class="w-full md:w-[30rem] input-hover" v-model="dataLogin.username" />
+                        <InputText id="email1" type="text" placeholder="Vui lòng nhập địa chỉ Email..." class="w-full md:w-[30rem] input-hover" v-model="dataLogin.username" @keypress="handleKeyPress" />
                         <span class="mb-8">
                             <small class="text-red-500" v-if="submitted && !dataLogin.username">Vui lòng nhập email</small>
                             <small class="text-red-500" v-if="!validateEmail(dataLogin.username) && dataLogin.username">Vui lòng nhập đúng định dạng email</small>
                         </span>
 
                         <label for="Password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Mật khẩu</label>
-                        <Password id="password1" v-model="dataLogin.password" placeholder="Vui lòng nhập mật khẩu..." :toggleMask="true" class="mb-4 input-hover" fluid :feedback="false" />
+                        <Password id="password1" v-model="dataLogin.password" placeholder="Vui lòng nhập mật khẩu..." :toggleMask="true" class="mb-4 input-hover" fluid :feedback="false" @keypress="handleKeyPress" />
 
                         <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                             <div class="flex items-center hover-effect">
