@@ -264,7 +264,7 @@
                         <p class="text-gray-600">Địa chỉ:</p>
                         <p class="text-lg">{{ eventData.address || '--' }}</p>
                         <p class="text-lg">
-                            {{ [eventData.ward?.full_name, eventData.district?.full_name, eventData.conscious?.full_name].filter(Boolean).join(', ') || '--' }}
+                            {{ [eventData.ward?.full_name, eventData.district?.full_name, eventData.province?.full_name].filter(Boolean).join(', ') || '--' }}
                         </p>
                     </div>
                 </div>

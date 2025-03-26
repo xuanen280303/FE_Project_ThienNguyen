@@ -41,7 +41,7 @@ const valueFilter = ref({
 const dataGetAllOption = ref({
     campaign: [],
     user: [],
-    conscious: [],
+    province: [],
     district: [],
     ward: [],
     organization: [],
@@ -175,8 +175,8 @@ const uploadFile = async () => {
 
 async function saveData() {
     submitted.value = true;
-    const { address, conscious, district, ward } = eventData.value;
-    const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + conscious?.name;
+    const { address, province, district, ward } = eventData.value;
+    const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + province?.name;
     eventData.value.detailAddress = mergeLocation;
     if (!validate()) {
         return;
@@ -244,7 +244,7 @@ const getAllLocation = async (event, type = null) => {
             eventData.value.ward = null;
         } else {
             const res = await getConscious();
-            dataGetAllOption.value.conscious = res.data;
+            dataGetAllOption.value.province = res.data;
         }
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ lấy tỉnh thành', life: 3000 });
@@ -543,13 +543,13 @@ const removeImageList = (index) => {
                             <label for="role" class="block font-bold mb-1">Tỉnh thành</label>
                             <Select
                                 id="role"
-                                v-model="eventData.conscious"
-                                :options="dataGetAllOption.conscious"
+                                v-model="eventData.province"
+                                :options="dataGetAllOption.province"
                                 optionLabel="full_name"
-                                @change="getAllLocation(eventData.conscious, 'district')"
+                                @change="getAllLocation(eventData.province, 'district')"
                                 required="true"
                                 autofocus
-                                :invalid="submitted && !eventData.conscious"
+                                :invalid="submitted && !eventData.province"
                                 filter
                                 fluid
                                 placeholder="Vui lòng chọn tỉnh thành"
@@ -561,7 +561,7 @@ const removeImageList = (index) => {
                         <div class="w-1/2">
                             <label for="role" class="block font-bold mb-1">Quận huyện</label>
                             <Select
-                                :disabled="!eventData.conscious"
+                                :disabled="!eventData.province"
                                 id="role"
                                 v-model="eventData.district"
                                 :options="dataGetAllOption.district"
