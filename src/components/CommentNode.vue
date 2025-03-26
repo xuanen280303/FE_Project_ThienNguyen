@@ -92,7 +92,7 @@ const confirmDelete = () => {
 
 const handleDeleteComment = async () => {
     try {
-        await apiService.delete(`comments/public/${props.comment._id}`);
+        await apiService.delete(`comments/${props.comment._id}`);
         await props.getCommentByProjectId();
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Bình luận đã được xóa', life: 3000 });
     } catch (error) {

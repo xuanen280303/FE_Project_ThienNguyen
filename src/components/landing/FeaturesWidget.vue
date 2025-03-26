@@ -67,7 +67,7 @@
                 </Carousel>
             </div>
             <div class="col-span-12 text-center mt-15 mb-6 flex justify-center flex-wrap gap-4">
-                <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono w-1/2">Đồng hành cùng cộng đồng thiện nguyện minh bạch từ năm 2021</div>
+                <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono w-1/2">Đồng hành cùng cộng đồng thiện nguyện minh bạch từ năm 2025</div>
                 <div class="w-full flex gap-20">
                     <div class="w-1/3">
                         <img src="../../assets/Img/Home/achievement.png" alt="" />
