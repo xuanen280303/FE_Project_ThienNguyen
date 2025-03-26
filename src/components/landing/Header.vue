@@ -14,6 +14,7 @@ import tokenService from '../../service/token.service';
 import { useAuthStore } from '../../stores/AuthStore';
 import { useNotificationStore } from '../../stores/Notification';
 import CreateProject from '../../views/pages/client/Component/CreateProject.vue';
+import InfoHeaderUser from '../InfoHeaderUser.vue';
 import SentLetter from './SentLetter.vue';
 const authStore = useAuthStore();
 const { state, getNotification } = useNotificationStore();
@@ -91,49 +92,6 @@ const items = ref([
     }
 ]);
 const { account } = accountService.getAccount();
-const menu = ref();
-const itemAccount = ref([
-    {
-        label: 'Tài khoản',
-        items: [
-            ...(account?.role?.name === 'SUPER_ADMIN'
-                ? [
-                      {
-                          label: 'Quản lý',
-                          icon: 'pi pi-fw pi-users',
-                          command: () => router.push('/admin')
-                      }
-                  ]
-                : []),
-            {
-                label: 'Quản lý chiến dịch',
-                icon: 'pi pi-fw pi-slack',
-                command: () => {
-                    router.push('/manager');
-                }
-            },
-            {
-                label: 'Tài khoản',
-                icon: 'pi pi-fw pi-user',
-                command: () => {
-                    router.push('/manager-account');
-                }
-            },
-            {
-                label: 'Đăng xuất',
-                icon: 'pi pi-sign-out',
-                command: () => {
-                    authStore.logout();
-                    router.push('/');
-                }
-            }
-        ]
-    }
-]);
-
-const toggle = (event) => {
-    menu.value.toggle(event);
-};
 
 const op = ref();
 const toggleNotification = (event) => {
@@ -335,8 +293,7 @@ const search = async (event) => {
                 </div>
 
                 <Button label="Đăng nhập" to="/login" as="router-link" text severity="warn" v-if="!tokenService.getToken().storage"></Button>
-                <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-11 !h-11 border border-primary !bg-white'" class="!rounded-full" aria-controls="overlay_menu" @click="toggle" v-else />
-                <Menu ref="menu" id="overlay_menu" :model="itemAccount" :popup="true" />
+                <InfoHeaderUser v-else />
             </div>
         </div>
     </div>

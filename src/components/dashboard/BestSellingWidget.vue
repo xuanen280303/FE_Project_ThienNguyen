@@ -1,96 +1,126 @@
 <script setup>
-import { ref } from 'vue';
+import { format } from 'date-fns';
+import { onMounted, ref } from 'vue';
+import apiService from '../../service/api.service';
 
-const menu = ref(null);
-
-const items = ref([
-    { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-    { label: 'Remove', icon: 'pi pi-fw pi-trash' }
+const isLoading = ref(false);
+const data = ref([]);
+onMounted(() => {
+    getAll();
+});
+const filter = {
+    timeframe: null,
+    startDate: null,
+    endDate: null
+};
+const valueFilter = ref(JSON.parse(JSON.stringify(filter)));
+const timeframeOptions = ref([
+    { name: 'Tuần này', value: 'week' },
+    { name: 'Tháng này', value: 'month' },
+    { name: 'Năm này', value: 'year' },
+    { name: 'Tất cả', value: 'all' }
 ]);
+const getAll = async () => {
+    const conditions = Object.entries(valueFilter.value)
+        .filter(([key, value]) => value !== null)
+        .map(([key, value]) => {
+            if (key === 'startDate') {
+                return `startDate=${format(value, 'yyyy-MM-dd')}`;
+            }
+            if (key === 'endDate') {
+                return `endDate=${format(value, 'yyyy-MM-dd')}`;
+            }
+            return `${key}=${value}`;
+        });
+
+    const filter = conditions.join('&');
+    try {
+        isLoading.value = true;
+        const res = await apiService.get(`statistics/organizations${filter ? `?${filter}` : ''}`);
+        data.value = res.data;
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const resetFilter = () => {
+    valueFilter.value = JSON.parse(JSON.stringify(filter));
+    getAll();
+};
+
+const op = ref();
+const toggle = (event) => {
+    op.value.toggle(event);
+};
 </script>
 
 <template>
-    <div class="card">
-        <div class="flex justify-between items-center mb-6">
-            <div class="font-semibold text-xl">Best Selling Products</div>
+    <div class="card shadow-md">
+        <div class="flex items-center justify-between mb-6">
+            <div class="font-semibold text-2xl text-gray-800">
+                <i class="pi pi-chart-bar mr-2 text-orange-500"></i>
+                Thống kê tổ chức sôi nổi
+            </div>
             <div>
-                <Button icon="pi pi-ellipsis-v" class="p-button-text p-button-plain p-button-rounded" @click="$refs.menu.toggle($event)"></Button>
-                <Menu ref="menu" popup :model="items" class="!min-w-40"></Menu>
+                <Button icon="pi pi-filter" class="p-button-rounded p-button-outlined" @click="toggle" />
+                <Popover ref="op" class="shadow-lg">
+                    <div class="w-80 p-4">
+                        <h3 class="text-lg font-semibold mb-4 pb-2 border-b border-gray-200"><i class="pi pi-filter mr-2"></i>Bộ lọc</h3>
+                        <div class="flex flex-col gap-4">
+                            <div>
+                                <label for="timeframe">Thời gian</label>
+                                <Dropdown class="w-full" :options="timeframeOptions" v-model="valueFilter.timeframe" optionLabel="name" optionValue="value" placeholder="Chọn thời gian" />
+                            </div>
+                            <div>
+                                <label for="startDate">Ngày bắt đầu</label>
+                                <Calendar class="w-full" v-model="valueFilter.startDate" />
+                            </div>
+                            <div>
+                                <label for="endDate">Ngày kết thúc</label>
+                                <Calendar class="w-full" v-model="valueFilter.endDate" />
+                            </div>
+                            <div class="flex gap-4 mt-2">
+                                <Button severity="secondary" outlined label="Mặc định" class="w-1/2 hover:bg-gray-100" @click="resetFilter">
+                                    <i class="pi pi-refresh mr-2"></i>
+                                </Button>
+                                <Button label="Áp dụng" class="w-1/2 bg-orange-500 hover:bg-orange-600" @click="getAll">
+                                    <i class="pi pi-check mr-2"></i>
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </Popover>
             </div>
         </div>
-        <ul class="list-none p-0 m-0">
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <div>
-                    <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">Space T-Shirt</span>
-                    <div class="mt-1 text-muted-color">Clothing</div>
-                </div>
-                <div class="mt-2 md:mt-0 flex items-center">
-                    <div class="bg-surface-300 dark:bg-surface-500 rounded-border overflow-hidden w-40 lg:w-24" style="height: 8px">
-                        <div class="bg-orange-500 h-full" style="width: 50%"></div>
+
+        <ul class="list-none p-0 m-0" v-if="!isLoading">
+            <li v-for="(item, index) in data.organizationsByProjects" class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 p-4 hover:bg-gray-50 rounded-lg transition-all duration-300">
+                <div class="flex items-center gap-3">
+                    <div>
+                        <span class="text-surface-900 dark:text-surface-0 font-medium text-lg block">
+                            {{ item.organization }}
+                        </span>
+                        <div class="mt-1 text-gray-500">
+                            <i class="pi pi-folder mr-2"></i>
+                            <span class="font-semibold text-orange-500">{{ item.projectCount }}</span> dự án
+                        </div>
                     </div>
-                    <span class="text-orange-500 ml-4 font-medium">%50</span>
                 </div>
-            </li>
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <div>
-                    <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">Portal Sticker</span>
-                    <div class="mt-1 text-muted-color">Accessories</div>
-                </div>
-                <div class="mt-2 md:mt-0 ml-0 md:ml-20 flex items-center">
-                    <div class="bg-surface-300 dark:bg-surface-500 rounded-border overflow-hidden w-40 lg:w-24" style="height: 8px">
-                        <div class="bg-cyan-500 h-full" style="width: 16%"></div>
-                    </div>
-                    <span class="text-cyan-500 ml-4 font-medium">%16</span>
-                </div>
-            </li>
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <div>
-                    <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">Supernova Sticker</span>
-                    <div class="mt-1 text-muted-color">Accessories</div>
-                </div>
-                <div class="mt-2 md:mt-0 ml-0 md:ml-20 flex items-center">
-                    <div class="bg-surface-300 dark:bg-surface-500 rounded-border overflow-hidden w-40 lg:w-24" style="height: 8px">
-                        <div class="bg-pink-500 h-full" style="width: 67%"></div>
-                    </div>
-                    <span class="text-pink-500 ml-4 font-medium">%67</span>
-                </div>
-            </li>
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <div>
-                    <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">Wonders Notebook</span>
-                    <div class="mt-1 text-muted-color">Office</div>
-                </div>
-                <div class="mt-2 md:mt-0 ml-0 md:ml-20 flex items-center">
-                    <div class="bg-surface-300 dark:bg-surface-500 rounded-border overflow-hidden w-40 lg:w-24" style="height: 8px">
-                        <div class="bg-green-500 h-full" style="width: 35%"></div>
-                    </div>
-                    <span class="text-primary ml-4 font-medium">%35</span>
-                </div>
-            </li>
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <div>
-                    <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">Mat Black Case</span>
-                    <div class="mt-1 text-muted-color">Accessories</div>
-                </div>
-                <div class="mt-2 md:mt-0 ml-0 md:ml-20 flex items-center">
-                    <div class="bg-surface-300 dark:bg-surface-500 rounded-border overflow-hidden w-40 lg:w-24" style="height: 8px">
-                        <div class="bg-purple-500 h-full" style="width: 75%"></div>
-                    </div>
-                    <span class="text-purple-500 ml-4 font-medium">%75</span>
-                </div>
-            </li>
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <div>
-                    <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">Robots T-Shirt</span>
-                    <div class="mt-1 text-muted-color">Clothing</div>
-                </div>
-                <div class="mt-2 md:mt-0 ml-0 md:ml-20 flex items-center">
-                    <div class="bg-surface-300 dark:bg-surface-500 rounded-border overflow-hidden w-40 lg:w-24" style="height: 8px">
-                        <div class="bg-teal-500 h-full" style="width: 40%"></div>
-                    </div>
-                    <span class="text-teal-500 ml-4 font-medium">%40</span>
+                <div class="mt-3 md:mt-0">
+                    <span
+                        class="inline-flex items-center px-4 py-2 rounded-full text-sm"
+                        :class="[index === 0 ? 'bg-yellow-100 text-yellow-600' : index === 1 ? 'bg-gray-100 text-gray-600' : index === 2 ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600']"
+                    >
+                        <i class="pi pi-star-fill mr-2"></i>
+                        Hạng {{ index + 1 }}
+                    </span>
                 </div>
             </li>
         </ul>
+        <div v-else class="flex justify-center items-center min-h-[200px]">
+            <ProgressSpinner strokeWidth="4" class="w-12 h-12" />
+        </div>
     </div>
 </template>

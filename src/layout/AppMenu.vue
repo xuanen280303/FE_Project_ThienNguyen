@@ -11,11 +11,6 @@ const model = ref([
         items: [
             { label: 'Trang chủ', icon: 'pi pi-fw pi-home', to: '/admin' },
             {
-                label: 'Trang chủ người dùng',
-                icon: 'pi pi-fw pi-globe',
-                to: '/'
-            },
-            {
                 label: 'Quản lý người dùng',
                 icon: 'pi pi-fw pi-users',
                 items: [
@@ -63,35 +58,35 @@ const model = ref([
                         to: '/admin/letter'
                     }
                 ]
-            },
-            {
-                label: 'Auth',
-                icon: 'pi pi-fw pi-user',
-                items: [
-                    {
-                        label: 'Login',
-                        icon: 'pi pi-fw pi-sign-in',
-                        to: '/login'
-                    },
-                    {
-                        label: 'Error',
-                        icon: 'pi pi-fw pi-times-circle',
-                        to: '/error'
-                    },
-                    {
-                        label: 'Access Denied',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/access'
-                    }
-                ]
-            },
-            {
-                label: 'Đăng xuất',
-                icon: 'pi pi-fw pi-sign-out',
-                command: () => {
-                    authStore.logout();
-                }
             }
+            // {
+            //     label: 'Auth',
+            //     icon: 'pi pi-fw pi-user',
+            //     items: [
+            //         {
+            //             label: 'Login',
+            //             icon: 'pi pi-fw pi-sign-in',
+            //             to: '/login'
+            //         },
+            //         {
+            //             label: 'Error',
+            //             icon: 'pi pi-fw pi-times-circle',
+            //             to: '/error'
+            //         },
+            //         {
+            //             label: 'Access Denied',
+            //             icon: 'pi pi-fw pi-lock',
+            //             to: '/access'
+            //         }
+            //     ]
+            // },
+            // {
+            //     label: 'Đăng xuất',
+            //     icon: 'pi pi-fw pi-sign-out',
+            //     command: () => {
+            //         authStore.logout();
+            //     }
+            // }
         ]
     }
 ]);

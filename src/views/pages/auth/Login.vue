@@ -60,7 +60,7 @@ const handleLogin = async () => {
             tokenService.createToken(res.data.access_token, checked.value);
             await accountService.createAccount(checked.value);
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Đăng nhập thành công', life: 3000 });
-            router.back();
+            router.push('/');
         }
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: error.response.data.message, life: 3000 });

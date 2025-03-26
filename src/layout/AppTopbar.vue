@@ -1,8 +1,7 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { linkUploads } from '../constant/api';
+import InfoHeaderUser from '../components/InfoHeaderUser.vue';
 import accountService from '../service/account.service';
-import AppConfigurator from './AppConfigurator.vue';
 const { account } = accountService.getAccount();
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
@@ -20,7 +19,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
         </div>
 
         <div class="layout-topbar-actions flex items-center gap-4">
-            <div class="layout-config-menu">
+            <!-- <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
@@ -34,7 +33,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                     </button>
                     <AppConfigurator />
                 </div>
-            </div>
+            </div> -->
 
             <button
                 class="layout-topbar-menu-button layout-topbar-action"
@@ -44,7 +43,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
             </button>
 
             <div class="layout-topbar-menu hidden lg:block">
-                <Chip :label="account?.name" :image="linkUploads(account?.avatar)" :pt:image:class="'!w-10 !h-10 border border-primary !bg-white'" class="!rounded-full" />
+                <InfoHeaderUser />
             </div>
         </div>
     </div>
