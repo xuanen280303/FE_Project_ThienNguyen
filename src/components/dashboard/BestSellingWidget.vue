@@ -114,7 +114,7 @@ const toggle = (event) => {
                         :class="[index === 0 ? 'bg-yellow-100 text-yellow-600' : index === 1 ? 'bg-gray-100 text-gray-600' : index === 2 ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600']"
                     >
                         <i class="pi pi-star-fill mr-2"></i>
-                        Hạng {{ index + 1 }}
+                        Số {{ index + 1 }}
                     </span>
                 </div>
             </li>

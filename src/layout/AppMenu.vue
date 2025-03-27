@@ -10,6 +10,7 @@ const model = ref([
 
         items: [
             { label: 'Trang chủ', icon: 'pi pi-fw pi-home', to: '/admin' },
+            { label: 'Trang chủ người dùng', icon: 'pi pi-fw pi-globe', to: '/' },
             {
                 label: 'Quản lý người dùng',
                 icon: 'pi pi-fw pi-users',
@@ -58,7 +59,7 @@ const model = ref([
                         to: '/admin/letter'
                     }
                 ]
-            }
+            },
             // {
             //     label: 'Auth',
             //     icon: 'pi pi-fw pi-user',
@@ -80,13 +81,13 @@ const model = ref([
             //         }
             //     ]
             // },
-            // {
-            //     label: 'Đăng xuất',
-            //     icon: 'pi pi-fw pi-sign-out',
-            //     command: () => {
-            //         authStore.logout();
-            //     }
-            // }
+            {
+                label: 'Đăng xuất',
+                icon: 'pi pi-fw pi-sign-out',
+                command: () => {
+                    authStore.logout();
+                }
+            }
         ]
     }
 ]);

@@ -101,12 +101,20 @@
                             tableStyle="width: 100%"
                         >
                             <template #header>
-                                <IconField>
-                                    <InputIcon>
-                                        <i class="pi pi-search" />
-                                    </InputIcon>
-                                    <InputText class="w-full" placeholder="Nhập tên hoặc email người ủng hộ" v-model="paginationDetail.search" @keyup.enter="getDonation(data._id)" />
-                                </IconField>
+                                <div class="flex gap-2 justify-between">
+                                    <div class="w-1/2">
+                                        <IconField>
+                                            <InputIcon>
+                                                <i class="pi pi-search" />
+                                            </InputIcon>
+                                            <InputText class="w-1/2" placeholder="Nhập tên hoặc email người ủng hộ" v-model="paginationDetail.search" @keyup.enter="getDonation(data._id)" />
+                                        </IconField>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <Button label="Xuất file excel" icon="pi pi-file-excel" class="mr-2" @click="exportDataDetail(data)" />
+                                        <Button label="Xuất file pdf" icon="pi pi-file-pdf" severity="info" class="mr-2" />
+                                    </div>
+                                </div>
                             </template>
                             <Column field="name" header="Người ủng hộ" style="width: 40%">
                                 <template #body="slotProps">
@@ -319,6 +327,8 @@
 
 <script setup>
 import { format } from 'date-fns';
+import { Workbook } from 'exceljs';
+
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -522,6 +532,96 @@ async function saveData() {
         isLoadingData.value = false;
     }
 }
+
+const exportDataDetail = async (project) => {
+    if (!project) {
+        proxy.$notify('E', 'Không có dữ liệu để xuất', toast);
+        return;
+    }
+    const res = await apiService.get(`donations?filter=project=${project._id},status=PAID&page=1&pageSize=9999999999`);
+    const donation = res.data.items;
+    if (donation.length === 0) {
+        proxy.$notify('E', 'Không có dữ liệu để xuất', toast);
+        return;
+    }
+
+    const workbook = new Workbook();
+        const worksheet = workbook.addWorksheet('Sao kê chi tiết quyên góp của dự án: ' + project.name);
+
+    // Thêm tiêu đề
+    const titleRow = worksheet.addRow(['PHIẾU SAO KÊ']);
+    titleRow.font = { name: 'Arial', size: 20, bold: true };
+    titleRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    worksheet.mergeCells('A1:F1');
+    worksheet.getRow(1).height = 50;
+
+    // Đặt độ rộng cột
+    const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
+    columns.forEach((col) => {
+        worksheet.getColumn(col).width = 20;
+    });
+    worksheet.addRow(['Dự án: ' + project.name]);
+    worksheet.addRow(['Chiến dịch: ' + project.campaign?.name]);
+    worksheet.addRow(['Người/tổ chức kêu gọi: ' + (project.type == 'CN' ? project.user?.name : project.organization?.name)]);
+    worksheet.addRow(['Ngày bắt đầu : ' + format(project.startDate, 'dd/MM/yyyy'), '- Ngày kết thúc: ' + format(project.endDate, 'dd/MM/yyyy')]);
+    worksheet.addRow(['Mục tiêu quyên góp: ' + parseNum(project.goalAmount) + ' VNĐ']);
+    worksheet.addRow(['Tổng số tiền đã quyên góp: ' + parseNum(project.currentAmount) + ' VNĐ']);
+    worksheet.addRow(['Trạng thái: ' + getStatus(project.status)]);
+    worksheet.addRow(['Người tạo sao kê: ' + account.name]);
+
+    const headerRow = worksheet.addRow(['STT', 'Tên người ủng hộ', 'Tên tài khoản NH', 'Số tài khoản NH', 'Mã ngân hàng', 'Số tiền', 'Nội dung chuyển khoản', 'Thời gian giao dịch']);
+    headerRow.font = { name: 'Arial', size: 12, bold: true };
+    headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getRow(headerRow.number).height = 30;
+    headerRow.eachCell((cell) => {
+        cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+        };
+    });
+
+    // Thêm dữ liệu
+    donation.forEach((item, index) => {
+        const row = worksheet.addRow([
+            index + 1,
+            item.buyerName,
+            item.counterAccountName || '--',
+            item.counterAccountNumber || '--',
+            item.counterAccountBankId || '--',
+            parseNum(item.amount) + ' VNĐ',
+            item.description || '--',
+            item.transactionDateTime || '--'
+        ]);
+        row.font = { name: 'Arial', size: 12 };
+        row.alignment = { horizontal: 'center', vertical: 'middle' };
+        worksheet.getRow(row.number).height = 20;
+        row.eachCell((cell) => {
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+        });
+    });
+
+    // Xuất file
+    const now = new Date();
+    const fileName = `Phiếu_sao_kê_${format(now, 'dd-MM-yyyy_HH-mm')}.xlsx`;
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/octet-stream' });
+
+    // Tải xuống file
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+
+    proxy.$notify('S', 'Xuất file thành công', toast);
+};
 </script>
 
 <style></style>
