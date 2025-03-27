@@ -8,9 +8,6 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    optimizeDeps: {
-        noDiscovery: true
-    },
     plugins: [
         vue(),
         vueDevTools(),

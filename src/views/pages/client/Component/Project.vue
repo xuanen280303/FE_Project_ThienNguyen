@@ -112,7 +112,7 @@
                                     </div>
                                     <div class="flex gap-2">
                                         <Button label="Xuất file excel" icon="pi pi-file-excel" class="mr-2" @click="exportDataDetail(data)" />
-                                        <Button label="Xuất file pdf" icon="pi pi-file-pdf" severity="info" class="mr-2" />
+                                        <Button label="Xuất file pdf" icon="pi pi-file-pdf" severity="info" class="mr-2" @click="printStore.generatePDFImport(data)" />
                                     </div>
                                 </div>
                             </template>
@@ -228,7 +228,7 @@
 
         <template #footer>
             <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />
-            <Button label="Lưu" icon="pi pi-check" @click="saveData" :loading="isLoadingData" />
+            <Button label="Gửi đi" icon="pi pi-check" @click="saveData" :loading="isLoadingData" />
         </template>
     </Dialog>
     <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
@@ -327,16 +327,19 @@
 
 <script setup>
 import { format } from 'date-fns';
-import { Workbook } from 'exceljs';
-
+import ExcelJS from 'exceljs';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { linkUploads } from '../../../../constant/api';
 import accountService from '../../../../service/account.service';
 import apiService from '../../../../service/api.service';
+import { usePrintStore } from '../../../../stores/printStore';
 import parseNum from '../../../../utils/parseNum';
+
 const router = useRouter();
+
+const printStore = usePrintStore();
 onMounted(async () => {
     isLoading.value = true;
     await getAll();
@@ -535,43 +538,59 @@ async function saveData() {
 
 const exportDataDetail = async (project) => {
     if (!project) {
-        proxy.$notify('E', 'Không có dữ liệu để xuất', toast);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không có dữ liệu để xuất', life: 3000 });
         return;
     }
     const res = await apiService.get(`donations?filter=project=${project._id},status=PAID&page=1&pageSize=9999999999`);
     const donation = res.data.items;
     if (donation.length === 0) {
-        proxy.$notify('E', 'Không có dữ liệu để xuất', toast);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không có dữ liệu để xuất', life: 3000 });
         return;
     }
 
-    const workbook = new Workbook();
-        const worksheet = workbook.addWorksheet('Sao kê chi tiết quyên góp của dự án: ' + project.name);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sao kê chi tiết quyên góp dự án');
 
     // Thêm tiêu đề
     const titleRow = worksheet.addRow(['PHIẾU SAO KÊ']);
     titleRow.font = { name: 'Arial', size: 20, bold: true };
     titleRow.alignment = { horizontal: 'center', vertical: 'middle' };
 
-    worksheet.mergeCells('A1:F1');
-    worksheet.getRow(1).height = 50;
+    worksheet.mergeCells('A1:H1');
+    worksheet.getRow(1).height = 40;
 
     // Đặt độ rộng cột
     const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
     columns.forEach((col) => {
         worksheet.getColumn(col).width = 20;
     });
-    worksheet.addRow(['Dự án: ' + project.name]);
-    worksheet.addRow(['Chiến dịch: ' + project.campaign?.name]);
-    worksheet.addRow(['Người/tổ chức kêu gọi: ' + (project.type == 'CN' ? project.user?.name : project.organization?.name)]);
-    worksheet.addRow(['Ngày bắt đầu : ' + format(project.startDate, 'dd/MM/yyyy'), '- Ngày kết thúc: ' + format(project.endDate, 'dd/MM/yyyy')]);
-    worksheet.addRow(['Mục tiêu quyên góp: ' + parseNum(project.goalAmount) + ' VNĐ']);
-    worksheet.addRow(['Tổng số tiền đã quyên góp: ' + parseNum(project.currentAmount) + ' VNĐ']);
-    worksheet.addRow(['Trạng thái: ' + getStatus(project.status)]);
-    worksheet.addRow(['Người tạo sao kê: ' + account.name]);
+    const projectInfo = [
+        ['Dự án: ' + project.name],
+        ['Chiến dịch: ' + project.campaign?.name],
+        ['Người/tổ chức kêu gọi: ' + (project.type == 'CN' ? project.user?.name : project.organization?.name)],
+        ['Ngày bắt đầu: ' + format(project.startDate, 'dd/MM/yyyy'), '', '', '', 'Ngày kết thúc: ' + format(project.endDate, 'dd/MM/yyyy')],
+        ['Mục tiêu quyên góp: ' + parseNum(project.goalAmount) + ' VNĐ'],
+        ['Tổng số tiền đã quyên góp: ' + parseNum(project.currentAmount) + ' VNĐ'],
+        ['Trạng thái: ' + getStatus(project.status)],
+        ['Người tạo sao kê: ' + account.name]
+    ];
+
+    projectInfo.forEach((info, index) => {
+        const row = worksheet.addRow(info);
+        row.font = { name: 'Arial', size: 12 };
+        row.alignment = { horizontal: 'left', vertical: 'middle' };
+        if (index == 3) {
+            worksheet.mergeCells(`A${row.number}:D${row.number}`);
+            worksheet.mergeCells(`E${row.number}:H${row.number}`);
+            row.height = 25;
+        } else {
+            worksheet.mergeCells(`A${row.number}:H${row.number}`);
+            row.height = 25;
+        }
+    });
 
     const headerRow = worksheet.addRow(['STT', 'Tên người ủng hộ', 'Tên tài khoản NH', 'Số tài khoản NH', 'Mã ngân hàng', 'Số tiền', 'Nội dung chuyển khoản', 'Thời gian giao dịch']);
-    headerRow.font = { name: 'Arial', size: 12, bold: true };
+    headerRow.font = { name: 'Arial', size: 11, bold: true };
     headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
     worksheet.getRow(headerRow.number).height = 30;
     headerRow.eachCell((cell) => {
@@ -595,7 +614,7 @@ const exportDataDetail = async (project) => {
             item.description || '--',
             item.transactionDateTime || '--'
         ]);
-        row.font = { name: 'Arial', size: 12 };
+        row.font = { name: 'Arial', size: 11 };
         row.alignment = { horizontal: 'center', vertical: 'middle' };
         worksheet.getRow(row.number).height = 20;
         row.eachCell((cell) => {
@@ -620,7 +639,7 @@ const exportDataDetail = async (project) => {
     link.download = fileName;
     link.click();
 
-    proxy.$notify('S', 'Xuất file thành công', toast);
+    toast.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất file thành công', life: 3000 });
 };
 </script>
 
