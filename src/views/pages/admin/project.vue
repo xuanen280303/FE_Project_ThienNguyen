@@ -71,6 +71,8 @@ function hideDialog() {
 function getDataDetail(prod) {
     eventData.value = {
         ...prod,
+        startDate: new Date(prod.startDate),
+        endDate: new Date(prod.endDate),
         organization: prod.organization?._id,
         user: prod.user?._id,
         campaign: prod.campaign?._id

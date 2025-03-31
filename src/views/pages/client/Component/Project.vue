@@ -479,7 +479,7 @@ const getStatusDonation = (status) => {
             return 'Chờ thanh toán';
         case 'PAID':
             return 'Đã thanh toán';
-        case 'CANCEL':
+        case 'CANCELLED':
             return 'Đã hủy';
         default:
             return status;

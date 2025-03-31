@@ -30,7 +30,7 @@ async function setChartData() {
         return {
             type: 'bar',
             ...item,
-            backgroundColor: item.label == 'Đang xử lý' ? documentStyle.getPropertyValue('--p-primary-200') : item.label == 'Đã hủy' ? documentStyle.getPropertyValue('--p-primary-300') : documentStyle.getPropertyValue('--p-primary-500'),
+            backgroundColor: item.label == 'Đang xử lý' ? documentStyle.getPropertyValue('--p-primary-100') : item.label == 'Đã hủy' ? documentStyle.getPropertyValue('--p-primary-300') : documentStyle.getPropertyValue('--p-primary-500'),
             barThickness: 32,
             ...(index === data.value.datasets.length - 1
                 ? {
