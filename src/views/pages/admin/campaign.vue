@@ -237,7 +237,7 @@ const UploadFileLocal = async (event) => {
                         {{ (pagination.page - 1) * pagination.pageSize + slotProps.index + 1 }}
                     </template>
                 </Column>
-                <Column field="image" header="Ảnh chiến dịch" style="min-width: 6rem">
+                <Column field="image" header="Ảnh chiến dịch" style="min-width: 10rem">
                     <template #body="slotProps">
                         <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/150x150'" alt="image" class="rounded-lg w-[90px] h-[90px] object-cover" />
                     </template>
@@ -267,7 +267,7 @@ const UploadFileLocal = async (event) => {
         <Dialog v-model:visible="isEventDialog" :style="{ width: '500px' }" :modal="true">
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">
-                    {{ eventData?.id ? 'Cập nhật tài người dùng' : 'Thêm tài khoản người dùng' }}
+                    {{ eventData?.id ? 'Cập nhật tài người dùng' : 'Thêm mới chiến dịch' }}
                     - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái
                 </h4>
             </template>
@@ -300,10 +300,10 @@ const UploadFileLocal = async (event) => {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+        <Dialog v-model:visible="deleteDialog" :style="{ width: '420px' }" header="Xác nhận Xóa" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="eventData">Bạn có chắc chắn muốn xóa {{ eventData.name }} này không?</span>
+                <span v-if="eventData">Bạn có chắc chắn muốn xóa chiến dịch này không?</span>
             </div>
             <template #footer>
                 <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />

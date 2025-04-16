@@ -265,7 +265,7 @@ const UploadFileLocal = async (event) => {
                     </template>
                 </Column>
 
-                <Column field="avatar" header="Ảnh đại diện" style="min-width: 8rem">
+                <Column field="avatar" header="Ảnh đại diện" style="min-width: 9rem">
                     <template #body="slotProps">
                         <img :src="slotProps.data.avatar ? linkUploads(slotProps.data.avatar) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
                     </template>

@@ -4,7 +4,7 @@
             <div>
                 <h2 class="text-center text-primary text-base font-bold">THAM GIA CÙNG CHÚNG TÔI</h2>
                 <p class="text-center text-sm">
-                    Chúng tôi tin rằng mỗi hành động sẻ chia là một tia sáng, nhưng một tia sáng hợp lại có thể trở thành ánh mặt trời thắp sáng cả cuộc đời. Và ánh sáng ấy đến từ những trái tim yêu thương trong mỗi chúng ta.
+                    Chúng tôi tin rằng mỗi hành động sẻ chia là một tia sáng, nhưng mỗi tia sáng hợp lại có thể trở thành ánh mặt trời thắp sáng cả cuộc đời. Và ánh sáng ấy đến từ những trái tim yêu thương trong mỗi chúng ta.
                 </p>
             </div>
         </div>

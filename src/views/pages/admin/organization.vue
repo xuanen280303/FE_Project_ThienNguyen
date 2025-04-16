@@ -367,7 +367,7 @@ const getOptionsUser = (users, currentIndex) => {
                     </template>
                 </Column>
 
-                <Column field="avatar" header="Ảnh đại diện" style="min-width: 8rem">
+                <Column field="avatar" header="Ảnh đại diện" style="min-width: 10rem">
                     <template #body="slotProps">
                         <img :src="slotProps.data.avatar ? linkUploads(slotProps.data.avatar) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
                     </template>
@@ -401,7 +401,7 @@ const getOptionsUser = (users, currentIndex) => {
         <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">
-                    {{ eventData?._id ? 'Cập nhật tổ chức' : 'Thêm tổ chức' }}
+                    {{ eventData?._id ? 'Cập nhật tổ chức' : 'Thêm mới tổ chức' }}
                     -
                     <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái
                 </h4>
@@ -468,7 +468,7 @@ const getOptionsUser = (users, currentIndex) => {
                     <template v-for="(item, index) in eventData.users" :key="item._id">
                         <div class="flex gap-3">
                             <div class="w-6/12">
-                                <label :for="'userId-' + index" class="block font-bold mb-1">Người tham gia<small class="text-red-500">*</small></label>
+                                <label :for="'userId-' + index" class="block font-bold mb-1">Người tham gia<small class="text-red-500"> *</small></label>
                                 <Select
                                     :id="'userId-' + index"
                                     v-model="item._id"
@@ -504,10 +504,10 @@ const getOptionsUser = (users, currentIndex) => {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+        <Dialog v-model:visible="deleteDialog" :style="{ width: '400px' }" header="Xác nhận Xóa" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="eventData">Bạn có chắc chắn muốn xóa {{ eventData.name }} này không?</span>
+                <span v-if="eventData">Bạn có chắc chắn muốn xóa tổ chức này không?</span>
             </div>
             <template #footer>
                 <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />

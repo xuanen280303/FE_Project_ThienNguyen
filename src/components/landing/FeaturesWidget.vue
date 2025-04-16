@@ -36,7 +36,7 @@
                 </Carousel>
             </div>
             <div class="col-span-12 flex justify-between">
-                <div class="text-gray-700 font-bold mb-2 text-2xl">Chiến dịch của Tổ chức</div>
+                <div class="text-gray-700 font-bold mb-2 text-2xl">Chiến dịch của Cá nhân</div>
                 <router-link to="/" class="text-gray-500 font-semibold mb-2 text-xl hover:underline">Xem tất cả <i class="pi pi-arrow-right"></i></router-link>
             </div>
             <div class="col-span-12">

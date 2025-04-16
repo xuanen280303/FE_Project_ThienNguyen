@@ -56,7 +56,7 @@ function hideDialog() {
 }
 
 function getData(prod) {
-    eventData.value = { ...prod, project: prod.project._id, userInvite: prod.userInvite._id, supporterInvite: prod.supporterInvite.map((item) => item._id) };
+    eventData.value = { ...prod, project: prod.project?._id, userInvite: prod.userInvite?._id, supporterInvite: prod.supporterInvite.map((item) => item._id) };
     isEventDialog.value = true;
 }
 
@@ -244,7 +244,7 @@ const getOption = async () => {
                         {{ parseNum(slotProps.data.currentAmount) }}
                     </template>
                 </Column>
-                <Column header="Người cùng ủng hộ" style="min-width: 10rem">
+                <Column header="Người cùng ủng hộ" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{ slotProps.data.supporterInvite.length }}
                     </template>
@@ -265,7 +265,7 @@ const getOption = async () => {
 
         <Dialog v-model:visible="isEventDialog" :style="{ width: '900px' }" :modal="true">
             <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData.id ? 'Cập nhật người đồng hành' : 'Thêm người đồng hành' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData.id ? 'Cập nhật người đồng hành' : 'Thêm mới người đồng hành' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
 
             <div class="flex flex-col gap-6">
@@ -286,11 +286,11 @@ const getOption = async () => {
                 </div>
                 <div>
                     <label for="currentAmount" class="block font-bold mb-3">Đạt được</label>
-                    <InputNumber id="currentAmount" v-model="eventData.currentAmount" fluid placeholder="Nhập đạt được" />
+                    <InputNumber id="currentAmount" v-model="eventData.currentAmount" fluid placeholder="Nhập số tiền đạt được" />
                 </div>
                 <div>
                     <label for="supporterInvite" class="block font-bold mb-3">Người cùng ủng hộ</label>
-                    <MultiSelect filter id="supporterInvite" v-model="eventData.supporterInvite" fluid :options="options.user" optionLabel="name" optionValue="_id" placeholder="Chọn người đồng hành" />
+                    <MultiSelect filter id="supporterInvite" v-model="eventData.supporterInvite" fluid :options="options.user" optionLabel="name" optionValue="_id" placeholder="Chọn người cùng ủng hộ" />
                 </div>
             </div>
 
@@ -300,10 +300,10 @@ const getOption = async () => {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+        <Dialog v-model:visible="deleteDialog" :style="{ width: '480px' }" header="Xác nhận xóa" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="eventData">Bạn có chắc chắn muốn xóa {{ eventData.name }} này không?</span>
+                <span v-if="eventData">Bạn có chắc chắn muốn xóa người đồng hành này không?</span>
             </div>
             <template #footer>
                 <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />

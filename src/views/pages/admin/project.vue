@@ -477,7 +477,7 @@ const removeImageList = (index) => {
 
         <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
             <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?.id ? 'Cập nhật tài khoản người dùng' : 'Thêm tài khoản người dùng' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?.id ? 'Cập nhật dự án' : 'Thêm mới dự án' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
             <div class="w-full flex gap-6 mb-4">
                 <div class="w-1/5">
@@ -542,7 +542,7 @@ const removeImageList = (index) => {
                             <Select id="status" v-model="eventData.status" :options="valueStatus" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
                         </div>
                         <div class="w-1/2">
-                            <label for="role" class="block font-bold mb-1">Tỉnh thành</label>
+                            <label for="role" class="block font-bold mb-1">Tỉnh, thành phố</label>
                             <Select
                                 id="role"
                                 v-model="eventData.province"
@@ -561,7 +561,7 @@ const removeImageList = (index) => {
 
                     <div class="flex gap-3 w-full">
                         <div class="w-1/2">
-                            <label for="role" class="block font-bold mb-1">Quận huyện</label>
+                            <label for="role" class="block font-bold mb-1">Quận, huyện</label>
                             <Select
                                 :disabled="!eventData.province"
                                 id="role"
@@ -578,7 +578,7 @@ const removeImageList = (index) => {
                             />
                         </div>
                         <div class="w-1/2">
-                            <label for="role" class="block font-bold mb-1">Phường xã</label>
+                            <label for="role" class="block font-bold mb-1">Phường, xã</label>
                             <Select
                                 id="role"
                                 :disabled="!eventData.district"
@@ -721,10 +721,10 @@ const removeImageList = (index) => {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+        <Dialog v-model:visible="deleteDialog" :style="{ width: '390px' }" header="Xác nhận Xóa" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="eventData">Bạn có chắc chắn muốn xóa {{ eventData.name }} này không?</span>
+                <span v-if="eventData">Bạn có chắc chắn muốn xóa dự án này không?</span>
             </div>
             <template #footer>
                 <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />

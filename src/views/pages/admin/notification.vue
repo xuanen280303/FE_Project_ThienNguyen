@@ -424,10 +424,10 @@ const optionType = [
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+        <Dialog v-model:visible="deleteDialog" :style="{ width: '415px' }" header="Xác nhận Xóa" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="eventData">Bạn có chắc chắn muốn xóa {{ eventData.name }} này không?</span>
+                <span v-if="eventData">Bạn có chắc chắn muốn xóa thông báo này không?</span>
             </div>
             <template #footer>
                 <Button label="Huỷ" icon="pi pi-times" text @click="hideDialog" />

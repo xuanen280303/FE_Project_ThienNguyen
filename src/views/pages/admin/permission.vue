@@ -196,7 +196,7 @@ const optionModule = ref(['USERS', 'ROLES', 'PERMISSIONS', 'PROJECTS', 'CAMPAIGN
                 </Column>
 
                 <Column field="name" header="Tên quyền" style="min-width: 16rem"></Column>
-                <Column field="method" header="Phương thức" style="min-width: 7rem"> </Column>
+                <Column field="method" header="Phương thức" style="min-width: 9rem"> </Column>
                 <Column field="module" header="Mô đun" style="min-width: 10rem"></Column>
                 <Column field="apiPath" header="API" style="min-width: 12rem"> </Column>
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
