@@ -1,7 +1,7 @@
 <template>
-    <Button @click="openEventDialog" class="h-9 !rounded-xl" label="Tạo chiến dịch" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
+    <Button @click="openEventDialog" class="h-9 !rounded-xl" label="Tạo dự án" severity="warn" style="background: linear-gradient(88.87deg, #ff6c57 -5.14%, #ff922e 119.29%)"></Button>
 
-    <Dialog v-model:visible="isEventDialog" :style="{ minWidth: '600px' }" :modal="true" header="Tạo chiến dịch">
+    <Dialog v-model:visible="isEventDialog" :style="{ minWidth: '600px' }" :modal="true" header="Tạo dự án">
         <template v-if="account">
             <Stepper value="1">
                 <StepList>

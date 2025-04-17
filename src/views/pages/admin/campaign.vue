@@ -26,7 +26,9 @@ const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
-const eventData = ref({});
+const eventData = ref({
+    isActive: true
+});
 const dataFileInput = ref(null);
 const deleteDialog = ref(false);
 const valueFilter = ref({
@@ -35,7 +37,9 @@ const valueFilter = ref({
 });
 
 function openEventDialog() {
-    eventData.value = {};
+    eventData.value = {
+        isActive: true
+    };
     dataFileInput.value = null;
     submitted.value = false;
     isEventDialog.value = true;
@@ -44,7 +48,9 @@ function openEventDialog() {
 
 function hideDialog() {
     isEventDialog.value = false;
-    eventData.value = {};
+    eventData.value = {
+        isActive: true
+    };
     dataFileInput.value = null;
     submitted.value = false;
     deleteDialog.value = false;
@@ -267,7 +273,7 @@ const UploadFileLocal = async (event) => {
         <Dialog v-model:visible="isEventDialog" :style="{ width: '500px' }" :modal="true">
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">
-                    {{ eventData?.id ? 'Cập nhật tài người dùng' : 'Thêm mới chiến dịch' }}
+                    {{ eventData?._id ? 'Cập nhật chiến dịch' : 'Thêm mới chiến dịch' }}
                     - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái
                 </h4>
             </template>

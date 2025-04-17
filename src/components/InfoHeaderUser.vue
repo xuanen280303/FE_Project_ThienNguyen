@@ -5,6 +5,7 @@
     </div>
 </template>
 <script setup>
+import { useAuthStore } from '@/stores/AuthStore';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { linkUploads } from '../constant/api';
@@ -13,7 +14,7 @@ import accountService from '../service/account.service';
 const menu = ref();
 const router = useRouter();
 const { account } = accountService.getAccount();
-
+const authStore = useAuthStore();
 const toggle = (event) => {
     menu.value.toggle(event);
 };
@@ -39,7 +40,7 @@ const itemAccount = ref([
                 : []),
 
             {
-                label: 'Quản lý chiến dịch',
+                label: 'Quản lý dự án',
                 icon: 'pi pi-fw pi-slack',
                 command: () => {
                     router.push('/manager');

@@ -28,7 +28,7 @@
                                 :amount="slotProps.data.currentAmount || 0"
                                 :link="slotProps.data._id"
                                 :progress="(slotProps.data.currentAmount / slotProps.data.goalAmount) * 100 || 0"
-                                :supporters="23"
+                                :supporters="slotProps.data.totalDonors || 0"
                                 :daysLeft="Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24))"
                             />
                         </div>
@@ -59,7 +59,7 @@
                                 :title="slotProps.data.name"
                                 :amount="slotProps.data.currentAmount || 0"
                                 :progress="(slotProps.data.currentAmount / slotProps.data.goalAmount) * 100 || 0"
-                                :supporters="23"
+                                :supporters="slotProps.data.totalDonors || 0"
                                 :daysLeft="Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24))"
                             />
                         </div>

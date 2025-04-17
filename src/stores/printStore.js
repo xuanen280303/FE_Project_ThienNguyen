@@ -61,10 +61,10 @@ export const usePrintStore = defineStore('PrintStore', () => {
         // Thêm tiêu đề vào góc phải
         doc.setFontSize(16);
         doc.setFont('Times New Roman', 'bold');
-        doc.text('SAO KÊ TÀI KHOẢN', pageWidth - margin.right - 10, margin.top + 8, { align: 'right' });
-        doc.setFontSize(10);
+        doc.text('SAO KÊ DỰ ÁN', pageWidth - margin.right - 17, margin.top + 8, { align: 'right' });
+        doc.setFontSize(9);
         doc.setFont('Times New Roman', 'bolditalic');
-        doc.text('ACCOUNT STATEMENT', pageWidth - margin.right - 19, margin.top + 12, { align: 'right' });
+        doc.text('ACCOUNT STATEMENT', pageWidth - margin.right - 21, margin.top + 12, { align: 'right' });
     };
 
     const generatePDFImport = async (project) => {
@@ -127,7 +127,15 @@ export const usePrintStore = defineStore('PrintStore', () => {
                 },
                 head: [['STT', 'Tên tài khoản NH', 'Số tài khoản NH', 'Mã ngân hàng', 'Số tiền', 'Nội dung chuyển khoản', 'Thời gian giao dịch']],
 
-                body: donation.map((item, index) => [index + 1, item.counterAccountName || '--', item.counterAccountNumber || '--', item.counterAccountBank || '--', parseNum(item.amount), item.description || '--', item.transactionDateTime || '--']),
+                body: donation.map((item, index) => [
+                    index + 1,
+                    item.counterAccountName || '--',
+                    item.counterAccountNumber || '--',
+                    item.counterAccountBankId || '--',
+                    parseNum(item.amount) + ' VNĐ',
+                    item.description || '--',
+                    item.transactionDateTime || '--'
+                ]),
                 styles: {
                     font: 'Times New Roman',
                     fontSize: 10,
@@ -171,20 +179,21 @@ export const usePrintStore = defineStore('PrintStore', () => {
             }
             doc.setFontSize(13); // Kích thước chữ
             const docDateObj = new Date();
+            doc.setFont('Times New Roman', 'italic');
             doc.text(`Hà Nội, ngày ${docDateObj.getDate()} tháng ${docDateObj.getMonth() + 1} năm ${docDateObj.getFullYear()}`, pageWidth - margin.right - 20, newSignatureY, { align: 'right' });
             // Thông tin chuyển kho bên trái
             doc.setFont('Times New Roman', 'bold');
-            doc.text(`Thiện Nguyện`, margin.left + 16, newSignatureY + 8);
+            doc.text(`Thiện Nguyện`, margin.left + 16, newSignatureY + 6);
 
             doc.setFont('Times New Roman', 'italic');
-            doc.text(`(Ký, họ tên, đóng dấu)`, margin.left + 10, newSignatureY + 13);
+            doc.text(`(Ký, họ tên, đóng dấu)`, margin.left + 10, newSignatureY + 11);
 
             // Thông tin chuyển kho bên phải
             doc.setFont('Times New Roman', 'bold');
-            doc.text(`Người tạo sao kê`, pageWidth - margin.right - 30, newSignatureY + 8, { align: 'right' });
+            doc.text(`Người tạo sao kê`, pageWidth - margin.right - 30, newSignatureY + 6, { align: 'right' });
 
             doc.setFont('Times New Roman', 'italic');
-            doc.text(`(Ký, họ tên)`, pageWidth - margin.right - 34, newSignatureY + 13, { align: 'right' });
+            doc.text(`(Ký, họ tên)`, pageWidth - margin.right - 36, newSignatureY + 11, { align: 'right' });
 
             // Tạo URL từ nội dung PDF
             openPrintWindow(doc.output('bloburl'));

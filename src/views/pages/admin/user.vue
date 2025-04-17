@@ -30,7 +30,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
-const eventData = ref({});
+const eventData = ref({isActive:true});
 const dataFileInput = ref(null);
 const deleteDialog = ref(false);
 const valueFilter = ref({
@@ -42,14 +42,14 @@ const dataGetAllOption = ref({
     role: []
 });
 function openEventDialog() {
-    eventData.value = {};
+    eventData.value = {isActive:true};
     submitted.value = false;
     isEventDialog.value = true;
 }
 
 function hideDialog() {
     isEventDialog.value = false;
-    eventData.value = {};
+    eventData.value = {isActive:true};
     submitted.value = false;
     deleteDialog.value = false;
 }

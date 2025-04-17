@@ -34,28 +34,29 @@ const items = ref([
         label: 'Ủng hộ',
         items: [
             {
-                label: 'New',
-                icon: 'pi pi-plus',
+                label: 'Chiến dịch',
                 command: () => {}
             },
             {
-                label: 'Print',
-                icon: 'pi pi-print',
+                label: 'Đồng hành',
+                command: () => {}
+            },
+            {
+                label: 'Tổ chức gây quỹ',
+                command: () => {}
+            },
+            {
+                label: 'Cá nhân gây quỹ',
                 command: () => {}
             }
+
         ]
     },
     {
         label: 'Gây quỹ',
         items: [
             {
-                label: 'New',
-                icon: 'pi pi-plus',
-                command: () => {}
-            },
-            {
-                label: 'Print',
-                icon: 'pi pi-print',
+                label: 'Bắt đầu',
                 command: () => {}
             }
         ]
@@ -64,13 +65,19 @@ const items = ref([
         label: 'Khám phá',
         items: [
             {
-                label: 'New',
-                icon: 'pi pi-plus',
+                label: 'Bản đồ thiện nguyện',
                 command: () => {}
             },
             {
-                label: 'Print',
-                icon: 'pi pi-print',
+                label: 'Sự kiện thiện nguyện',
+                command: () => {}
+            },
+            {
+                label: 'Bảng tin',
+                command: () => {}
+            },
+            {
+                label: 'Tin tức',
                 command: () => {}
             }
         ]
@@ -79,13 +86,19 @@ const items = ref([
         label: 'Giới thiệu',
         items: [
             {
-                label: 'New',
-                icon: 'pi pi-plus',
+                label: 'Về thiện nguyện',
                 command: () => {}
             },
             {
-                label: 'Print',
-                icon: 'pi pi-print',
+                label: 'Hỏi đáp',
+                command: () => {}
+            },
+            {
+                label: 'Điều khoản',
+                command: () => {}
+            },
+            {
+                label: 'Chính sách bảo mật',
                 command: () => {}
             }
         ]

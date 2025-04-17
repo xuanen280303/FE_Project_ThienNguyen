@@ -28,7 +28,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
-const eventData = ref({});
+const eventData = ref({ isActive: true });
 const deleteDialog = ref(false);
 const valueFilter = ref({
     isActive: null,
@@ -38,14 +38,14 @@ const valueFilter = ref({
 const dataGetAllPermission = ref([]);
 
 function openEventDialog() {
-    eventData.value = {};
+    eventData.value = { isActive: true };
     submitted.value = false;
     isEventDialog.value = true;
 }
 
 function hideDialog() {
     isEventDialog.value = false;
-    eventData.value = {};
+    eventData.value = { isActive: true };
     submitted.value = false;
     deleteDialog.value = false;
 }
@@ -227,36 +227,64 @@ const ConvertFatherGrpData = (data) => {
                 </template>
 
                 <template #end>
-                    <Select v-model="valueFilter.isActive" :options="[
-                        { label: 'Tất cả', value: null },
-                        { label: 'Hoạt động', value: true },
-                        { label: 'Không hoạt động', value: false }
-                    ]" placeholder="Tất cả" optionLabel="label" optionValue="value" @change="handleFilter"
-                        class="mr-2" />
+                    <Select
+                        v-model="valueFilter.isActive"
+                        :options="[
+                            { label: 'Tất cả', value: null },
+                            { label: 'Hoạt động', value: true },
+                            { label: 'Không hoạt động', value: false }
+                        ]"
+                        placeholder="Tất cả"
+                        optionLabel="label"
+                        optionValue="value"
+                        @change="handleFilter"
+                        class="mr-2"
+                    />
 
                     <Button label="Làm mới" icon="pi pi-refresh" severity="secondary" @click="getAll" class="mr-2" />
-                    <Button v-if="valueFilter.sort" label="Mới nhất" icon="pi pi-arrow-down" severity="secondary"
+                    <Button
+                        v-if="valueFilter.sort"
+                        label="Mới nhất"
+                        icon="pi pi-arrow-down"
+                        severity="secondary"
                         @click="
                             () => {
                                 valueFilter.sort = false;
                                 getAll();
                             }
-                        " class="mr-2" />
-                    <Button v-else label="Cũ nhất" icon="pi pi-arrow-up" severity="secondary" @click="
-                        () => {
-                            valueFilter.sort = true;
-                            getAll();
-                        }
-                    " class="mr-2" />
+                        "
+                        class="mr-2"
+                    />
+                    <Button
+                        v-else
+                        label="Cũ nhất"
+                        icon="pi pi-arrow-up"
+                        severity="secondary"
+                        @click="
+                            () => {
+                                valueFilter.sort = true;
+                                getAll();
+                            }
+                        "
+                        class="mr-2"
+                    />
                 </template>
             </Toolbar>
 
-            <DataTable ref="dt" lazy :value="valueData" :paginator="true" :loading="isLoadingData"
-                :rows="pagination.pageSize" :page="pagination.page"
+            <DataTable
+                ref="dt"
+                lazy
+                :value="valueData"
+                :paginator="true"
+                :loading="isLoadingData"
+                :rows="pagination.pageSize"
+                :page="pagination.page"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25, 50, 100]"
                 currentPageReportTemplate="Từ {first} đến {last} trong {totalRecords} dữ liệu"
-                :totalRecords="pagination.total" @page="handlePage($event)">
+                :totalRecords="pagination.total"
+                @page="handlePage($event)"
+            >
                 <template #empty>
                     <div class="flex justify-center items-center h-full">
                         <span class="text-gray-500">Không có dữ liệu</span>
@@ -289,8 +317,7 @@ const ConvertFatherGrpData = (data) => {
                 <Column field="description" header="Mô tả" style="min-width: 16rem"> </Column>
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
                     <template #body="slotProps">
-                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt,
-                        'HH:mm') }}
+                        {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
                     </template>
                 </Column>
                 <Column field="isActive" header="Trạng thái" style="min-width: 5rem">
@@ -301,10 +328,8 @@ const ConvertFatherGrpData = (data) => {
 
                 <Column :exportable="false" style="min-width: 7rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getData(slotProps.data)"
-                            v-tooltip="'Chức năng sửa'" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger"
-                            @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getData(slotProps.data)" v-tooltip="'Chức năng sửa'" />
+                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
                 </Column>
             </DataTable>
@@ -312,30 +337,23 @@ const ConvertFatherGrpData = (data) => {
 
         <Dialog v-model:visible="isEventDialog" :style="{ width: '900px' }" :modal="true">
             <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData.id ? 'Cập nhật vai trò' :
-                    'Thêm vai trò' }} -
-                    <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái
-                </h4>
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData.id ? 'Cập nhật vai trò' : 'Thêm vai trò' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
 
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="name" class="block font-bold mb-3">Tên vai trò</label>
-                    <InputText id="name" v-model="eventData.name" required="true" autofocus
-                        :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên vai trò" />
+                    <InputText id="name" v-model="eventData.name" required="true" autofocus :invalid="submitted && !eventData.name" fluid placeholder="Vui lòng nhập tên vai trò" />
 
                     <small v-if="submitted && !eventData.name" class="text-red-500">Tên vai trò là bắt buộc.</small>
                 </div>
                 <div>
                     <label for="description" class="block font-bold mb-3">Mô tả</label>
-                    <Textarea id="description" v-model="eventData.description" required="true" autofocus fluid
-                        placeholder="Vui lòng nhập mô tả" />
+                    <Textarea id="description" v-model="eventData.description" required="true" autofocus fluid placeholder="Vui lòng nhập mô tả" />
                 </div>
                 <div>
                     <label for="permissions" class="block font-bold mb-3">Chọn quyền</label>
-                    <TreeTable v-model:selectionKeys="eventData.permissions"
-                        :value="ConvertFatherGrpData(dataGetAllPermission)" selectionMode="checkbox"
-                        tableStyle="min-width: 50rem">
+                    <TreeTable v-model:selectionKeys="eventData.permissions" :value="ConvertFatherGrpData(dataGetAllPermission)" selectionMode="checkbox" tableStyle="min-width: 50rem">
                         <Column field="name" header="Tên quyền" expander style="width: 35%"></Column>
                         <Column field="apiPath" header="API" style="width: 40%"></Column>
                         <Column field="module" header="Mô đun"></Column>

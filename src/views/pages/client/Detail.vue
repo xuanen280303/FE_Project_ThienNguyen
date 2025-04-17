@@ -114,7 +114,7 @@
                             </div>
                         </div>
                         <div class="w-full mt-2">
-                            <router-link to="/" class="text-orange-500 text-sm font-semibold underline">Xem sao kê tài khoản -></router-link>
+                            <div @click="printStore.generatePDFImport(detail)" class="text-orange-500 text-sm font-semibold underline cursor-pointer">Xem sao kê tài khoản -></div>
                         </div>
                     </div>
                     <div class="px-5 py-7">
@@ -125,7 +125,7 @@
                                 </div>
                                 <div class="w-full flex flex-col">
                                     <p class="text-gray-500 font-medium">Mục tiêu chiến dịch</p>
-                                    <p class="text-gray-800 font-semibold text-xl">{{ parseNum(detail.goalAmount) }}</p>
+                                    <p class="text-gray-800 font-semibold text-xl">{{ parseNum(detail.goalAmount) }} VNĐ</p>
                                 </div>
                             </div>
                             <div class="w-1/2 flex gap-2">
@@ -150,7 +150,7 @@
                         </div>
                         <div class="w-full mt-6 flex gap-2 items-center justify-between">
                             <span
-                                >Đã đạt được <span class="text-orange-600 font-semibold text-xl">{{ parseNum(detail.currentAmount) }} VND</span></span
+                                >Đã đạt được <span class="text-orange-600 font-semibold text-xl">{{ parseNum(detail.currentAmount) }} VNĐ</span></span
                             >
 
                             <span class="text-gray-800">{{ roundToTwoDecimals((detail.currentAmount / detail.goalAmount) * 100) + '%' }}</span>
@@ -190,7 +190,7 @@
                         <div class="overflow-y-auto max-h-[500px]">
                             <template v-for="(item, index) in userCampaign" :key="index">
                                 <router-link to="/detail/companions/d" class="w-full flex gap-2 items-center mb-4">
-                                    <div class="min-w-[65px] h-[65px] p-1 border-2 border-red-500 rounded-full relative">
+                                    <div class="-min-w-[65px] max-w-[65px] min-h-[65px] max-h-[65px] p-1 border-2 border-red-500 rounded-full relative overflow-hidden aspect-square">
                                         <img :src="item.avatar" alt="" class="w-full h-full object-cover rounded-full" />
                                         <img v-if="index === 0" src="../../../assets/Img/icon/rank1.svg" alt="" class="absolute bottom-0 right-0 w-7 h-7 object-cover" />
                                         <img v-if="index === 1" src="../../../assets/Img/icon/rank2.svg" alt="" class="absolute bottom-0 right-0 w-7 h-7 object-cover" />
@@ -198,7 +198,7 @@
                                     </div>
                                     <div class="w-full flex flex-col gap-1">
                                         <p class="text-gray-800 font-semibold text-base">{{ item.name }}</p>
-                                        <p class="text-gray-700 italic">Đã kêu gọi {{ parseNum(item.amount) }}</p>
+                                        <p class="text-gray-700 italic">Đã kêu gọi {{ parseNum(item.amount) }} VNĐ</p>
                                         <p class="text-gray-500 italic">Ngày bắt đầu: {{ item.startDate }}</p>
                                     </div>
                                 </router-link>
@@ -258,7 +258,7 @@
                         :amount="item.currentAmount || 0"
                         :link="item._id"
                         :progress="(item.currentAmount / item.goalAmount) * 100 || 0"
-                        :supporters="23"
+                        :supporters="item.totalDonors || 0"
                         :daysLeft="Math.ceil((new Date(item.endDate) - new Date()) / (1000 * 60 * 60 * 24))"
                     />
                 </div>
@@ -268,6 +268,7 @@
     <Loading v-if="isLoading" />
 </template>
 <script setup>
+import { usePrintStore } from '@/stores/printStore';
 import { format } from 'date-fns';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -277,69 +278,71 @@ import { linkUploads } from '../../../constant/api';
 import accountService from '../../../service/account.service';
 import apiService from '../../../service/api.service';
 import parseNum from '../../../utils/parseNum';
+
+const printStore = usePrintStore();
 const url = ref(window.location.href);
 const account = accountService.getAccount().account;
 const payment = ref([]);
 const userCampaign = ref([
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
+        avatar: 'https://images.kienthuc.net.vn/zoom/800/uploaded/thutrang/2023_06_25/1/danh-tinh-hai-co-gai-xinh-dep-giau-co-ai-cung-nguong-mo.png',
+        name: 'Trần Minh Châu',
+        amount: 25000000,
         startDate: '24/12/2024'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://phunuvietnam.mediacdn.vn/179072216278405120/2023/2/2/z407811279454704d3b10be2c47b86e5bd170832bde562-16753562253021567389777.jpg',
+        name: 'Nguyễn Duy Quang',
+        amount: 3700000,
+        startDate: '03/01/2025'
     },
     {
-        avatar: 'https://placehold.co/50x50',
+        avatar: 'https://cdn.pixabay.com/photo/2022/10/17/15/02/photography-7527978_1280.jpg',
         name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        amount: 900000,
+        startDate: '09/10/2024'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://cdn-media.sforum.vn/storage/app/media/anh-nguoi-mau-thumb.jpg',
+        name: 'Phạm Chi',
+        amount: 800000,
+        startDate: '05/08/2024'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://cdn.24h.com.vn/upload/4-2020/images/2020-11-11/Nu-sinh-Nhan-van-la-nguoi-mau-anh-tuoi-20-mon-mon-dep-xinh-khong-kem-dich-Le-Nhiet-Ba-107368862_2653859988196507_3262836775669550024_n-1605081022-435-width960height960.jpg',
+        name: 'Mai Hoa',
+        amount: 500000,
+        startDate: '06/06/2024'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://lh6.googleusercontent.com/proxy/nvUkoDhnnMRetCfqa_i_x5XZbB5UGeKTvrNFNG5lKBLIuqO4Rg-Tg_9Zls23OZySB5YUfKn3eYB4eU5M2XorovQwrHfA60BYXOfJTsljQlq7YOPT-EZACZ51-r3CdgZXS429TzN8ew',
+        name: 'Kim Loan Trần',
+        amount: 85000,
+        startDate: '20/02/2025'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://uploads.nguoidothi.net.vn/content/56b553eb-922a-4c4f-80e1-1229ef7594a2.jpg',
+        name: 'Phương Thảo',
+        amount: 800000,
+        startDate: '28/03/2025'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://img.tripi.vn/cdn-cgi/image/width=700,height=700/https://gcs.tripi.vn/public-tripi/tripi-feed/img/474053GiS/anh-avatar-be-gai-cute-nguoi-that_043409747.jpg',
+        name: 'Hương Giang Phạm',
+        amount: 60000,
+        startDate: '16/05/2025'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://gcs.tripi.vn/public-tripi/tripi-feed/img/474026CqT/hinh-anh-nguoi-dep-cho-dien-thoai-9.jpg',
+        name: 'Nguyễn Lê Ngọc Thảo',
+        amount: 50000,
+        startDate: '03/06/2025'
     },
     {
-        avatar: 'https://placehold.co/50x50',
-        name: 'Trần Quốc Anh',
-        amount: 100000000,
-        startDate: '24/12/2024'
+        avatar: 'https://tq1.mediacdn.vn/thumb_w/660/2020/7/9/v2-2850b903c8c007c423210a5a772eacd11440w-15942837525521220309972.jpg',
+        name: 'Hoa Hồng Bạch',
+        amount: 10000,
+        startDate: '30/09/2024'
     }
 ]);
 const isLoading = ref(false);

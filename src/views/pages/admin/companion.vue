@@ -31,7 +31,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
-const eventData = ref({});
+const eventData = ref({ isActive: true });
 const deleteDialog = ref(false);
 const options = ref({
     user: [],
@@ -43,14 +43,14 @@ const valueFilter = ref({
 });
 
 function openEventDialog() {
-    eventData.value = {};
+    eventData.value = { isActive: true };
     submitted.value = false;
     isEventDialog.value = true;
 }
 
 function hideDialog() {
     isEventDialog.value = false;
-    eventData.value = {};
+    eventData.value = { isActive: true };
     submitted.value = false;
     deleteDialog.value = false;
 }
@@ -265,7 +265,7 @@ const getOption = async () => {
 
         <Dialog v-model:visible="isEventDialog" :style="{ width: '900px' }" :modal="true">
             <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData.id ? 'Cập nhật người đồng hành' : 'Thêm mới người đồng hành' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData._id ? 'Cập nhật người đồng hành' : 'Thêm mới người đồng hành' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
 
             <div class="flex flex-col gap-6">

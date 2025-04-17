@@ -66,7 +66,7 @@
                     :amount="item.currentAmount || 0"
                     :link="item._id"
                     :progress="(item.currentAmount / item.goalAmount) * 100 || 0"
-                    :supporters="23"
+                    :supporters="item.totalDonors || 0"
                     :daysLeft="Math.ceil((new Date(item.endDate) - new Date()) / (1000 * 60 * 60 * 24))"
                 />
             </div>
@@ -158,7 +158,7 @@ const handleFilter = () => {
 };
 
 const handlePage = () => {
-    pagination.value.page += 6;
+    pagination.value.pageSize += 6;
     getCategory();
 };
 const handleReset = () => {

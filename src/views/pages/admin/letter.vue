@@ -256,12 +256,12 @@ const UploadFileLocal = async (event) => {
                 <Column field="title" header="Tiêu đề" style="min-width: 15rem"></Column>
                 <Column field="user" header="Người nhận" style="min-width: 15rem">
                     <template #body="{ data }">
-                        {{ data.user.name }}
+                        {{ data.user?.name }}
                     </template>
                 </Column>
                 <Column header="Người gửi" style="min-width: 15rem">
                     <template #body="{ data }">
-                        {{ data.type == 'CN' ? data.userSent.name : data.organization.name }}
+                        {{ data.type == 'CN' ? data.userSent?.name : data.organization?.name }}
                     </template>
                 </Column>
 

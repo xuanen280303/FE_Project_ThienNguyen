@@ -29,7 +29,9 @@ const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
-const eventData = ref({});
+const eventData = ref({
+    isActive: true
+});
 const dataFileInput = ref(null);
 const dataFileInputs = ref([]);
 const deleteDialog = ref(false);
@@ -52,7 +54,9 @@ const dataGetAllOption = ref({
 });
 
 function openEventDialog() {
-    eventData.value = {};
+    eventData.value = {
+        isActive: true
+    };
     submitted.value = false;
     isEventDialog.value = true;
 }
@@ -63,7 +67,9 @@ function hideDialog() {
     dataFileInput.value = null;
     inputDatas.value = [];
     inputData.value = null;
-    eventData.value = {};
+    eventData.value = {
+        isActive: true
+    };
     submitted.value = false;
     deleteDialog.value = false;
 }
@@ -178,7 +184,7 @@ const uploadFile = async () => {
 async function saveData() {
     submitted.value = true;
     const { address, province, district, ward } = eventData.value;
-    const mergeLocation = address + ', ' + ward?.name + ', ' + district?.name + ', ' + province?.name;
+    const mergeLocation = [address, ward?.name, district?.name, province?.name].filter((item) => item && item.trim()).join(', ');
     eventData.value.detailAddress = mergeLocation;
     if (!validate()) {
         return;
@@ -477,7 +483,7 @@ const removeImageList = (index) => {
 
         <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
             <template #header>
-                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?.id ? 'Cập nhật dự án' : 'Thêm mới dự án' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
+                <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?._id ? 'Cập nhật dự án' : 'Thêm mới dự án' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
             </template>
             <div class="w-full flex gap-6 mb-4">
                 <div class="w-1/5">
