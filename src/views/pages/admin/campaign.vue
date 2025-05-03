@@ -75,6 +75,14 @@ const uploadFile = async () => {
 
 async function saveData() {
     submitted.value = true;
+    if (!eventData.value.image) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Ảnh chiến dịch là bắt buộc', life: 3000 });
+        return;
+    }
+    if (!eventData.value.name) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Tên chiến dịch là bắt buộc', life: 3000 });
+        return;
+    }
     isLoadingData.value = true;
     try {
         await uploadFile();
@@ -279,7 +287,7 @@ const UploadFileLocal = async (event) => {
             </template>
             <div class="flex flex-col gap-4">
                 <div>
-                    <label class="block font-bold mb-1">Ảnh chiến dịch</label>
+                    <label class="block font-bold mb-1">Ảnh chiến dịch <span class="text-red-500">*</span></label>
                     <div class="relative group w-full h-[200px] border border-orange-500 overflow-hidden rounded-lg cursor-pointer" @click="$refs.fileInput.click()">
                         <img :src="imageData || (eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/400x200')" alt="image" class="w-full h-full object-contain" />
                         <div class="absolute bottom-0 right-0 bg-white/40 w-full h-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -287,11 +295,13 @@ const UploadFileLocal = async (event) => {
                         </div>
                     </div>
                     <input ref="fileInput" type="file" @change="UploadFileLocal" accept="image/*" class="hidden" />
+                    <span class="text-red-500" v-if="submitted && !eventData.image">Ảnh chiến dịch là bắt buộc</span>
                 </div>
 
                 <div>
-                    <label for="name" class="block font-bold mb-1">Tên chiến dịch</label>
-                    <InputText id="name" v-model="eventData.name" required="true" autofocus fluid placeholder="Tên chiến dịch" />
+                    <label for="name" class="block font-bold mb-1">Tên chiến dịch <span class="text-red-500">*</span></label>
+                    <InputText id="name" v-model="eventData.name" required="true" autofocus fluid placeholder="Tên chiến dịch" :invalid="submitted && !eventData.name" />
+                    <span class="text-red-500" v-if="submitted && !eventData.name">Tên chiến dịch là bắt buộc</span>
                 </div>
 
                 <div>

@@ -30,7 +30,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(false);
 const submitted = ref(false);
 const isEventDialog = ref(false);
-const eventData = ref({isActive:true});
+const eventData = ref({ isActive: true });
 const dataFileInput = ref(null);
 const deleteDialog = ref(false);
 const valueFilter = ref({
@@ -42,14 +42,14 @@ const dataGetAllOption = ref({
     role: []
 });
 function openEventDialog() {
-    eventData.value = {isActive:true};
+    eventData.value = { isActive: true };
     submitted.value = false;
     isEventDialog.value = true;
 }
 
 function hideDialog() {
     isEventDialog.value = false;
-    eventData.value = {isActive:true};
+    eventData.value = { isActive: true };
     submitted.value = false;
     deleteDialog.value = false;
 }
@@ -65,6 +65,38 @@ const validate = () => {
     if (!phoneRegex.test(eventData.value.phoneNumber)) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Số điện thoại bắt đầu bằng số 0 và có 10-11 chữ số', life: 5000 });
         return false;
+    }
+
+    const nameRegex = /^[a-zA-Z\sÀ-ỹ]+$/;
+    if (!nameRegex.test(eventData.value.name)) {
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Tên người dùng chỉ được nhập chữ cái', life: 5000 });
+        return false;
+    }
+    // Validate YouTube link
+    if (eventData.value.linkYoutube) {
+        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+        if (!youtubeRegex.test(eventData.value.linkYoutube)) {
+            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Link Youtube không hợp lệ', life: 5000 });
+            return false;
+        }
+    }
+
+    // Validate Facebook link
+    if (eventData.value.linkFacebook) {
+        const facebookRegex = /^(https?:\/\/)?(www\.)?(facebook|fb)\.com\/.+/;
+        if (!facebookRegex.test(eventData.value.linkFacebook)) {
+            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Link Facebook không hợp lệ', life: 5000 });
+            return false;
+        }
+    }
+
+    // Validate TikTok link
+    if (eventData.value.linkTiktok) {
+        const tiktokRegex = /^(https?:\/\/)?(www\.)?(tiktok\.com)\/.+/;
+        if (!tiktokRegex.test(eventData.value.linkTiktok)) {
+            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Link TikTok không hợp lệ', life: 5000 });
+            return false;
+        }
     }
 
     return true;
