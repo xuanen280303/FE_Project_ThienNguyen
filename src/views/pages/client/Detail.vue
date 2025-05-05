@@ -315,7 +315,7 @@ const userCampaign = ref([
         startDate: '06/06/2024'
     },
     {
-        avatar: 'https://lh6.googleusercontent.com/proxy/nvUkoDhnnMRetCfqa_i_x5XZbB5UGeKTvrNFNG5lKBLIuqO4Rg-Tg_9Zls23OZySB5YUfKn3eYB4eU5M2XorovQwrHfA60BYXOfJTsljQlq7YOPT-EZACZ51-r3CdgZXS429TzN8ew',
+        avatar: 'https://kiddo.vn/wp-content/uploads/2024/02/anh-em-be-han-quoc-cute-dang-yeu-vo-tu-cung-muon-xiu-1051.jpg',
         name: 'Kim Loan Trần',
         amount: 85000,
         startDate: '20/02/2025'

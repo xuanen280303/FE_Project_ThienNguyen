@@ -472,7 +472,7 @@ const removeImageList = (index) => {
                     </template>
                 </Column>
 
-                <Column :exportable="false" style="min-width: 8rem" frozen alignFrozen="right">
+                <Column :exportable="false" style="min-width: 10rem" frozen alignFrozen="right">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />

@@ -372,7 +372,7 @@ const getOptionsUser = (users, currentIndex) => {
                         <img :src="slotProps.data.avatar ? linkUploads(slotProps.data.avatar) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
                     </template>
                 </Column>
-                <Column field="name" header="Tên người dùng" style="min-width: 13rem"></Column>
+                <Column field="name" header="Tên tổ chức" style="min-width: 13rem"></Column>
                 <Column field="email" header="Email" style="min-width: 10rem"> </Column>
                 <Column field="phoneNumber" header="Số điện thoại" style="min-width: 9rem"> </Column>
                 <Column header="Thành viên" style="min-width: 9rem">
@@ -389,7 +389,7 @@ const getOptionsUser = (users, currentIndex) => {
                     </template>
                 </Column>
 
-                <Column :exportable="false" style="min-width: 7rem">
+                <Column :exportable="false" style="min-width: 8rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
