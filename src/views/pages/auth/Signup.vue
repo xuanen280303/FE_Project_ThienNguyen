@@ -2,72 +2,94 @@
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import accountService from '../../../service/account.service';
 import apiService from '../../../service/api.service';
-import tokenService from '../../../service/token.service';
 
 const toast = useToast();
 const router = useRouter();
-const dataLogin = ref({
-    username: '',
-    password: ''
+const dataRegister = ref({
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: ''
 });
 
-const checked = ref(false);
 const isLoading = ref(false);
 const submitted = ref(false);
 const fadeIn = ref(false);
-
-onMounted(async () => {
-    fadeIn.value = true;
-    const token = await tokenService.getToken();
-    if (token.storage) {
-        router.push('/');
-    }
-});
 
 const validateEmail = (value) => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(value);
 };
+
 const validate = () => {
-    const { username, password } = dataLogin.value;
-    if (!username || !password) {
+    const { email, password, name } = dataRegister.value;
+
+    if (!name) {
+        toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: 'Vui lòng nhập họ tên', life: 3000 });
+        return true;
+    }
+
+    if (!email) {
+        toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: 'Vui lòng nhập email', life: 3000 });
+        return true;
+    }
+
+    if (!validateEmail(email)) {
         toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: 'Vui lòng nhập địa chỉ email hợp lệ', life: 3000 });
         return true;
     }
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Biểu thức chính quy để kiểm tra định dạng email
-    if (!emailPattern.test(username)) {
-        toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: 'Vui lòng nhập địa chỉ email hợp lệ', life: 3000 });
-        return true; // Trả về true nếu có lỗi
+    if (!password) {
+        toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: 'Vui lòng nhập mật khẩu', life: 3000 });
+        return true;
     }
 
-    return false; // Trả về false nếu không có lỗi
+    if (password.length < 6) {
+        toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: 'Mật khẩu phải có ít nhất 6 ký tự', life: 3000 });
+        return true;
+    }
+
+    if (password !== dataRegister.value.password_confirmation) {
+        toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: 'Mật khẩu không khớp', life: 3000 });
+        return true;
+    }
+
+    return false;
 };
-const handleLogin = async () => {
+
+const handleRegister = async () => {
     isLoading.value = true;
     submitted.value = true;
+
     if (validate()) {
         isLoading.value = false;
         return;
     }
+
     try {
-        const res = await apiService.post('auth/login', dataLogin.value);
+        const registerData = {
+            email: dataRegister.value.email,
+            password: dataRegister.value.password,
+            name: dataRegister.value.name
+        };
+
+        const res = await apiService.post('auth/register', registerData);
         if (res.data) {
-            tokenService.createToken(res.data.access_token, checked.value);
-            await accountService.createAccount(checked.value);
-            toast.add({ severity: 'success', summary: 'Thành công', detail: 'Đăng nhập thành công', life: 3000 });
-            router.push('/');
+            toast.add({ severity: 'success', summary: 'Thành công', detail: 'Đăng ký thành công', life: 3000 });
+            router.push('/login');
         }
     } catch (error) {
         console.log(error);
-        // toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: error.response.data.message, life: 3000 });
+        toast.add({
+            severity: 'error',
+            summary: 'Thông báo lỗi',
+            detail: error.response?.data?.message || 'Đã có lỗi xảy ra khi đăng ký',
+            life: 3000
+        });
     } finally {
-        submitted.value = true;
-
         isLoading.value = false;
     }
 };
@@ -98,38 +120,45 @@ const handleLogin = async () => {
 
         <div class="flex flex-col items-center justify-center" :class="{ 'fade-in': fadeIn }">
             <div class="login-card-wrapper" style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
-                <div class="login-card w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+                <div class="login-card w-full bg-surface-0 dark:bg-surface-900 py-10 px-8 sm:px-20" style="border-radius: 53px">
                     <div class="text-center mb-8">
                         <img src="/Image/favicon.png" alt="" class="logo-animation mb-8 w-16 shrink-0 mx-auto" />
 
                         <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4 title-animation">Chào mừng bạn tới Thiện Nguyện</div>
-                        <span class="text-muted-color font-medium subtitle-animation">Trang đăng nhập</span>
+                        <span class="text-muted-color font-medium subtitle-animation">Trang đăng ký</span>
                     </div>
 
                     <div class="flex flex-col form-animation">
-                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email1" type="text" placeholder="Vui lòng nhập địa chỉ Email..." class="w-full md:w-[30rem] input-hover" v-model="dataLogin.username" />
-                        <span class="mb-8">
-                            <small class="text-red-500" v-if="submitted && !dataLogin.username">Vui lòng nhập email</small>
-                            <small class="text-red-500" v-if="!validateEmail(dataLogin.username) && dataLogin.username">Vui lòng nhập đúng định dạng email</small>
+                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-lg font-medium mb-1">Họ và tên</label>
+                        <InputText id="email1" type="text" placeholder="Vui lòng nhập họ và tên..." class="w-full md:w-[30rem] input-hover" v-model="dataRegister.name" />
+                        <span class="mb-4">
+                            <small class="text-red-500" v-if="submitted && !dataRegister.name">Vui lòng nhập họ và tên</small>
+                        </span>
+                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-lg font-medium mb-1">Email</label>
+                        <InputText id="email1" type="text" placeholder="Vui lòng nhập địa chỉ Email..." class="w-full md:w-[30rem] input-hover" v-model="dataRegister.email" />
+                        <span class="mb-4">
+                            <small class="text-red-500" v-if="submitted && !dataRegister.email">Vui lòng nhập email</small>
+                            <small class="text-red-500" v-if="!validateEmail(dataRegister.email) && dataRegister.email">Vui lòng nhập đúng định dạng email</small>
                         </span>
 
-                        <label for="Password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Mật khẩu</label>
-                        <Password id="password1" v-model="dataLogin.password" placeholder="Vui lòng nhập mật khẩu..." :toggleMask="true" class="mb-4 input-hover" fluid :feedback="false" />
+                        <label for="Password1" class="block text-surface-900 dark:text-surface-0 font-medium text-lg mb-1">Mật khẩu</label>
+                        <Password id="password1" v-model="dataRegister.password" placeholder="Vui lòng nhập mật khẩu..." :toggleMask="true" class="input-hover" fluid :feedback="false" />
+                        <span class="mb-4">
+                            <small class="text-red-500" v-if="submitted && !dataRegister.password">Vui lòng nhập mật khẩu</small>
+                            <small class="text-red-500" v-if="dataRegister.password && dataRegister.password.length < 6">Mật khẩu phải có ít nhất 6 ký tự</small>
+                        </span>
+                        <label for="Password1" class="block text-surface-900 dark:text-surface-0 font-medium text-lg mb-1">Nhập lại mật khẩu</label>
+                        <Password id="password1" v-model="dataRegister.password_confirmation" placeholder="Vui lòng nhập lại mật khẩu..." :toggleMask="true" class="input-hover" fluid :feedback="false" />
+                        <span class="mb-8">
+                            <small class="text-red-500" v-if="submitted && !dataRegister.password_confirmation">Vui lòng nhập mật khẩu</small>
+                            <small class="text-red-500" v-if="dataRegister.password !== dataRegister.password_confirmation">Mật khẩu không khớp</small>
+                        </span>
 
-                        <div class="flex items-center justify-between mt-2 mb-8 gap-8">
-                            <div class="flex items-center hover-effect">
-                                <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
-                                <label for="rememberme1">Nhớ tài khoản</label>
-                            </div>
-                            <span class="forgot-password font-medium no-underline ml-2 text-right cursor-pointer">Quên mật khẩu?</span>
-                        </div>
-
-                        <Button label="Đăng nhập" class="login-button w-full" @click="handleLogin" :loading="isLoading"></Button>
+                        <Button label="Đăng ký" class="login-button w-full" @click="handleRegister" :loading="isLoading"></Button>
 
                         <div class="flex justify-center gap-2 mt-2 signup-link">
-                            <p>Bạn chưa có tài khoản?</p>
-                            <router-link to="/signup" class="text-orange-600 hover:font-medium hover:shadow-orange-400">Đăng ký ngay</router-link>
+                            <p>Bạn đã có tài khoản?</p>
+                            <router-link to="/login" class="text-orange-600 hover:font-medium hover:shadow-orange-400">Đăng nhập ngay</router-link>
                         </div>
                     </div>
                 </div>

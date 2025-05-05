@@ -101,7 +101,7 @@ const valueFilter = ref({
     status: 'CXN',
     sort: false,
     type: '',
-    campaign: router.params.id
+    campaign: router.params?.id
 });
 const keySearch = ref('');
 const optionStatus = ref([
@@ -163,7 +163,7 @@ const handlePage = () => {
 };
 const handleReset = () => {
     valueFilter.value = {
-        status: '',
+        status: 'CXN',
         sort: false,
         type: '',
         campaign: router.params.id

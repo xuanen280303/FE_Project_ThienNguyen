@@ -3,10 +3,15 @@
         <div class="flex justify-between mt-10 gap-5">
             <div class="w-[62%]">
                 <h2 class="text-[25px] font-medium text-gray-800 mb-3">{{ detail.name }}</h2>
-                <div class="w-full shadow-lg rounded-2xl overflow-hidden">
+                <div class="w-full shadow-lg rounded-2xl overflow-hidden relative">
                     <Galleria :value="detail.listImage" :responsiveOptions="responsiveOptions" :numVisible="5" :circular="true" containerStyle="w-full">
                         <template #item="slotProps">
-                            <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" class="w-[90%] object-contain rounded-2xl" />
+                            <div class="relative">
+                                <div class="absolute bottom-5 left-5 z-50 bg-primary-400 p-2 rounded-xl text-white text-sm font-medium">
+                                    {{ detail.campaign?.name }}
+                                </div>
+                                <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" class="w-full object-contain rounded-2xl" />
+                            </div>
                         </template>
                         <template #thumbnail="slotProps">
                             <img :src="linkUploads(slotProps.item)" :alt="slotProps.item" style="width: 90%; display: block; border-radius: 5px; height: 100px" />
@@ -217,7 +222,7 @@
                     <div class="px-5 pt-7 py-7 border-b-4 border-gray-200">
                         <h2 class="text-gray-700 font-semibold text-lg">Thông tin người vận động</h2>
                     </div>
-                    <div class="px-5 py-7">
+                    <div class="px-5 py-7" v-if="detail?.type == 'TC'">
                         <div class="w-full flex gap-2 mb-2">
                             <div class="max-w-20 max-h-20 min-w-20 min-h-20">
                                 <img :src="detail?.organization?.avatar ? linkUploads(detail?.organization?.avatar) : 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
@@ -225,7 +230,7 @@
                             <div class="w-full flex flex-col gap-1">
                                 <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail?.organization?.name }} </router-link>
                                 <div>
-                                    <span class="text-white font-medium bg-orange-400 rounded-full px-2 py-1 text-sm">{{ detail?.organization?.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }}</span>
+                                    <span class="text-white font-medium bg-orange-400 rounded-full px-2 py-1 text-sm">{{ detail?.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -238,6 +243,24 @@
                         <a :href="`${detail?.organization?.facebook}`" target="_blank" class="w-full flex gap-2 mt-3" v-if="detail?.organization?.facebook"
                             ><img src="../../../assets/Img/icon/fb.svg" alt="" class="w-6 h-6" /> {{ detail?.organization?.facebook }}</a
                         >
+                    </div>
+                    <div class="px-5 py-7" v-else>
+                        <div class="w-full flex gap-2 mb-2">
+                            <div class="max-w-20 max-h-20 min-w-20 min-h-20">
+                                <img :src="detail?.user?.avatar ? linkUploads(detail?.user?.avatar) : 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
+                            </div>
+                            <div class="w-full flex flex-col gap-1">
+                                <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail?.user?.name }} </router-link>
+                                <div>
+                                    <span class="text-white font-medium bg-orange-400 rounded-full px-2 py-1 text-sm">{{ detail?.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a :href="`tel:${detail?.user?.phoneNumber}`" target="_blank" class="w-full flex gap-2 mt-5" v-if="detail?.user?.phoneNumber"
+                            ><img src="../../../assets/Img/icon/phone.svg" alt="" class="w-6 h-6" /> {{ detail?.user?.phoneNumber }}</a
+                        >
+                        <a :href="`mailto:${detail?.user?.email}`" target="_blank" class="w-full flex gap-2 mt-5" v-if="detail?.user?.email"><img src="../../../assets/Img/icon/gmail.svg" alt="" class="w-6 h-6" /> {{ detail?.user?.email }}</a>
+                        <a :href="`${detail?.user?.facebook}`" target="_blank" class="w-full flex gap-2 mt-3" v-if="detail?.user?.facebook"><img src="../../../assets/Img/icon/fb.svg" alt="" class="w-6 h-6" /> {{ detail?.user?.facebook }}</a>
                     </div>
                 </div>
             </div>

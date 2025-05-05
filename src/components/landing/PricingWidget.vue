@@ -1,3 +1,9 @@
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+</script>
+
 <template>
     <div class="w-[95%] lg:w-[80%] mx-auto my-6 lg:my-20">
         <div class="flex justify-between mb-6 items-end">
@@ -84,7 +90,7 @@
     </div>
     <div class="mt-20 bg-[#F5F5F5] py-10">
         <div class="w-[95%] lg:w-[80%] flex mx-auto gap-6 justify-center">
-            <Button label="Khám phá chiến dịch" class="h-[50px] !text-xl !rounded-2xl w-60" :pt:label:class="'!font-semibold'"> </Button>
+            <Button label="Khám phá chiến dịch" @click="router.push('/category')" class="h-[50px] !text-xl !rounded-2xl w-60" :pt:label:class="'!font-semibold'"> </Button>
             <Button label="Bắt đầu gây quỹ " class="h-[50px] !text-xl !rounded-2xl !bg-[#3841EB] !border-0 w-60" :pt:label:class="'!font-semibold'"> </Button>
         </div>
     </div>
