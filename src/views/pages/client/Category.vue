@@ -166,7 +166,7 @@ const handleReset = () => {
         status: 'CXN',
         sort: false,
         type: '',
-        campaign: router.params.id
+        campaign: ''
     };
     keySearch.value = '';
     handleFilter();

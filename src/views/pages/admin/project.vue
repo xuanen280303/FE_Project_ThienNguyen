@@ -36,6 +36,7 @@ const dataFileInput = ref(null);
 const dataFileInputs = ref([]);
 const deleteDialog = ref(false);
 const valueFilter = ref({
+    status: '',
     isActive: null,
     sort: false
 });
@@ -335,6 +336,13 @@ const removeImage = (index) => {
 const removeImageList = (index) => {
     eventData.value.listImage.splice(index, 1);
 };
+
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 2 }).format(value);
+};
+const formatPercent = (value) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 2 }).format(value);
+};
 </script>
 
 <template>
@@ -344,10 +352,12 @@ const removeImageList = (index) => {
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="Thêm" icon="pi pi-plus" class="mr-2" @click="openEventDialog" />
+                    <Button label="Thêm mới" icon="pi pi-plus" class="mr-2" @click="openEventDialog" />
                 </template>
 
                 <template #end>
+                    <Select v-model="valueFilter.status" placeholder="Tất cả" @change="handleFilter" class="mr-2" :options="[{ label: 'Tất cả', value: '' }, ...valueStatus]" optionLabel="label" optionValue="value" autofocus />
+
                     <Select
                         v-model="valueFilter.isActive"
                         :options="[
@@ -446,6 +456,24 @@ const removeImageList = (index) => {
                     <template #body="slotProps">
                         {{ getStatus(slotProps.data.status) }}
                     </template>
+                </Column>
+                <Column field="currentAmount" header="Tiền đạt được" style="min-width: 7rem">
+                    <template #body="slotProps">
+                        {{ formatCurrency(slotProps.data?.currentAmount || 0) }}
+                    </template>
+                </Column>
+                <Column field="goalAmount" header="Tiền mục tiêu" style="min-width: 7rem">
+                    <template #body="slotProps">
+                        {{ formatCurrency(slotProps.data?.goalAmount || 0) }}
+                    </template>
+                </Column>
+                <Column field="percent" header="Tiến độ dự án" style="min-width: 7rem">
+                    <template #body="slotProps">{{ formatPercent((slotProps.data?.currentAmount / slotProps.data?.goalAmount) * 100 || 0) }}% </template>
+                </Column>
+                <Column field="percent" header="Số ngày còn lại" style="min-width: 7rem">
+                    <template #body="slotProps">{{
+                        Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24)) <= 0 ? 'Đã kết thúc' : Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24)) + ' ngày'
+                    }}</template>
                 </Column>
                 <Column field="startDate" header="Ngày bắt đầu" style="min-width: 12rem">
                     <template #body="slotProps">

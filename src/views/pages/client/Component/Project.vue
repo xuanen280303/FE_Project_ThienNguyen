@@ -189,12 +189,14 @@
 
             <Column :exportable="false" style="min-width: 8rem" frozen alignFrozen="right">
                 <template #body="slotProps">
-                    <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
-                    <Button icon="pi pi-external-link" outlined rounded class="mr-2" @click="() => router.push(`/detail/${slotProps.data._id}`)" v-tooltip="'Tới link chiến dịch'" />
+                    <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Xem chi tiết'" />
+                    <Button icon="pi pi-external-link" outlined rounded class="mr-2" @click="() => router.push(`/detail/${slotProps.data._id}`)" v-tooltip="'Link dự án'" />
                 </template>
             </Column>
         </DataTable>
     </div>
+
+    <!-- Dialog gửi thư cảm ơn -->
     <Dialog v-model:visible="isEventLetterDialog" :style="{ width: '1200px' }" :modal="true">
         <template #header>
             <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">Gửi thư cảm ơn</h4>
@@ -231,6 +233,8 @@
             <Button label="Gửi đi" icon="pi pi-check" @click="saveData" :loading="isLoadingData" />
         </template>
     </Dialog>
+
+    <!-- Dialog xem chi tiết dự án -->
     <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
         <template #header>
             <h4 class="m-0 text-xl font-bold">Chi tiết dự án</h4>
@@ -322,6 +326,7 @@
             <Button label="Đóng" icon="pi pi-times" text @click="hideDialog" />
         </template>
     </Dialog>
+
     <Loading v-if="isLoading" />
 </template>
 
@@ -485,7 +490,8 @@ const getStatusDonation = (status) => {
             return status;
     }
 };
-//Xử lý letter
+
+//-------------Xử lý letter------------------------
 const sendThankYouLetter = (data) => {
     eventDataLetter.value = {
         user: data.user?._id,
@@ -548,9 +554,9 @@ const exportDataDetail = async (project) => {
         return;
     }
 
+    //------------------------------------FORMAT file excel-----------------------------------
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sao kê chi tiết quyên góp dự án');
-
     // Thêm tiêu đề
     const titleRow = worksheet.addRow(['PHIẾU SAO KÊ']);
     titleRow.font = { name: 'Arial', size: 20, bold: true };

@@ -212,7 +212,7 @@ const UploadFileLocal = async (event) => {
                                 v-model="valueFilter.byUser"
                                 :options="[
                                     { label: 'Thư gửi đi', value: true },
-                                    { label: 'Thư được nhận', value: false }
+                                    { label: 'Thư nhận được', value: false }
                                 ]"
                                 placeholder="Tất cả"
                                 optionLabel="label"
