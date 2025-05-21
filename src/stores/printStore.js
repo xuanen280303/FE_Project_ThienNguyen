@@ -95,12 +95,12 @@ export const usePrintStore = defineStore('PrintStore', () => {
             doc.setFontSize(13);
             doc.setFont('Times New Roman', 'bold');
 
-            // Thông tin phiếu - cách logo 40mm
+            // Thông tin phiếu - cách logo 30mm
             const infoStartY = margin.top + 30;
             const lineHeight = 8; // Khoảng cách giữa các dòng
             doc.text(doc.splitTextToSize(`Dự án: ${project.name}`, printWidth), margin.left, infoStartY);
-            doc.setFont('Times New Roman', 'normal');
 
+            doc.setFont('Times New Roman', 'normal');
             doc.text(doc.splitTextToSize(`Chiến dịch: ${project.campaign?.name}`, printWidth), margin.left, infoStartY + lineHeight);
             doc.text(doc.splitTextToSize(`Người/tổ chức kêu gọi: ${project.type == 'CN' ? project.user?.name : project.organization?.name}`, printWidth), margin.left, infoStartY + lineHeight * 2);
             doc.text(doc.splitTextToSize(`Ngày bắt đầu: ${format(project.startDate, 'dd/MM/yyyy')}`, printWidth / 2), margin.left, infoStartY + lineHeight * 3);

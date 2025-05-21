@@ -33,7 +33,7 @@ onBeforeMount(async () => {
 
 <template>
     <Loading v-if="isLoading" />
-
+    <!------------------- Sắp xếp bố cục thống kê --------------------->
     <div class="grid grid-cols-12 gap-8">
         <StatsWidget :count="count" :newCount="newCount" />
 

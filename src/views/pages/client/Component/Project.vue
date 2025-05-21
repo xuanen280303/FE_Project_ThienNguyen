@@ -40,7 +40,7 @@
                             class="mr-2"
                         />
 
-                        <Button label="Làm mới" icon="pi pi-refresh" severity="secondary" @click="getAll" class="mr-2" />
+                        <Button label="Làm mới" icon="pi pi-refresh" severity="secondary" @click="resetFilter" class="mr-2" />
                         <Button
                             v-if="valueFilter.sort"
                             label="Mới nhất"
@@ -388,8 +388,7 @@ const eventData = ref({});
 
 const valueFilter = ref({
     isActive: null,
-    sort: false,
-    user: account?._id
+    sort: false
 });
 
 function hideDialog() {
@@ -412,25 +411,46 @@ function getDataDetail(prod) {
     isEventDialog.value = true;
 }
 
+const resetFilter = () => {
+    valueFilter.value = {
+        isActive: null,
+        sort: false,
+        user: account?._id
+    };
+    getAll();
+};
+// Hàm lấy tất cả dữ liệu dự án
 const getAll = async () => {
+    // Bật trạng thái loading
     isLoadingData.value = true;
+
+    // Xử lý điều kiện lọc từ valueFilter
     const conditions = Object.entries(valueFilter.value)
+        // Lọc bỏ các giá trị null
         .filter(([key, value]) => value !== null)
+        // Chuyển đổi thành chuỗi query params
         .map(([key, value]) => {
+            // Xử lý đặc biệt cho trường sort
             if (key === 'sort') {
-                return `sort=${value ? 'createdAt' : '-createdAt'}`;
+                return `sort=${value ? 'createdAt' : '-createdAt'}`; // Sắp xếp theo thời gian tạo
             }
             return `${key}=${value}`;
         });
 
+    // Nối các điều kiện lọc thành chuỗi
     const filter = conditions.join(',');
+
     try {
-        const res = await apiService.get(urlApi + '?page=' + pagination.value.page + '&pageSize=' + pagination.value.pageSize + (keySearch.value ? '&search=' + keySearch.value : '') + (filter ? '&filter=' + filter : ''));
+        // Gọi API lấy dữ liệu với các tham số phân trang, tìm kiếm và lọc
+        const res = await apiService.get(urlApi + '/user?page=' + pagination.value.page + '&pageSize=' + pagination.value.pageSize + (keySearch.value ? '&search=' + keySearch.value : '') + (filter ? '&filter=' + filter : ''));
+        // Cập nhật dữ liệu và tổng số bản ghi
         valueData.value = res.data.items;
         pagination.value.total = res.data.total;
     } catch (error) {
+        // Hiển thị thông báo lỗi nếu có
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data?.message || 'Lỗi không xác định từ get all', life: 3000 });
     } finally {
+        // Tắt trạng thái loading
         isLoadingData.value = false;
     }
 };
@@ -458,6 +478,7 @@ const handlePage = (event) => {
 };
 
 const handleFilter = () => {
+    //Phân trang mặc định là trang 1
     pagination.value.page = 1;
     getAll();
 };
@@ -537,7 +558,8 @@ async function saveData() {
         isEventLetterDialog.value = false;
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
-    } finally {
+    }
+    finally {
         isLoadingData.value = false;
     }
 }
@@ -570,6 +592,7 @@ const exportDataDetail = async (project) => {
     columns.forEach((col) => {
         worksheet.getColumn(col).width = 20;
     });
+
     const projectInfo = [
         ['Dự án: ' + project.name],
         ['Chiến dịch: ' + project.campaign?.name],

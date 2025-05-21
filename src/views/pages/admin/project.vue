@@ -75,6 +75,7 @@ function hideDialog() {
     deleteDialog.value = false;
 }
 
+//-------------------- Sửa dự án admin-------------------- (2)
 function getDataDetail(prod) {
     eventData.value = {
         ...prod,
@@ -182,6 +183,7 @@ const uploadFile = async () => {
     }
 };
 
+//-------------- Lưu dữ liệu dự án Admin khi sửa hoặc thêm mới (5)-----------------
 async function saveData() {
     submitted.value = true;
     const { address, province, district, ward } = eventData.value;
@@ -469,12 +471,7 @@ const formatPercent = (value) => {
                 </Column>
                 <Column field="percent" header="Tiến độ dự án" style="min-width: 7rem">
                     <template #body="slotProps">{{ formatPercent((slotProps.data?.currentAmount / slotProps.data?.goalAmount) * 100 || 0) }}% </template>
-                </Column>
-                <Column field="percent" header="Số ngày còn lại" style="min-width: 7rem">
-                    <template #body="slotProps">{{
-                        Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24)) <= 0 ? 'Đã kết thúc' : Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24)) + ' ngày'
-                    }}</template>
-                </Column>
+                </Column>    
                 <Column field="startDate" header="Ngày bắt đầu" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{
@@ -482,13 +479,16 @@ const formatPercent = (value) => {
                         }}
                     </template>
                 </Column>
-
                 <Column field="endDate" header="Ngày kết thúc" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{ slotProps.data.endDate ? format(slotProps.data.endDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.endDate, 'HH:mm') : '--' }}
                     </template>
                 </Column>
-
+                <Column field="percent" header="Số ngày còn lại" style="min-width: 7rem">
+                    <template #body="slotProps">{{
+                        Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24)) <= 0 ? 'Đã kết thúc' : Math.ceil((new Date(slotProps.data.endDate) - new Date()) / (1000 * 60 * 60 * 24)) + ' ngày'
+                    }}</template>
+                </Column>
                 <Column field="createdAt" header="Ngày tạo" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{ format(slotProps.data.createdAt, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.createdAt, 'HH:mm') }}
@@ -499,9 +499,9 @@ const formatPercent = (value) => {
                         {{ slotProps.data.isActive ? 'Hoạt động' : 'Không hoạt động' }}
                     </template>
                 </Column>
-
                 <Column :exportable="false" style="min-width: 10rem" frozen alignFrozen="right">
                     <template #body="slotProps">
+                        <!--------------- Sửa dự án ADMIN (1) --------------------->
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
@@ -509,6 +509,7 @@ const formatPercent = (value) => {
             </DataTable>
         </div>
 
+        <!---------------------- Sửa dự án admin (3) ------------------>
         <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?._id ? 'Cập nhật dự án' : 'Thêm mới dự án' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>
@@ -703,7 +704,7 @@ const formatPercent = (value) => {
                                 :invalid="submitted && !eventData.organization"
                                 filter
                                 fluid
-                                placeholder="Vui lòng chọn tổ chức kêu gọi"
+                                placeholder="Vui lòng chọn cá nhân kêu gọi"
                             />
                             <Select
                                 v-else

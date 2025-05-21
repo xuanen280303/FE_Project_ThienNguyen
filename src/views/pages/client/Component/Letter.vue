@@ -115,7 +115,7 @@ const getAll = async () => {
                 return `sort=${value ? 'createdAt' : '-createdAt'}`;
             }
             if (key === 'byUser') {
-                if (value) {
+                if (value === true) {
                     return `createdBy._id=${account._id}`;
                 } else {
                     return `user=${account._id}`;
