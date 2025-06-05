@@ -2,7 +2,7 @@
 import DetailProject from '@/components/DetailProject.vue';
 import { format } from 'date-fns';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Loading from '../../../components/Loading.vue';
 import RichTextEditor from '../../../components/RichTextEditor.vue';
 import { linkUploads } from '../../../constant/api';
@@ -55,12 +55,44 @@ const dataGetAllOption = ref({
     ]
 });
 
+const valueStatus = ref([
+    { label: 'Chờ xác nhận', value: 'CXN' },
+    { label: 'Đang thực hiện', value: 'DTH' },
+    { label: 'Đạt mục tiêu', value: 'DMT' },
+    { label: 'Đã kết thúc', value: 'DKT' },
+    { label: 'Tạm dừng', value: 'TD' }
+]);
+
+const originalStatus = ref(null);
+
+const filteredStatusOptions = computed(() => {
+    // Nếu chưa có trạng thái ban đầu, trả về tất cả options
+    if (!originalStatus.value) return valueStatus.value;
+
+    // Nếu đang ở trạng thái Đạt mục tiêu hoặc Đã kết thúc, chỉ cho phép chọn trạng thái đó
+    if (originalStatus.value === 'DMT' || originalStatus.value === 'DKT') {
+        return valueStatus.value.filter((option) => option.value === originalStatus.value);
+    }
+
+    // Nếu đang ở trạng thái Đang thực hiện, Tạm dừng, không cho phép chọn Chờ xác nhận
+    if (originalStatus.value === 'DTH' || originalStatus.value === 'TD') {
+        return valueStatus.value.filter((option) => option.value !== 'CXN');
+    }
+
+    return valueStatus.value;
+});
+
 function openEventDialog() {
     eventData.value = {
-        isActive: true
+        isActive: true,
+        listImage: []
     };
     submitted.value = false;
     isEventDialog.value = true;
+    dataFileInputs.value = [];
+    dataFileInput.value = null;
+    inputDatas.value = [];
+    inputData.value = null;
 }
 
 function hideDialog() {
@@ -70,8 +102,10 @@ function hideDialog() {
     inputDatas.value = [];
     inputData.value = null;
     eventData.value = {
-        isActive: true
+        isActive: true,
+        listImage: []
     };
+    originalStatus.value = null;
     submitted.value = false;
     deleteDialog.value = false;
 }
@@ -86,6 +120,8 @@ function getDataDetail(prod) {
         user: prod.user?._id,
         campaign: prod.campaign?._id
     };
+    originalStatus.value = prod.status;
+    // originalStatus.value = null;
     isEventDialog.value = true;
 }
 
@@ -166,20 +202,29 @@ const validate = () => {
 };
 const uploadFile = async () => {
     try {
+        // Upload ảnh nổi bật
         if (dataFileInput.value) {
             const res = await apiService.upload(dataFileInput.value, 'projects');
             eventData.value.image = res.data.fileName;
         }
-        if (dataFileInputs.value.length > 20) {
-            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn không quá 20 ảnh', life: 3000 });
-            return;
-        }
+
+        // Upload danh sách ảnh
         if (dataFileInputs.value.length > 0) {
+            if (dataFileInputs.value.length > 20) {
+                toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng chọn không quá 20 ảnh', life: 3000 });
+                return false;
+            }
+
             const resImages = await apiService.upload(dataFileInputs.value, 'projects', true);
-            resImages.data.map((item) => eventData.value.listImage.push(item.fileName));
+            if (!eventData.value.listImage) {
+                eventData.value.listImage = [];
+            }
+            eventData.value.listImage = [...eventData.value.listImage, ...resImages.data.map((item) => item.fileName)];
         }
+        return true;
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định từ upload file', life: 10000 });
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Lỗi khi upload ảnh', life: 3000 });
+        return false;
     }
 };
 
@@ -194,7 +239,12 @@ async function saveData() {
     }
     isLoadingData.value = true;
     try {
-        await uploadFile();
+        const uploadSuccess = await uploadFile();
+        if (!uploadSuccess) {
+            isLoadingData.value = false;
+            return;
+        }
+
         if (eventData.value._id) {
             await apiService.patch(urlApi + '/' + eventData.value._id, eventData.value);
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thành công', life: 3000 });
@@ -322,13 +372,6 @@ const getStatus = (status) => {
             return status;
     }
 };
-const valueStatus = ref([
-    { label: 'Chờ xác nhận', value: 'CXN' },
-    { label: 'Đang thực hiện', value: 'DTH' },
-    { label: 'Đạt mục tiêu', value: 'DMT' },
-    { label: 'Đã kết thúc', value: 'DKT' },
-    { label: 'Tạm dừng', value: 'TD' }
-]);
 
 const removeImage = (index) => {
     inputDatas.value.splice(index, 1);
@@ -358,7 +401,7 @@ const formatPercent = (value) => {
                 </template>
 
                 <template #end>
-                    <Select v-model="valueFilter.status" placeholder="Tất cả" @change="handleFilter" class="mr-2" :options="[{ label: 'Tất cả', value: '' }, ...valueStatus]" optionLabel="label" optionValue="value" autofocus />
+                    <Select v-model="valueFilter.status" placeholder="Tất cả" @change="handleFilter" class="mr-2" :options="[{ label: 'Tất cả', value: '' }, ...filteredStatusOptions]" optionLabel="label" optionValue="value" autofocus />
 
                     <Select
                         v-model="valueFilter.isActive"
@@ -454,9 +497,13 @@ const formatPercent = (value) => {
                         {{ slotProps.data.type ? (slotProps.data.type == 'CN' ? slotProps.data.user?.name : slotProps.data.organization?.name) : '--' }}
                     </template>
                 </Column>
-                <Column field="status" header="Trạng thái" style="min-width: 7rem">
+                <Column field="status" header="Trạng thái" style="min-width: 10rem">
                     <template #body="slotProps">
-                        {{ getStatus(slotProps.data.status) }}
+                        <Tag v-if="slotProps.data.status === 'CXN'" severity="warning" value="Chờ xác nhận"></Tag>
+                        <Tag v-if="slotProps.data.status === 'DTH'" severity="info" value="Đang thực hiện"></Tag>
+                        <Tag v-if="slotProps.data.status === 'DMT'" severity="success" value="Đạt mục tiêu"></Tag>
+                        <Tag v-if="slotProps.data.status === 'DKT'" severity="danger" value="Đã kết thúc"></Tag>
+                        <Tag v-if="slotProps.data.status === 'TD'" severity="help" value="Tạm dừng"></Tag>
                     </template>
                 </Column>
                 <Column field="currentAmount" header="Tiền đạt được" style="min-width: 7rem">
@@ -464,25 +511,9 @@ const formatPercent = (value) => {
                         {{ formatCurrency(slotProps.data?.currentAmount || 0) }}
                     </template>
                 </Column>
-                <Column field="goalAmount" header="Tiền mục tiêu" style="min-width: 7rem">
-                    <template #body="slotProps">
-                        {{ formatCurrency(slotProps.data?.goalAmount || 0) }}
-                    </template>
-                </Column>
+
                 <Column field="percent" header="Tiến độ dự án" style="min-width: 7rem">
                     <template #body="slotProps">{{ formatPercent((slotProps.data?.currentAmount / slotProps.data?.goalAmount) * 100 || 0) }}% </template>
-                </Column>
-                <Column field="startDate" header="Ngày bắt đầu" style="min-width: 12rem">
-                    <template #body="slotProps">
-                        {{
-                            slotProps.data.startDate ? format(slotProps.data.startDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.startDate, 'HH:mm') : '--' + ' lúc ' + slotProps.data.startDate ? format(slotProps.data.startDate, 'HH:mm') : '--'
-                        }}
-                    </template>
-                </Column>
-                <Column field="endDate" header="Ngày kết thúc" style="min-width: 12rem">
-                    <template #body="slotProps">
-                        {{ slotProps.data.endDate ? format(slotProps.data.endDate, 'dd/MM/yyyy') + ' lúc ' + format(slotProps.data.endDate, 'HH:mm') : '--' }}
-                    </template>
                 </Column>
                 <Column field="percent" header="Số ngày còn lại" style="min-width: 7rem">
                     <template #body="slotProps">{{
@@ -502,7 +533,7 @@ const formatPercent = (value) => {
                 <Column :exportable="false" style="min-width: 13rem" frozen alignFrozen="right">
                     <template #body="slotProps">
                         <!--------------- Sửa dự án ADMIN (1) --------------------->
-                        <DetailProject :data="slotProps.data" />
+                        <DetailProject :data="slotProps.data" :isUpdate="true" />
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
@@ -575,7 +606,7 @@ const formatPercent = (value) => {
                     <div class="flex gap-3 w-full">
                         <div class="w-1/2">
                             <label for="gender" class="block font-bold mb-1">Trạng thái <small class="text-red-500">*</small></label>
-                            <Select id="status" v-model="eventData.status" :options="valueStatus" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
+                            <Select id="status" v-model="eventData.status" :options="filteredStatusOptions" optionLabel="label" optionValue="value" autofocus :invalid="submitted && !eventData.status" fluid placeholder="Vui lòng chọn trạng thái" />
                         </div>
                         <div class="w-1/2">
                             <label for="role" class="block font-bold mb-1">Tỉnh, thành phố</label>
@@ -587,7 +618,6 @@ const formatPercent = (value) => {
                                 @change="getAllLocation(eventData.province, 'district')"
                                 required="true"
                                 autofocus
-                                :invalid="submitted && !eventData.province"
                                 filter
                                 fluid
                                 placeholder="Vui lòng chọn tỉnh thành"
@@ -607,7 +637,6 @@ const formatPercent = (value) => {
                                 @change="getAllLocation(eventData.district, 'ward')"
                                 required="true"
                                 autofocus
-                                :invalid="submitted && !eventData.district"
                                 filter
                                 fluid
                                 placeholder="Vui lòng chọn quận huyện"
@@ -615,25 +644,13 @@ const formatPercent = (value) => {
                         </div>
                         <div class="w-1/2">
                             <label for="role" class="block font-bold mb-1">Phường, xã</label>
-                            <Select
-                                id="role"
-                                :disabled="!eventData.district"
-                                v-model="eventData.ward"
-                                :options="dataGetAllOption.ward"
-                                optionLabel="full_name"
-                                required="true"
-                                autofocus
-                                :invalid="submitted && !eventData.ward"
-                                filter
-                                fluid
-                                placeholder="Vui lòng chọn phường xã"
-                            />
+                            <Select id="role" :disabled="!eventData.district" v-model="eventData.ward" :options="dataGetAllOption.ward" optionLabel="full_name" required="true" autofocus filter fluid placeholder="Vui lòng chọn phường xã" />
                         </div>
                     </div>
 
                     <div>
                         <label for="name" class="block font-bold mb-1">Địa chỉ </label>
-                        <InputText id="address" v-model="eventData.address" autofocus :invalid="submitted && !eventData.address" fluid placeholder="Vui lòng nhập địa chỉ" />
+                        <InputText id="address" v-model="eventData.address" autofocus fluid placeholder="Vui lòng nhập địa chỉ" />
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 w-1/2">

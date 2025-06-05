@@ -36,7 +36,7 @@
 
                     <div>
                         <p class="text-gray-600">Trạng thái:</p>
-                        <p class="text-lg">{{ getStatus(eventData.status) || '--' }}</p>
+                        <p class="text-lg" >{{ getStatus(eventData.status) || '--' }}</p>
                     </div>
                     <div>
                         <p class="text-gray-600">Email người tạo:</p>
@@ -55,7 +55,7 @@
                     </div>
                     <div>
                         <p class="text-gray-600">Trạng thái:</p>
-                        <p class="text-lg">{{ getStatus(eventData.status) || '--' }}</p>
+                        <p class="text-lg">{{ eventData.isActive ? 'Hoạt động' : 'Không hoạt động' }}</p>
                     </div>
                 </div>
             </div>
@@ -107,7 +107,7 @@
         </div>
 
         <template #footer>
-            <Button label="Đóng" icon="pi pi-times" text @click="hideDialog" />
+    <Button label="Đóng" icon="pi pi-times" text @click="hideDialog" />
         </template>
     </Dialog>
 </template>
@@ -117,7 +117,7 @@ import apiService from '@/service/api.service';
 import { format } from 'date-fns';
 import { ref } from 'vue';
 
-const props = defineProps(['data']);
+const props = defineProps(['data', 'isUpdate']);
 const isEventDialog = ref(false);
 const eventData = ref({});
 
@@ -146,18 +146,13 @@ const getStatus = (status) => {
             return status;
     }
 };
-const getStatusDonation = (status) => {
-    switch (status) {
-        case 'PENDING':
-            return 'Chờ thanh toán';
-        case 'PAID':
-            return 'Đã thanh toán';
-        case 'CANCELLED':
-            return 'Đã hủy';
-        default:
-            return status;
-    }
-};
+const statusOptions = [
+    { label: 'Chờ xác nhận', value: 'CXN' },
+    { label: 'Đang thực hiện', value: 'DTH' },
+    { label: 'Đạt mục tiêu', value: 'DMT' },
+    { label: 'Đã kết thúc', value: 'DKT' },
+    { label: 'Tạm dừng', value: 'TD' }
+];
 const formatNumber = (number) => {
     return number.toLocaleString();
 };

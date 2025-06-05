@@ -3,13 +3,22 @@
         <div class="flex flex-wrap w-[85%] mx-auto py-10">
             <div class="w-5/12 bg-white shadow-lg rounded-2xl">
                 <div class="px-5 py-5 border-b-4 border-[#F9F3EE]">
-                    <div class="w-full flex gap-2">
-                        <div class="min-w-16 min-h-16 max-w-16 max-h-16 border-[3px] border-primary-500 rounded-full">
-                            <img :src="detail?.organization?.avatar ? linkUploads(detail?.organization?.avatar) : 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
+                    <div class="w-full flex gap-2" v-if="detail.type == 'TC'">
+                        <div class="min-w-20 max-w-20 min-h-20 max-h-20">
+                            <img :src="linkUploads(detail.organization?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
                         </div>
                         <div class="w-full flex flex-col gap-1">
                             <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
-                            <router-link :to="`/info-donate/${detail._id}`" class="text-primary-500 font-bold text-lg">{{ detail.name }}</router-link>
+                            <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail.organization?.name }}</router-link>
+                        </div>
+                    </div>
+                    <div class="w-full flex gap-2" v-else>
+                        <div class="min-w-20 max-w-20 min-h-20 max-h-20">
+                            <img :src="linkUploads(detail.user?.avatar) || 'https://placehold.co/50x50'" alt="" class="w-full h-full object-cover rounded-full" />
+                        </div>
+                        <div class="w-full flex flex-col gap-1">
+                            <p class="text-gray-500 font-medium">Tiền ủng hộ được chuyển đến</p>
+                            <router-link to="/" class="text-orange-500 font-bold text-lg">{{ detail.user?.name }}</router-link>
                         </div>
                     </div>
                 </div>
@@ -35,7 +44,7 @@
                                 Của mục tiêu <span class="text-zinc-800 font-medium text-base">{{ parseNum(detail.goalAmount) }} VND</span>
                             </p>
                             <p class="text-zinc-500">
-                                <span class="text-zinc-800 font-medium text-base">{{ detail.turn }} lượt ủng hộp</span>
+                                <span class="text-zinc-800 font-medium text-base">{{ detail.totalDonors || 0 }} lượt ủng hộ</span>
                             </p>
                         </div>
                     </div>
@@ -62,7 +71,7 @@
                 </div>
                 <div class="flex flex-col gap-1">
                     <label for="name" class="text-[13px]">Lời chúc </label>
-                    <InputText v-model="dataDonate.description" placeholder="Nhập lời chúc trao gửi yêu thương" size="large" class="!rounded-xl" />
+                    <InputText v-model="dataDonate.note" placeholder="Nhập lời chúc trao gửi yêu thương" size="large" class="!rounded-xl" />
                 </div>
                 <h3 class="text-xl font-medium">Thông tin của bạn</h3>
                 <div class="flex flex-col gap-1">
@@ -106,7 +115,7 @@ const { account } = accountService.getAccount();
 const getDetail = async () => {
     try {
         isLoading.value = true;
-        const res = await apiService.get(`projects/${router.params.id}`);
+        const res = await apiService.get(`projects/public/${router.params.id}`);
         detail.value = res.data;
     } catch (error) {
         console.log(error);
@@ -126,7 +135,7 @@ const dataDonate = ref({
     amount: 0,
     buyerName: account?.name,
     buyerEmail: account?.email,
-    description: '',
+    note: '',
     isAnonymous: false,
     cancelUrl: window.location.origin + '/cancel/' + router.params.id,
     returnUrl: window.location.origin + '/success/' + router.params.id
@@ -138,19 +147,9 @@ const validate = () => {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập số tiền ủng hộ', life: 3000 });
         return false;
     }
-    if (!dataDonate.value.description) {
+    if (!dataDonate.value.note) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập lời chúc', life: 3000 });
         return false;
-    }
-    if (!dataDonate.value.isAnonymous) {
-        if (!dataDonate.value.buyerName) {
-            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập họ tên', life: 3000 });
-            return false;
-        }
-        if (!dataDonate.value.buyerEmail) {
-            toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập địa chỉ email', life: 3000 });
-            return false;
-        }
     }
     submitted.value = false;
     return true;
