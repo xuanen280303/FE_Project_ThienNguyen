@@ -151,6 +151,7 @@ const checkTypeNotification = (objInfo) => {
 };
 const readNotification = async (item) => {
     try {
+        //Đánh dấu thông báo đã đọc
         if (item.isRead === false) {
             await apiService.get(`notifications/markAsRead/${item._id}`);
             getNotification();
@@ -226,14 +227,14 @@ const search = async (event) => {
                 }
             "
         >
-            <template #option="slotProps">
+
+            <!-- Tìm kiếm dự án trang chủ -->
+            <template #option="slotProps">               
                 <div class="flex items-center gap-4 cursor-pointer max-w-[500px] overflow-hidden hover:bg-gray-50" @click="router.push(`/detail/${slotProps.option._id}`)">
-                    <!-- Ảnh dự án -->
                     <img :src="linkUploads(slotProps.option.image)" class="w-14 h-14 object-cover rounded-lg" alt="Project Image" />
 
                     <!-- Thông tin chính -->
                     <div class="flex flex-col min-w-0">
-                        <!-- Tên dự án -->
                         <p class="font-semibold text-gray-800 w-full break-words truncate">
                             {{ slotProps.option.name }}
                         </p>
@@ -245,14 +246,11 @@ const search = async (event) => {
                             <img :src="linkUploads(slotProps.option.user?.avatar)" class="w-5 h-5 rounded-full" alt="Org Avatar" />
                             <span>{{ slotProps.option.user?.name }}</span>
                         </div>
-                        <!-- Địa chỉ và tiến độ -->
                         <div class="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                            <!-- Thông tin tổ chức -->
                             <div class="flex items-center gap-1">
                                 <i class="pi pi-map-marker"></i>
                                 <span>{{ slotProps.option.conscious?.name }}</span>
                             </div>
-                            <!-- Tiến độ quyên góp -->
                             <div class="flex items-center gap-1">
                                 <i class="pi pi-heart-fill text-red-500"></i>
                                 <span>{{ new Intl.NumberFormat('vi-VN').format(slotProps.option.currentAmount) }}đ</span>

@@ -47,7 +47,7 @@
         </div>
         <div class="flex justify-between">
             <div class="w-1/2 flex gap-4 mt-5">
-                <Select @change="handleFilter" size="large" v-model="valueFilter.status" :options="optionStatus" optionValue="value" optionLabel="label" placeholder="Chọn tỉnh trạng" checkmark :highlightOnSelect="false" class="w-full md:w-52" />
+                <Select @change="handleFilter" size="large" v-model="valueFilter.status" :options="optionStatus" optionValue="value" optionLabel="label" placeholder="Chọn tình trạng" checkmark :highlightOnSelect="false" class="w-full md:w-52" />
                 <Select @change="handleFilter" size="large" v-model="valueFilter.campaign" :options="optionCategory" optionLabel="name" optionValue="_id" placeholder="Danh mục" checkmark :highlightOnSelect="false" class="w-full md:w-52" />
                 <Button icon="pi pi-sync" variant="outlined" severity="secondary" v-tooltip="'Đặt lại bộ lọc'" @click="handleReset" />
             </div>

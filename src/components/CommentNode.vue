@@ -18,11 +18,11 @@
         <div v-if="showReplyForm" class="flex flex-col gap-2">
             <Textarea v-model="newComment.message" placeholder="Nhập bình luận của bạn" autoResize rows="2" cols="30" />
             <div class="flex gap-2">
-                <Button label="Gửi" @click="handleAddComment" class="min-w-28 !py-1 !text-base rounded-xl mb-2" />
+                <Button label="Gửi" @click="handleAddCommentChild" class="min-w-28 !py-1 !text-base rounded-xl mb-2" />
                 <Button label="Hủy" @click="showReplyForm = false" severity="secondary" class="!py-1 !text-base rounded-xl mb-2" />
             </div>
         </div>
-        <CommentNode v-for="child in comment.replies" :key="child.id" :comment="child" :projectId="projectId" :isReply="true" :getCommentByProjectId="getCommentByProjectId" />
+        <CommentNode v-for="child in comment.replies" :key="child._id" :comment="child" :projectId="projectId" :isReply="true" :getCommentByProjectId="getCommentByProjectId" />
     </div>
     <ConfirmPopup></ConfirmPopup>
 </template>
@@ -46,6 +46,7 @@ const account = accountService.getAccount().account;
 
 const showReplyForm = ref(false);
 
+//Chuyển đổi trạng thái hiển thị form trả lời
 const reply = () => {
     showReplyForm.value = !showReplyForm.value;
 };
@@ -56,18 +57,20 @@ const newComment = ref({
     parent: props.comment._id
 });
 
-const handleAddComment = async () => {
+const handleAddCommentChild = async () => {
     if (newComment.value.message.trim() === '') {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập bình luận', life: 3000 });
+        return;
     }
     try {
         await apiService.post(`comments`, newComment.value);
         newComment.value = { message: '', project: props.projectId, parent: props.comment._id };
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Bình luận đã được thêm', life: 3000 });
         showReplyForm.value = false;
-        props.getCommentByProjectId();
+        await props.getCommentByProjectId(); //Cập nhật lại danh sách bình luận
     } catch (error) {
         console.log(error);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể thêm bình luận', life: 3000 });
     }
 };
 
@@ -95,14 +98,17 @@ const handleDeleteComment = async () => {
         await apiService.delete(`comments/${props.comment._id}`);
         await props.getCommentByProjectId();
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Bình luận đã được xóa', life: 3000 });
+        window.location.reload();
     } catch (error) {
         console.log(error);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể xóa bình luận', life: 3000 });
     }
 };
 const isDelete = (comment) => {
     if (!account) return false;
 
     const conditions = [
+        //Là tổ chức của dự án hoặc thành viên của dự án
         comment.project.type === 'TC' && comment.project.organization?.users?.some((user) => user._id === account._id),
 
         // Kiểm tra nếu là cá nhân và user là chủ dự án
@@ -114,7 +120,7 @@ const isDelete = (comment) => {
         // Kiểm tra nếu user là SUPER_ADMIN
         account.role?.name === 'SUPER_ADMIN'
     ];
-
+    //Thỏa mãn 1 trong các điều kiện sẽ hiển thị nút xóa
     return conditions.some((condition) => condition === true);
 };
 </script>

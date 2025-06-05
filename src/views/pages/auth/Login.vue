@@ -66,7 +66,6 @@ const handleLogin = async () => {
         toast.add({ severity: 'error', summary: 'Thông báo lỗi', detail: error.response.data.message, life: 3000 });
     } finally {
         submitted.value = true;
-
         isLoading.value = false;
     }
 };
@@ -300,6 +299,7 @@ const handleKeyPress = (event) => {
     margin-right: 1rem;
 }
 
+/* CSS cho hiệu ứng trái tim bay */
 .hearts {
     position: fixed;
     width: 100vw;

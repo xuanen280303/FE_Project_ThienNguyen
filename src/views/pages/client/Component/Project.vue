@@ -189,7 +189,7 @@
 
             <Column :exportable="false" style="min-width: 8rem" frozen alignFrozen="right">
                 <template #body="slotProps">
-                    <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Xem chi tiết'" />
+                    <DetailProject :data="slotProps.data" />
                     <Button icon="pi pi-external-link" outlined rounded class="mr-2" @click="() => router.push(`/detail/${slotProps.data._id}`)" v-tooltip="'Link dự án'" />
                 </template>
             </Column>
@@ -234,98 +234,7 @@
         </template>
     </Dialog>
 
-    <!-- Dialog xem chi tiết dự án -->
-    <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
-        <template #header>
-            <h4 class="m-0 text-xl font-bold">Chi tiết dự án</h4>
-        </template>
 
-        <div class="mb-8">
-            <div class="flex gap-6">
-                <div class="w-1/4">
-                    <h5 class="text-lg font-semibold">Ảnh nổi bật:</h5>
-                    <img :src="eventData.image ? linkUploads(eventData.image) : 'https://placehold.co/128x128'" alt="avatar" class="w-full h-[180px] object-cover rounded" />
-                </div>
-                <div class="w-3/4">
-                    <h5 class="text-lg font-semibold">Danh sách ảnh:</h5>
-                    <div class="flex gap-4 overflow-x-auto">
-                        <template v-if="eventData.listImage?.length > 0">
-                            <img v-for="item in eventData.listImage" :key="item" :src="linkUploads(item)" alt="avatar" class="w-[200px] h-[180px] object-cover rounded flex-shrink-0" />
-                        </template>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-x-12 gap-y-6 mb-8">
-            <div>
-                <h5 class="text-lg font-semibold mb-4">Thông tin cơ bản</h5>
-
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-gray-600">Tên dự án:</p>
-                        <p class="text-lg">{{ eventData.name || '--' }}</p>
-                    </div>
-
-                    <div>
-                        <p class="text-gray-600">Trạng thái:</p>
-                        <p class="text-lg">{{ getStatus(eventData.status) || '--' }}</p>
-                    </div>
-
-                    <div>
-                        <p class="text-gray-600">Địa chỉ:</p>
-                        <p class="text-lg">{{ eventData.address || '--' }}</p>
-                        <p class="text-lg">
-                            {{ [eventData.ward?.full_name, eventData.district?.full_name, eventData.province?.full_name].filter(Boolean).join(', ') || '--' }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <h5 class="text-lg font-semibold mb-4">Thông tin quyên góp</h5>
-
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-gray-600">Mục tiêu quyên góp:</p>
-                        <p class="text-lg font-medium">{{ eventData.goalAmount?.toLocaleString() || '--' }} VNĐ</p>
-                    </div>
-
-                    <div>
-                        <p class="text-gray-600">Thời gian:</p>
-                        <p class="text-lg">Từ: {{ eventData.startDate ? format(new Date(eventData.startDate), 'dd/MM/yyyy HH:mm') : '--' }}</p>
-                        <p class="text-lg">Đến: {{ eventData.endDate ? format(new Date(eventData.endDate), 'dd/MM/yyyy HH:mm') : '--' }}</p>
-                    </div>
-
-                    <div>
-                        <p class="text-gray-600">Thuộc loại:</p>
-                        <p class="text-lg">{{ eventData.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }}</p>
-                    </div>
-
-                    <div>
-                        <p class="text-gray-600">{{ eventData.type === 'CN' ? 'Cá nhân' : 'Tổ chức' }} kêu gọi:</p>
-                        <p class="text-lg">{{ eventData.type === 'CN' ? eventData.user?.name : eventData.organization?.name }}</p>
-                    </div>
-
-                    <div>
-                        <p class="text-gray-600">Chiến dịch:</p>
-                        <p class="text-lg">{{ eventData.campaign?.name || '--' }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="w-full mt-4">
-            <div class="border rounded-lg p-4 space-y-2">
-                <p class="font-bold">Mô tả</p>
-                <div class="prose max-w-none" v-html="eventData.description"></div>
-            </div>
-        </div>
-
-        <template #footer>
-            <Button label="Đóng" icon="pi pi-times" text @click="hideDialog" />
-        </template>
-    </Dialog>
 
     <Loading v-if="isLoading" />
 </template>
@@ -341,6 +250,7 @@ import accountService from '../../../../service/account.service';
 import apiService from '../../../../service/api.service';
 import { usePrintStore } from '../../../../stores/printStore';
 import parseNum from '../../../../utils/parseNum';
+import DetailProject from '@/components/DetailProject.vue';
 
 const router = useRouter();
 
@@ -397,18 +307,6 @@ function hideDialog() {
     eventData.value = {};
     eventDataLetter.value = {};
     submitted.value = false;
-}
-
-function getDataDetail(prod) {
-    eventData.value = {
-        ...prod,
-        organization: prod.organization?._id,
-        user: prod.user?._id,
-        campaign: prod.campaign?._id,
-        startDate: new Date(prod.startDate),
-        endDate: new Date(prod.endDate)
-    };
-    isEventDialog.value = true;
 }
 
 const resetFilter = () => {
@@ -631,7 +529,7 @@ const exportDataDetail = async (project) => {
         };
     });
 
-    // Thêm dữ liệu
+    //----- Thêm dữ liệu--------
     donation.forEach((item, index) => {
         const row = worksheet.addRow([
             index + 1,

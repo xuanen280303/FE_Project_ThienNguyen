@@ -1,4 +1,5 @@
 <script setup>
+import DetailProject from '@/components/DetailProject.vue';
 import { format } from 'date-fns';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
@@ -165,7 +166,6 @@ const validate = () => {
 };
 const uploadFile = async () => {
     try {
-        debugger;
         if (dataFileInput.value) {
             const res = await apiService.upload(dataFileInput.value, 'projects');
             eventData.value.image = res.data.fileName;
@@ -196,10 +196,10 @@ async function saveData() {
     try {
         await uploadFile();
         if (eventData.value._id) {
-            const res = await apiService.patch(urlApi + '/' + eventData.value._id, { ...eventData.value });
+            await apiService.patch(urlApi + '/' + eventData.value._id, eventData.value);
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật thành công', life: 3000 });
         } else {
-            const res = await apiService.post(urlApi, { ...eventData.value });
+            await apiService.post(urlApi, eventData.value);
             toast.add({ severity: 'success', summary: 'Thành công', detail: 'Thêm thành công', life: 3000 });
         }
         getAll();
@@ -279,7 +279,7 @@ function confirmDeleteProduct(prod) {
 const deleteProduct = async () => {
     isLoadingData.value = true;
     try {
-        const res = await apiService.delete(urlApi + '/' + eventData.value._id);
+        await apiService.delete(urlApi + '/' + eventData.value._id);
         getAll();
         hideDialog();
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Xóa thành công', life: 3000 });
@@ -442,7 +442,7 @@ const formatPercent = (value) => {
                     </template>
                 </Column>
 
-                <Column field="avatar" header="Ảnh dự án" style="min-width: 8rem">
+                <Column field="image" header="Ảnh dự án" style="min-width: 8rem">
                     <template #body="slotProps">
                         <img :src="slotProps.data.image ? linkUploads(slotProps.data.image) : 'https://placehold.co/80x80'" alt="image" class="rounded-lg w-[80px] h-[80px] object-cover" />
                     </template>
@@ -471,7 +471,7 @@ const formatPercent = (value) => {
                 </Column>
                 <Column field="percent" header="Tiến độ dự án" style="min-width: 7rem">
                     <template #body="slotProps">{{ formatPercent((slotProps.data?.currentAmount / slotProps.data?.goalAmount) * 100 || 0) }}% </template>
-                </Column>    
+                </Column>
                 <Column field="startDate" header="Ngày bắt đầu" style="min-width: 12rem">
                     <template #body="slotProps">
                         {{
@@ -499,9 +499,10 @@ const formatPercent = (value) => {
                         {{ slotProps.data.isActive ? 'Hoạt động' : 'Không hoạt động' }}
                     </template>
                 </Column>
-                <Column :exportable="false" style="min-width: 10rem" frozen alignFrozen="right">
+                <Column :exportable="false" style="min-width: 13rem" frozen alignFrozen="right">
                     <template #body="slotProps">
                         <!--------------- Sửa dự án ADMIN (1) --------------------->
+                        <DetailProject :data="slotProps.data" />
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="getDataDetail(slotProps.data)" v-tooltip="'Chức năng sửa'" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" v-tooltip="'Chức năng xóa'" />
                     </template>
@@ -509,7 +510,7 @@ const formatPercent = (value) => {
             </DataTable>
         </div>
 
-        <!---------------------- Sửa dự án admin (3) ------------------>
+        <!---------------------- Cập nhật dự án admin (3) ------------------>
         <Dialog v-model:visible="isEventDialog" :style="{ width: '1200px' }" :modal="true" maximizable>
             <template #header>
                 <h4 class="m-0 text-lg font-bold flex align-items-center gap-2">{{ eventData?._id ? 'Cập nhật dự án' : 'Thêm mới dự án' }} - <ToggleSwitch v-model="eventData.isActive" id="isActive" /> Trạng thái</h4>

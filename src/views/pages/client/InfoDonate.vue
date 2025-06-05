@@ -25,7 +25,7 @@
                             <p>
                                 Đã đạt được <span class="text-primary-500 font-bold text-xl">{{ parseNum(detail.currentAmount) }} VND</span>
                             </p>
-                            <p class="font-bold">{{ detail.currentAmount / detail.goalAmount || 0 * 100 }}%</p>
+                            <p class="font-bold">{{ roundToTwoDecimals((detail.currentAmount / detail.goalAmount) * 100) + '%' }}</p>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-[10px]">
                             <div class="bg-gradient-to-r from-orange-300 via-orange-500 to-red-500 h-[10px] rounded-full" :style="{ width: `${(detail.currentAmount / detail.goalAmount) * 100}%` }"></div>
@@ -118,7 +118,10 @@ const getDetail = async () => {
 onMounted(() => {
     getDetail();
 });
-
+const roundToTwoDecimals = (num) => {
+    if (typeof num !== 'number') return 0; // Trả về 0 nếu không phải là số
+    return Math.round((num + Number.EPSILON) * 100) / 100; // Làm tròn đến 2 chữ số thập phân
+};
 const dataDonate = ref({
     amount: 0,
     buyerName: account?.name,

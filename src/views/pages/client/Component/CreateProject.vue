@@ -380,6 +380,7 @@ const validate = () => {
     return isValid;
 };
 
+//--------------------------- Upload file-----------------------------
 const uploadFile = async () => {
     try {
         if (dataFileInput.value) {
@@ -426,7 +427,7 @@ async function saveData() {
     if (!validate()) {
         return;
     }
-    isLoadingData.value = true;
+    // isLoadingData.value = true;
     try {
         await uploadFile();
         await apiService.post(urlApi + '/client', { ...eventData.value });

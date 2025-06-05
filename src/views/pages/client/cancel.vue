@@ -63,11 +63,12 @@ onMounted(() => {
     fadeIn.value = true;
     // Lấy ID từ URL
     const orderCode = route.query.orderCode;
+    //giao dịch bị hủy (isCancel = true), hệ thống sẽ gọi API để xóa đơn quyên góp 
     const isCancel = route.query.cancel == 'true';
     const updateStatus = async () => {
         try {
             if (isCancel) {
-                await apiService.delete('donations/' + orderCode);
+                await apiService.delete('donations/' + orderCode); 
             }
         } catch (error) {
             console.log(error);

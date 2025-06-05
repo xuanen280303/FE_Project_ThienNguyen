@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="max-h-[600px] overflow-auto">
-            <CommentNode v-for="comment in comments" :key="comment.id" :comment="comment" :projectId="projectId" :getCommentByProjectId="getCommentByProjectId" />
+            <CommentNode v-for="comment in comments" :key="comment._id" :comment="comment" :projectId="projectId" :getCommentByProjectId="getCommentByProjectId" />
         </div>
     </div>
 </template>
@@ -45,6 +45,7 @@ const getCommentByProjectId = async () => {
         comments.value = res.data.items;
     } catch (error) {
         console.log(error);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể tải bình luận', life: 3000 });
     }
 };
 
@@ -57,14 +58,17 @@ const handleAddComment = async () => {
     isLoading.value = true;
     if (newComment.value.message.trim() === '') {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Vui lòng nhập bình luận', life: 3000 });
+        isLoading.value = false;
+        return;
     }
     try {
         await apiService.post(`comments`, newComment.value);
-        newComment.value = { message: '', project: props.projectId };
+        newComment.value.message = '';
         toast.add({ severity: 'success', summary: 'Thành công', detail: 'Bình luận đã được thêm', life: 3000 });
-        await getCommentByProjectId();
+        window.location.reload();
     } catch (error) {
         console.log(error);
+        toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không thể thêm bình luận', life: 3000 });
     } finally {
         isLoading.value = false;
     }

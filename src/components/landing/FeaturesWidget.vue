@@ -4,6 +4,7 @@
             <div class="col-span-12 text-center mt-15 mb-6">
                 <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono">Chiến dịch gây quỹ nổi bật</div>
             </div>
+            <!------------------------------------- Chiến dịch của Tổ chức --------------------------------------->
             <div class="col-span-12 flex justify-between">
                 <div class="text-gray-700 font-bold mb-2 text-2xl">Chiến dịch của Tổ chức</div>
                 <router-link to="/" class="text-gray-500 font-semibold mb-2 text-xl hover:underline">Xem tất cả <i class="pi pi-arrow-right"></i></router-link>
@@ -35,6 +36,7 @@
                     </template>
                 </Carousel>
             </div>
+            <!------------------------------------- Chiến dịch của Cá nhân --------------------------------------->
             <div class="col-span-12 flex justify-between">
                 <div class="text-gray-700 font-bold mb-2 text-2xl">Chiến dịch của Cá nhân</div>
                 <router-link to="/" class="text-gray-500 font-semibold mb-2 text-xl hover:underline">Xem tất cả <i class="pi pi-arrow-right"></i></router-link>
@@ -162,6 +164,7 @@ const responsiveOptions = ref([
 const formatNumber = (number) => {
     return number.toLocaleString('vi-VN');
 };
+//------------------------ Hiển thị dữ liệu dự án cá nhân và tổ chức trên trang chủ--------------------------
 const useGet = () => {
     const getAll = async () => {
         try {
@@ -173,8 +176,8 @@ const useGet = () => {
             ]);
             const [resPersonal, resOrganization, total] = results.map((result) => (result.status === 'fulfilled' ? result.value : null));
             count.value = total.data;
-            state.options.projectsPersonal = resPersonal.data.items;
-            state.options.projectsOrganization = resOrganization.data.items;
+            state.options.projectsPersonal = resPersonal.data.items; //Sắp xếp dự án hiển thị đúng thuộc về cá nhân
+            state.options.projectsOrganization = resOrganization.data.items; //Sắp xếp dự án hiển thị đúng thuộc về cá nhân
         } catch (error) {
             console.log(error);
         } finally {
