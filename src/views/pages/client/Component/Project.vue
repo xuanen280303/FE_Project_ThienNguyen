@@ -102,13 +102,26 @@
                         >
                             <template #header>
                                 <div class="flex gap-2 justify-between">
-                                    <div class="w-1/2">
+                                    <div class="w-2/3 flex gap-2">
                                         <IconField>
                                             <InputIcon>
                                                 <i class="pi pi-search" />
                                             </InputIcon>
-                                            <InputText class="w-1/2" placeholder="Nhập tên hoặc email người ủng hộ" v-model="paginationDetail.search" @keyup.enter="getDonation(data._id)" />
+                                            <InputText class="w-full" placeholder="Nhập tên hoặc email người ủng hộ" v-model="paginationDetail.search" @keyup.enter="getDonation(data._id)" />
                                         </IconField>
+                                        <Select
+                                            v-model="paginationDetail.status"
+                                            :options="[
+                                                { label: 'Tất cả', value: null },
+                                                { label: 'Chờ thanh toán', value: 'PENDING' },
+                                                { label: 'Đã thanh toán', value: 'PAID' },
+                                                { label: 'Đã hủy', value: 'CANCELLED' }
+                                            ]"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                            placeholder="Trạng thái"
+                                            @change="getDonation(data._id)"
+                                        />
                                     </div>
                                     <div class="flex gap-2">
                                         <Button label="Xuất file excel" icon="pi pi-file-excel" class="mr-2" @click="exportDataDetail(data)" />
@@ -234,12 +247,11 @@
         </template>
     </Dialog>
 
-
-
     <Loading v-if="isLoading" />
 </template>
 
 <script setup>
+import DetailProject from '@/components/DetailProject.vue';
 import { format } from 'date-fns';
 import ExcelJS from 'exceljs';
 import { useToast } from 'primevue/usetoast';
@@ -250,7 +262,6 @@ import accountService from '../../../../service/account.service';
 import apiService from '../../../../service/api.service';
 import { usePrintStore } from '../../../../stores/printStore';
 import parseNum from '../../../../utils/parseNum';
-import DetailProject from '@/components/DetailProject.vue';
 
 const router = useRouter();
 
@@ -277,7 +288,8 @@ const paginationDetail = ref({
     page: 0,
     pageSize: 10,
     total: 0,
-    search: ''
+    search: '',
+    status: null
 });
 const dataGetAllOption = ref({
     user: [],
@@ -313,7 +325,6 @@ const resetFilter = () => {
     valueFilter.value = {
         isActive: null,
         sort: false,
-        user: account?._id
     };
     getAll();
 };
@@ -355,12 +366,14 @@ const getAll = async () => {
 const isLoadingDetail = ref(false);
 const onRowExpand = (event) => {
     getDonation(event.data._id);
-    expandedRows.value = { [event.data._id]: true };
+    expandedRows.value = { [event.data._id]: true }; //Mở bảng dữ liệu danh sách ủng hộ
 };
 const getDonation = async (id) => {
     isLoadingDetail.value = true;
     try {
-        const res = await apiService.get(`donations?filter=project=${id}&page=${paginationDetail.value.page + 1}&pageSize=${paginationDetail.value.pageSize}${paginationDetail.value.search ? `&search=${paginationDetail.value.search}` : ''}`);
+        const res = await apiService.get(
+            `donations?filter=project=${id}${paginationDetail.value.status ? `,status=${paginationDetail.value.status}` : ''}&page=${paginationDetail.value.page + 1}&pageSize=${paginationDetail.value.pageSize}${paginationDetail.value.search ? `&search=${paginationDetail.value.search}` : ''}`
+        );
         payment.value = res.data.items;
         paginationDetail.value.total = res.data.total;
     } catch (error) {
@@ -456,8 +469,7 @@ async function saveData() {
         isEventLetterDialog.value = false;
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: error.response?.data.message || 'Lỗi không xác định', life: 10000 });
-    }
-    finally {
+    } finally {
         isLoadingData.value = false;
     }
 }
@@ -467,6 +479,9 @@ const exportDataDetail = async (project) => {
         toast.add({ severity: 'error', summary: 'Lỗi', detail: 'Không có dữ liệu để xuất', life: 3000 });
         return;
     }
+    // Gọi API lấy danh sách quyên góp với các điều kiện:
+    // - project: ID của dự án được chọn
+    // - status: PAID (chỉ lấy các khoản đã thanh toán)
     const res = await apiService.get(`donations?filter=project=${project._id},status=PAID&page=1&pageSize=9999999999`);
     const donation = res.data.items;
     if (donation.length === 0) {

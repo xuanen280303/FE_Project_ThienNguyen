@@ -136,6 +136,7 @@ const dataDonate = ref({
     buyerName: account?.name,
     buyerEmail: account?.email,
     note: '',
+    user: account?._id || null,
     isAnonymous: false,
     cancelUrl: window.location.origin + '/cancel/' + router.params.id,
     returnUrl: window.location.origin + '/success/' + router.params.id

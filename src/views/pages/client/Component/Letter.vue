@@ -33,7 +33,7 @@ const eventData = ref({});
 const dataFileInput = ref(null);
 const deleteDialog = ref(false);
 const valueFilter = ref({
-    byUser: true,
+    byUser: 'GD',
     sort: false
 });
 const dataGetAllOption = ref({
@@ -64,6 +64,7 @@ const visibleLetter = ref(false);
 const letter = ref({});
 function getDataDetail(prod) {
     visibleLetter.value = true;
+    //Truyền dữ liệu của dòng vào popup thư
     letter.value = prod;
 }
 
@@ -115,7 +116,7 @@ const getAll = async () => {
                 return `sort=${value ? 'createdAt' : '-createdAt'}`;
             }
             if (key === 'byUser') {
-                if (value === true) {
+                if (value === 'GD') {
                     return `createdBy._id=${account._id}`;
                 } else {
                     return `user=${account._id}`;
@@ -211,8 +212,8 @@ const UploadFileLocal = async (event) => {
                             <Select
                                 v-model="valueFilter.byUser"
                                 :options="[
-                                    { label: 'Thư gửi đi', value: true },
-                                    { label: 'Thư nhận được', value: false }
+                                    { label: 'Thư gửi đi', value: 'GD' },
+                                    { label: 'Thư nhận được', value: 'ND' }
                                 ]"
                                 placeholder="Tất cả"
                                 optionLabel="label"

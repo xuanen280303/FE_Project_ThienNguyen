@@ -2,11 +2,11 @@
     <div id="features" class="py-6 px-4 lg:px-32 mt-8 mx-0 lg:mx-16">
         <div class="grid grid-cols-12 gap-4 justify-center">
             <div class="col-span-12 text-center mt-15 mb-6">
-                <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono">Chiến dịch gây quỹ nổi bật</div>
+                <div class="text-gray-700 font-bold mb-2 text-[35px] font-mono">Dự án gây quỹ nổi bật</div>
             </div>
             <!------------------------------------- Chiến dịch của Tổ chức --------------------------------------->
             <div class="col-span-12 flex justify-between">
-                <div class="text-gray-700 font-bold mb-2 text-2xl">Chiến dịch của Tổ chức</div>
+                <div class="text-gray-700 font-bold mb-2 text-2xl">Dự án của Tổ chức</div>
                 <router-link to="/" class="text-gray-500 font-semibold mb-2 text-xl hover:underline">Xem tất cả <i class="pi pi-arrow-right"></i></router-link>
             </div>
             <div class="col-span-12">
@@ -38,7 +38,7 @@
             </div>
             <!------------------------------------- Chiến dịch của Cá nhân --------------------------------------->
             <div class="col-span-12 flex justify-between">
-                <div class="text-gray-700 font-bold mb-2 text-2xl">Chiến dịch của Cá nhân</div>
+                <div class="text-gray-700 font-bold mb-2 text-2xl">Dự án của Cá nhân</div>
                 <router-link to="/" class="text-gray-500 font-semibold mb-2 text-xl hover:underline">Xem tất cả <i class="pi pi-arrow-right"></i></router-link>
             </div>
             <div class="col-span-12">

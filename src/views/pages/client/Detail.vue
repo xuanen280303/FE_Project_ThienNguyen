@@ -160,7 +160,7 @@
 
                             <span class="text-gray-800">{{ roundToTwoDecimals((detail.currentAmount / detail.goalAmount) * 100) + '%' }}</span>
                         </div>
-                        <div v-if="detail.status != 'DMT' && detail.status != 'DKT' && detail.status != 'CXN'">
+                        <div v-if="detail.status != 'DMT' && detail.status != 'DKT' && detail.status != 'CXN' && detail.status != 'TD'">
                             <div class="w-full mt-6 flex gap-2 items-center">
                                 <Button label="Đồng hành gây quỹ" variant="outlined" class="w-1/2 !rounded-2xl" size="large" />
                                 <Button label="Ủng hộ" class="w-1/2 !rounded-2xl" size="large" as="RouterLink" :to="`/info-donate/${detail._id}`" />
