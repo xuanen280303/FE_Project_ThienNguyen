@@ -24,6 +24,7 @@
                             <Tab value="0">Câu chuyện</Tab>
                             <Tab value="2">Danh sách ủng hộ</Tab>
                             <Tab value="3">Tương tác</Tab>
+                            <Tab value="4">Hoạt động (0)</Tab>
                         </TabList>
                         <TabPanels>
                             <TabPanel value="0">

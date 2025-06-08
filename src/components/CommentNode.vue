@@ -111,7 +111,7 @@ const isDelete = (comment) => {
         //Là tổ chức của dự án hoặc thành viên của dự án
         comment.project.type === 'TC' && comment.project.organization?.users?.some((user) => user._id === account._id),
 
-        // Kiểm tra nếu là cá nhân và user là chủ dự án
+        // Cá nhân tạo ra dự án này 
         comment.project.type === 'CN' && comment.project.user === account._id,
 
         // Kiểm tra nếu user là người comment
